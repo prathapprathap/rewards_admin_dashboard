@@ -36,3 +36,13 @@ export const adminLogin = async (credentials) => {
     const response = await axios.post(`${API_URL}/login`, credentials);
     return response.data;
 };
+
+export const getAppSettings = async () => {
+    const response = await axios.get(`${API_URL}/settings`);
+    return response.data;
+};
+
+export const updateAppSettings = async (settings) => {
+    const response = await axios.put(`${API_URL}/settings`, settings);
+    return response.data;
+};

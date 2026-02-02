@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { FaBars, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaBars, FaCog, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AddOffer from './pages/AddOffer';
+import AppSettings from './pages/AppSettings';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Users from './pages/Users';
@@ -66,6 +67,10 @@ const App = () => {
               <FaPlusCircle className="mr-3" />
               Add Offer
             </Link>
+            <Link to="/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <FaCog className="mr-3" />
+              App Settings
+            </Link>
           </nav>
           <div className="p-4 border-t">
             <button onClick={handleLogout} className="flex items-center w-full px-6 py-3 text-red-600 hover:bg-red-50 transition-colors">
@@ -86,6 +91,7 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/users" element={<Users />} />
             <Route path="/add-offer" element={<AddOffer />} />
+            <Route path="/settings" element={<AppSettings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
