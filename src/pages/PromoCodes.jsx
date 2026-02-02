@@ -1,82 +1,184 @@
-import { useState } from 'react';
-import { FaGift, FaPlus, FaTrash } from 'react-icons/fa';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { FaTimes, FaTrash } from 'react-icons/fa';
+
+const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
 const PromoCodes = () => {
-    const [promoCodes, setPromoCodes] = useState([
-        { id: 1, code: 'WELCOME100', discount: 100, type: 'Fixed', expires: '2026-12-31', active: true },
-        { id: 2, code: 'SAVE50', discount: 50, type: 'Percentage', expires: '2026-06-30', active: true },
-    ]);
+    const [promoCodes, setPromoCodes] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({
+        code: '',
+        amount: '',
+        users_limit: '',
+        for_whom: 'All',
+        status: 'Active'
+    });
+
+    useEffect(() => {
+        fetchPromoCodes();
+    }, []);
+
+    const fetchPromoCodes = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/promocodes`);
+            setPromoCodes(response.data);
+        } catch (error) {
+            console.error('Error fetching promocodes:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCreate = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${API_URL}/promocodes`, formData);
+            setShowForm(false);
+            setFormData({ code: '', amount: '', users_limit: '', for_whom: 'All', status: 'Active' });
+            fetchPromoCodes();
+        } catch (error) {
+            alert('Error creating promocode');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this promocode?')) return;
+        try {
+            await axios.delete(`${API_URL}/promocodes/${id}`);
+            fetchPromoCodes();
+        } catch (error) {
+            alert('Error deleting promocode');
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 min-h-screen">
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                        <FaGift className="text-purple-600" />
-                        Promo Codes
-                    </h2>
-                    <p className="text-gray-600">Manage promotional discount codes</p>
-                </div>
+            <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 uppercase tracking-tight">Promocode</h2>
                 <button
-                    onClick={() => setShowForm(!showForm)}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-md flex items-center gap-2"
+                    onClick={() => setShowForm(true)}
+                    className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-all font-bold text-lg"
                 >
-                    <FaPlus /> Add Promo Code
+                    Add New Promocode
                 </button>
             </div>
 
             {showForm && (
-                <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
-                    <h3 className="text-xl font-bold mb-4">Create New Promo Code</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" placeholder="Code (e.g., SUMMER2026)" className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
-                        <input type="number" placeholder="Discount Amount" className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
-                        <select className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none">
-                            <option>Fixed Amount</option>
-                            <option>Percentage</option>
-                        </select>
-                        <input type="date" className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
-                    </div>
-                    <div className="mt-4 flex gap-3">
-                        <button className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Save</button>
-                        <button onClick={() => setShowForm(false)} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="flex justify-between items-center p-6 border-b">
+                            <h3 className="text-xl font-bold text-gray-800">Add New Promocode</h3>
+                            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+                                <FaTimes size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreate} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Promocode</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="Please Enter Promocode"
+                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.code}
+                                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Amount</label>
+                                <input
+                                    type="number"
+                                    required
+                                    placeholder="Please Provide Positive Amount"
+                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.amount}
+                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">For Total Users</label>
+                                <input
+                                    type="number"
+                                    required
+                                    placeholder="Please Provide Positive Limit"
+                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.users_limit}
+                                    onChange={(e) => setFormData({ ...formData, users_limit: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">For Whom</label>
+                                <select
+                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none bg-white"
+                                    value={formData.for_whom}
+                                    onChange={(e) => setFormData({ ...formData, for_whom: e.target.value })}
+                                >
+                                    <option value="All">All</option>
+                                    <option value="New">New</option>
+                                    <option value="Old">Old</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Select Status</label>
+                                <select
+                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none bg-white"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                >
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-gray-500 text-white py-3 rounded-md font-bold hover:bg-gray-600 transition-all">Close</button>
+                                <button type="submit" className="flex-1 bg-blue-500 text-white py-3 rounded-md font-bold hover:bg-blue-600 transition-all">Submit</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gradient-to-r from-purple-50 to-pink-50">
-                        <tr>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Code</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Discount</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Type</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Expires</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Status</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-100">
-                        {promoCodes.map((promo) => (
-                            <tr key={promo.id} className="hover:bg-purple-50/50 transition-colors">
-                                <td className="px-6 py-4 font-mono font-bold text-purple-600">{promo.code}</td>
-                                <td className="px-6 py-4 font-semibold text-gray-900">{promo.discount}{promo.type === 'Percentage' ? '%' : '₹'}</td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{promo.type}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500">{promo.expires}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${promo.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                                        {promo.active ? 'Active' : 'Expired'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <button className="text-red-600 hover:text-red-800"><FaTrash /></button>
-                                </td>
+            <div className="bg-white rounded-lg shadow-xl border border-gray-100 p-8">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="border-b text-gray-700">
+                                <th className="px-4 py-4 font-bold border">No.</th>
+                                <th className="px-4 py-4 font-bold border">Code</th>
+                                <th className="px-4 py-4 font-bold border">Amount</th>
+                                <th className="px-4 py-4 font-bold border">Claimed User</th>
+                                <th className="px-4 py-4 font-bold border">Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {promoCodes.map((promo, index) => (
+                                <tr key={promo.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                    <td className="px-4 py-4 border">{index + 16}</td>
+                                    <td className="px-4 py-4 border font-medium">{promo.code}</td>
+                                    <td className="px-4 py-4 border text-gray-800 font-bold">₹{promo.amount}</td>
+                                    <td className="px-4 py-4 border">{promo.claimed_count || 0}</td>
+                                    <td className="px-4 py-4 border">
+                                        <button onClick={() => handleDelete(promo.id)} className="text-red-500 hover:text-red-700">
+                                            <FaTrash />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            <p className="mt-8 text-center text-gray-500 text-sm">Copyright © RewardMobi All right reserved.</p>
         </div>
     );
 };

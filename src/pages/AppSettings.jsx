@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react';
-import { FaCog, FaSave } from 'react-icons/fa';
 import { getAppSettings, updateAppSettings } from '../api';
 
 const AppSettings = () => {
     const [settings, setSettings] = useState({
-        new_user_spin_bonus: '2',
-        new_user_coin_bonus: '0',
-        referral_reward: '10',
-        referral_commission_percent: '10',
+        site_name: 'Rewardmobi',
+        site_url: 'https://rewardmobi.xyz/',
+        payment_mode: 'Manual',
+        update_mode: 'Off',
+        maintenance_mode: 'Off',
+        social_media_links: '',
+        refer_text: '',
+        signup_bonus: '5',
+        per_refer_amount: '5',
+        captcha_site_key: '',
+        captcha_private_key: '',
+        earning_percent: '50',
+        support_email: 'support@rewardmobi.xyz',
         min_withdrawal: '100',
-        spin_reward_values: '1,2,5,10,25,50,100'
+        referral_reward: '10',
+        referral_commission_percent: '10'
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,48 +60,22 @@ const AppSettings = () => {
     };
 
     const settingsConfig = [
-        {
-            key: 'new_user_spin_bonus',
-            label: 'New User Spin Bonus',
-            description: 'Number of free spins given to new users on signup',
-            type: 'number',
-            icon: '🎰'
-        },
-        {
-            key: 'new_user_coin_bonus',
-            label: 'New User Coin Bonus',
-            description: 'Bonus coins credited to new users on signup',
-            type: 'number',
-            icon: '💰'
-        },
-        {
-            key: 'referral_reward',
-            label: 'Referral Signup Reward',
-            description: 'Coins earned when someone signs up with your referral code',
-            type: 'number',
-            icon: '👥'
-        },
-        {
-            key: 'referral_commission_percent',
-            label: 'Referral Commission %',
-            description: 'Commission percentage earned when referred users complete tasks',
-            type: 'number',
-            icon: '📊'
-        },
-        {
-            key: 'min_withdrawal',
-            label: 'Minimum Withdrawal Amount',
-            description: 'Minimum coins required to request a withdrawal',
-            type: 'number',
-            icon: '💸'
-        },
-        {
-            key: 'spin_reward_values',
-            label: 'Spin Wheel Rewards',
-            description: 'Comma-separated reward values for spin wheel (e.g., 1,2,5,10,25,50,100)',
-            type: 'text',
-            icon: '🎡'
-        }
+        { key: 'site_name', label: 'Site Name', type: 'text', icon: '🌐' },
+        { key: 'site_url', label: 'Site URL', type: 'text', icon: '🔗' },
+        { key: 'payment_mode', label: 'Payment Mode', type: 'text', icon: '💳' },
+        { key: 'update_mode', label: 'Update Mode', type: 'text', icon: '🔄' },
+        { key: 'maintenance_mode', label: 'Maintenance Mode', type: 'text', icon: '🛠️' },
+        { key: 'social_media_links', label: 'Social Media Links', type: 'text', icon: '📱' },
+        { key: 'refer_text', label: 'Refer Text', type: 'textarea', icon: '📝' },
+        { key: 'signup_bonus', label: 'Signup Bonus', type: 'number', icon: '🎁' },
+        { key: 'per_refer_amount', label: 'Per Refer Amount', type: 'number', icon: '💰' },
+        { key: 'captcha_site_key', label: 'Captcha Site Key', type: 'text', icon: '🔑' },
+        { key: 'captcha_private_key', label: 'Captcha Private Key', type: 'text', icon: '🔒' },
+        { key: 'earning_percent', label: 'Earning Percent', type: 'number', icon: '📈' },
+        { key: 'support_email', label: 'Support Email', type: 'email', icon: '📧' },
+        { key: 'min_withdrawal', label: 'Min Withdrawal', type: 'number', icon: '💸' },
+        { key: 'referral_reward', label: 'Referral Reward', type: 'number', icon: '👥' },
+        { key: 'referral_commission_percent', label: 'Referral %', type: 'number', icon: '📊' },
     ];
 
     if (loading) {
@@ -104,66 +87,65 @@ const AppSettings = () => {
     }
 
     return (
-        <div className="p-8 min-h-screen">
-            {/* Header */}
+        <div className="p-8 min-h-screen bg-gray-50">
             <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                    <FaCog className="text-indigo-600" />
-                    App Settings
-                </h2>
-                <p className="text-gray-600">Configure global application settings and rewards</p>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">App Settings</h2>
+                <p className="text-gray-600">Configure global application settings and technical keys</p>
             </div>
 
-            {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 shadow-sm">
-                    <p className="font-medium">{error}</p>
-                </div>
-            )}
+            {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border-l-4 border-red-500">{error}</div>}
+            {success && <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-6 border-l-4 border-green-500">{success}</div>}
 
-            {success && (
-                <div className="bg-green-50 border-l-4 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6 shadow-sm animate-pulse">
-                    <p className="font-medium">{success}</p>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 max-w-4xl border border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="p-8 space-y-6">
                     {settingsConfig.map((config) => (
-                        <div key={config.key} className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-lg border border-gray-200 hover:border-indigo-300 transition-all duration-200">
-                            <label className="block mb-3">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-2xl">{config.icon}</span>
-                                    <span className="text-gray-800 font-bold">{config.label}</span>
-                                </div>
-                                <p className="text-xs text-gray-500 mb-3">{config.description}</p>
-                                <input
-                                    type={config.type}
-                                    name={config.key}
-                                    value={settings[config.key] || ''}
-                                    onChange={handleChange}
-                                    className="w-full border-2 border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 font-medium"
-                                />
-                            </label>
+                        <div key={config.key} className="flex flex-col md:flex-row md:items-center border-b border-gray-100 last:border-0 pb-6 last:pb-0">
+                            <div className="md:w-1/3 mb-2 md:mb-0">
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <span>{config.icon}</span>
+                                    {config.label}
+                                </label>
+                            </div>
+                            <div className="md:w-2/3">
+                                {config.type === 'textarea' ? (
+                                    <textarea
+                                        name={config.key}
+                                        value={settings[config.key] || ''}
+                                        onChange={handleChange}
+                                        rows="3"
+                                        className="w-full border rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none transition-all"
+                                    />
+                                ) : (
+                                    <input
+                                        type={config.type}
+                                        name={config.key}
+                                        value={settings[config.key] || ''}
+                                        onChange={handleChange}
+                                        className="w-full border rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none transition-all"
+                                    />
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-8 flex gap-3">
+                <div className="bg-gray-50 px-8 py-6 border-t border-gray-200">
                     <button
                         type="submit"
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-bold shadow-md hover:shadow-lg flex items-center gap-2"
+                        className="bg-blue-600 text-white px-10 py-3 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95"
                     >
-                        <FaSave /> Save Settings
+                        Update
                     </button>
                     <button
                         type="button"
                         onClick={fetchSettings}
-                        className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
+                        className="ml-4 text-gray-600 hover:text-gray-800 font-medium"
                     >
                         Reset
                     </button>
                 </div>
             </form>
+            <p className="mt-8 text-center text-gray-500 text-sm">Copyright © RewardMobi All right reserved.</p>
         </div>
     );
 };

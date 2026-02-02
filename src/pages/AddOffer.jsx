@@ -190,9 +190,9 @@ const AddOffer = () => {
                         {errors.event_name && <p className="text-red-500 text-xs mt-1">{errors.event_name}</p>}
                     </div>
 
-                    {/* Image URL */}
+                    {/* Image icon */}
                     <div>
-                        <label className="block text-gray-700 font-bold mb-2 text-sm">Image URL *</label>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Image icon *</label>
                         <input
                             type="text"
                             name="image_url"
@@ -216,6 +216,10 @@ const AddOffer = () => {
                         >
                             <option value="1st Event">1st Event</option>
                             <option value="2nd Event">2nd Event</option>
+                            <option value="3rd Event">3rd Event</option>
+                            <option value="4th Event">4th Event</option>
+                            <option value="All Event">All Event</option>
+                            <option value="Reffer Pause">Reffer Pause</option>
                         </select>
                     </div>
 
