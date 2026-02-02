@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { FaBars, FaCog, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaBars, FaCog, FaDatabase, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AddOffer from './pages/AddOffer';
 import AppSettings from './pages/AppSettings';
 import Dashboard from './pages/Dashboard';
+import DatabaseManager from './pages/DatabaseManager';
 import Login from './pages/Login';
 import Users from './pages/Users';
 
@@ -67,6 +68,10 @@ const App = () => {
               <FaPlusCircle className="mr-3" />
               Add Offer
             </Link>
+            <Link to="/database" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <FaDatabase className="mr-3" />
+              Database Manager
+            </Link>
             <Link to="/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
               <FaCog className="mr-3" />
               App Settings
@@ -91,6 +96,7 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/users" element={<Users />} />
             <Route path="/add-offer" element={<AddOffer />} />
+            <Route path="/database" element={<DatabaseManager />} />
             <Route path="/settings" element={<AppSettings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
