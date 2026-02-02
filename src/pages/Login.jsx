@@ -40,39 +40,36 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black p-4">
-            {/* Decorative background elements */}
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 relative overflow-hidden">
+            {/* Animated Background Orbs */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[10%] left-[10%] w-64 h-64 bg-purple-600/20 rounded-full blur-[120px]"></div>
-                <div className="absolute bottom-[10%] right-[10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px]"></div>
+                <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] animate-pulse"></div>
+                <div className="absolute -bottom-24 -right-24 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
 
-            <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden group">
-                {/* Glossy overlay effect */}
-                <div className="absolute -top-24 -left-24 w-48 h-48 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all duration-700"></div>
-
-                <div className="relative">
+            <div className="relative bg-slate-900/40 backdrop-blur-2xl border border-slate-800 p-8 md:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden group">
+                <div className="relative z-10">
                     <div className="text-center mb-10">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl shadow-lg mb-6 transform hover:rotate-12 transition-transform duration-300">
+                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl shadow-xl mb-6 transform hover:scale-105 transition-transform duration-300">
                             <FaLock className="text-white text-3xl" />
                         </div>
-                        <h2 className="text-3xl font-black text-white tracking-tight uppercase">
-                            Admin <span className="text-indigo-400">Portal</span>
+                        <h2 className="text-4xl font-black text-white tracking-tight uppercase leading-none">
+                            Admin <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Portal</span>
                         </h2>
-                        <p className="text-indigo-100/60 mt-2 text-sm font-medium">Please sign in to your control panel</p>
+                        <p className="text-slate-400 mt-4 text-sm font-semibold tracking-wide">Enter your credentials to access the bridge</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-indigo-200 uppercase tracking-widest ml-1">Username</label>
-                            <div className="relative group">
+                            <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] ml-1">Identity</label>
+                            <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <FaUser className="text-indigo-400 group-focus-within:text-white transition-colors" />
+                                    <FaUser className="text-slate-500 transition-colors" />
                                 </div>
                                 <input
                                     type="text"
-                                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl py-3.5 pl-11 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all placeholder:text-indigo-300/30"
-                                    placeholder="Enter your username"
+                                    className="w-full bg-slate-950/50 border border-slate-800 text-white rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all placeholder:text-slate-600 font-medium"
+                                    placeholder="Username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
@@ -81,14 +78,14 @@ const Login = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-indigo-200 uppercase tracking-widest ml-1">Password</label>
-                            <div className="relative group">
+                            <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] ml-1">Access Key</label>
+                            <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <FaLock className="text-indigo-400 group-focus-within:text-white transition-colors" />
+                                    <FaLock className="text-slate-500 transition-colors" />
                                 </div>
                                 <input
                                     type="password"
-                                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl py-3.5 pl-11 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all placeholder:text-indigo-300/30"
+                                    className="w-full bg-slate-950/50 border border-slate-800 text-white rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all placeholder:text-slate-600 font-medium"
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -100,21 +97,23 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black py-4 rounded-xl shadow-lg shadow-indigo-500/25 transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed group"
+                            className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-indigo-900/20 transition-all duration-300 active:scale-[0.98] disabled:opacity-50 group/btn"
                         >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
+                            <span className="relative z-10 flex items-center justify-center gap-3 tracking-widest text-sm">
                                 {isSubmitting ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                 ) : (
-                                    <>SIGN IN NOW</>
+                                    <>AUTHORIZE ACCESS</>
                                 )}
                             </span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover/btn:animate-[shimmer_2s_infinite]"></div>
                         </button>
                     </form>
 
-                    <div className="mt-8 text-center text-indigo-200/40 text-[10px] uppercase font-bold tracking-[0.2em]">
-                        &copy; {new Date().getFullYear()} RewardMobi Admin Engine
+                    <div className="mt-12 text-center">
+                        <p className="text-slate-500 text-[10px] uppercase font-bold tracking-[0.3em]">
+                            &copy; {new Date().getFullYear()} RewardMobi <span className="text-indigo-500/50">Tech Systems</span>
+                        </p>
                     </div>
                 </div>
             </div>
