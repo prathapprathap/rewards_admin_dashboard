@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FaBars, FaCog, FaDatabase, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaBars, FaCog, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AddOffer from './pages/AddOffer';
 import AppSettings from './pages/AppSettings';
 import Dashboard from './pages/Dashboard';
-import DatabaseManager from './pages/DatabaseManager';
 import Login from './pages/Login';
 import Users from './pages/Users';
 
@@ -48,7 +47,7 @@ const App = () => {
         </div>
 
         {/* Sidebar */}
-        <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition duration-200 ease-in-out w-64 bg-white shadow-lg z-30 flex flex-col`}>
+        <div className={`fixed inset - y - 0 left - 0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md: translate - x - 0 transition duration - 200 ease -in -out w - 64 bg - white shadow - lg z - 30 flex flex - col`}>
           <div className="p-6 border-b flex justify-between items-center">
             <h1 className="text-2xl font-bold text-blue-600">Admin Panel</h1>
             <button onClick={toggleSidebar} className="md:hidden text-gray-700">
@@ -67,10 +66,6 @@ const App = () => {
             <Link to="/add-offer" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
               <FaPlusCircle className="mr-3" />
               Add Offer
-            </Link>
-            <Link to="/database" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              <FaDatabase className="mr-3" />
-              Database Manager
             </Link>
             <Link to="/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
               <FaCog className="mr-3" />
@@ -96,7 +91,6 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/users" element={<Users />} />
             <Route path="/add-offer" element={<AddOffer />} />
-            <Route path="/database" element={<DatabaseManager />} />
             <Route path="/settings" element={<AppSettings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

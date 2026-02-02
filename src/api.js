@@ -46,38 +46,3 @@ export const updateAppSettings = async (settings) => {
     const response = await axios.put(`${API_URL}/settings`, settings);
     return response.data;
 };
-
-// Database Management
-const DB_API_URL = 'https://rewards-backend-zkhh.onrender.com/api/database';
-
-export const getTables = async () => {
-    const response = await axios.get(`${DB_API_URL}/tables`);
-    return response.data;
-};
-
-export const getTableStructure = async (tableName) => {
-    const response = await axios.get(`${DB_API_URL}/tables/${tableName}`);
-    return response.data;
-};
-
-export const getTableData = async (tableName, page = 1, limit = 50) => {
-    const response = await axios.get(`${DB_API_URL}/tables/${tableName}/data`, {
-        params: { page, limit }
-    });
-    return response.data;
-};
-
-export const createRecord = async (tableName, data) => {
-    const response = await axios.post(`${DB_API_URL}/tables/${tableName}`, data);
-    return response.data;
-};
-
-export const updateRecord = async (tableName, id, data) => {
-    const response = await axios.put(`${DB_API_URL}/tables/${tableName}/${id}`, data);
-    return response.data;
-};
-
-export const deleteRecord = async (tableName, id) => {
-    const response = await axios.delete(`${DB_API_URL}/tables/${tableName}/${id}`);
-    return response.data;
-};
