@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { FaCheck, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaMoneyBillWave, FaTimes } from 'react-icons/fa';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
@@ -39,96 +39,117 @@ const Withdrawals = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'APPROVED': return 'text-green-600 bg-green-100';
-            case 'REJECTED': return 'text-red-600 bg-red-100';
-            default: return 'text-yellow-600 bg-yellow-100';
+            case 'APPROVED': return 'bg-green-100 text-green-700';
+            case 'REJECTED': return 'bg-red-100 text-red-700';
+            default: return 'bg-yellow-100 text-yellow-700';
         }
     };
 
     return (
-        <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Withdrawal Requests</h2>
+        <div className="p-8 min-h-screen">
+            {/* Header */}
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">Withdrawal Requests</h2>
+                <p className="text-gray-600">Review and manage user withdrawal requests</p>
+            </div>
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
+                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 shadow-sm animate-pulse">
+                    <p className="font-medium">{error}</p>
                 </div>
             )}
 
             {success && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    {success}
+                <div className="bg-green-50 border-l-4 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6 shadow-sm animate-pulse">
+                    <p className="font-medium">{success}</p>
                 </div>
             )}
 
             {loading ? (
-                <div className="text-center py-8">Loading...</div>
+                <div className="flex items-center justify-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
             ) : (
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <table className="min-w-full">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {withdrawals.map((withdrawal) => (
-                                <tr key={withdrawal.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{withdrawal.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{withdrawal.name}</div>
-                                        <div className="text-sm text-gray-500">{withdrawal.email}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                        ₹{withdrawal.amount}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{withdrawal.method}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">{withdrawal.details}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(withdrawal.status)}`}>
-                                            {withdrawal.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {new Date(withdrawal.created_at).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {withdrawal.status === 'PENDING' && (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleStatusUpdate(withdrawal.id, 'APPROVED')}
-                                                    className="text-green-600 hover:text-green-800"
-                                                    title="Approve"
-                                                >
-                                                    <FaCheck size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleStatusUpdate(withdrawal.id, 'REJECTED')}
-                                                    className="text-red-600 hover:text-red-800"
-                                                    title="Reject"
-                                                >
-                                                    <FaTimes size={18} />
-                                                </button>
-                                            </div>
-                                        )}
-                                        {withdrawal.status !== 'PENDING' && (
-                                            <span className="text-gray-400">No action</span>
-                                        )}
-                                    </td>
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                <tr>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">User</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Amount</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Method</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Details</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                                {withdrawals.map((withdrawal) => (
+                                    <tr key={withdrawal.id} className="hover:bg-indigo-50/50 transition-colors duration-150">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            #{withdrawal.id}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-semibold text-gray-900">{withdrawal.name}</div>
+                                            <div className="text-xs text-gray-500">{withdrawal.email}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-lg font-bold text-indigo-600">₹{withdrawal.amount}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
+                                                {withdrawal.method}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{withdrawal.details}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-3 py-1.5 text-xs font-bold rounded-full ${getStatusColor(withdrawal.status)}`}>
+                                                {withdrawal.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {new Date(withdrawal.created_at).toLocaleDateString('en-IN', {
+                                                day: 'numeric',
+                                                month: 'short',
+                                                year: 'numeric'
+                                            })}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            {withdrawal.status === 'PENDING' ? (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleStatusUpdate(withdrawal.id, 'APPROVED')}
+                                                        className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-all duration-200"
+                                                        title="Approve"
+                                                    >
+                                                        <FaCheck size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusUpdate(withdrawal.id, 'REJECTED')}
+                                                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200"
+                                                        title="Reject"
+                                                    >
+                                                        <FaTimes size={18} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">Processed</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
                     {withdrawals.length === 0 && (
-                        <div className="text-center py-8 text-gray-500">No withdrawal requests</div>
+                        <div className="text-center py-16">
+                            <FaMoneyBillWave size={64} className="mx-auto text-gray-300 mb-4" />
+                            <p className="text-gray-500 text-lg">No withdrawal requests</p>
+                            <p className="text-gray-400 text-sm mt-2">Requests will appear here when users submit them</p>
+                        </div>
                     )}
                 </div>
             )}

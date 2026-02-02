@@ -37,44 +37,61 @@ const ManageOffers = () => {
     };
 
     return (
-        <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Manage Offers</h2>
+        <div className="p-8 min-h-screen">
+            {/* Header */}
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">Manage Offers</h2>
+                <p className="text-gray-600">View and manage all active offers</p>
+            </div>
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
+                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 shadow-sm">
+                    <p className="font-medium">{error}</p>
                 </div>
             )}
 
             {loading ? (
-                <div className="text-center py-8">Loading...</div>
+                <div className="flex items-center justify-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {offers.map((offer) => (
-                        <div key={offer.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div key={offer.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100">
                             {offer.image_url && (
-                                <img
-                                    src={offer.image_url}
-                                    alt={offer.offer_name}
-                                    className="w-full h-32 object-cover"
-                                />
+                                <div className="relative h-40 overflow-hidden">
+                                    <img
+                                        src={offer.image_url}
+                                        alt={offer.offer_name}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                                </div>
                             )}
-                            <div className="p-4">
-                                <h3 className="font-bold text-lg mb-2">{offer.offer_name}</h3>
-                                <p className="text-sm text-gray-600 mb-2">{offer.heading}</p>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-green-600 font-bold">₹{offer.amount}</span>
-                                    <span className={`px-2 py-1 text-xs rounded ${offer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                            <div className="p-5">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h3 className="font-bold text-lg text-gray-800 line-clamp-1">{offer.offer_name}</h3>
+                                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${offer.status === 'active'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-gray-100 text-gray-700'
                                         }`}>
                                         {offer.status}
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-3">{offer.description}</p>
+                                <p className="text-sm text-gray-600 mb-2 font-medium">{offer.heading}</p>
+                                <p className="text-xs text-gray-500 mb-4 line-clamp-2">{offer.description}</p>
+
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center">
+                                        <span className="text-2xl font-bold text-indigo-600">₹{offer.amount}</span>
+                                    </div>
+                                </div>
+
                                 <button
                                     onClick={() => handleDelete(offer.id)}
-                                    className="w-full bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                                    className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2.5 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-md hover:shadow-lg"
                                 >
-                                    <FaTrash /> Delete
+                                    <FaTrash /> Delete Offer
                                 </button>
                             </div>
                         </div>
@@ -83,7 +100,13 @@ const ManageOffers = () => {
             )}
 
             {!loading && offers.length === 0 && (
-                <div className="text-center py-8 text-gray-500">No offers found</div>
+                <div className="text-center py-20">
+                    <div className="text-gray-400 mb-4">
+                        <FaTasks size={64} className="mx-auto" />
+                    </div>
+                    <p className="text-gray-500 text-lg">No offers found</p>
+                    <p className="text-gray-400 text-sm mt-2">Create your first offer to get started</p>
+                </div>
             )}
         </div>
     );

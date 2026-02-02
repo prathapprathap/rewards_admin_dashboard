@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FaPlusCircle, FaSave, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { createOffer } from '../api';
 
@@ -19,10 +20,10 @@ const AddOffer = () => {
     });
 
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        // Clear error when user types
         if (errors[e.target.name]) {
             setErrors({ ...errors, [e.target.name]: '' });
         }
@@ -59,141 +60,212 @@ const AddOffer = () => {
         e.preventDefault();
         if (!validate()) return;
 
+        setIsSubmitting(true);
         try {
             await createOffer(formData);
-            alert('Offer created successfully!');
-            navigate('/'); // Redirect to dashboard
+            navigate('/manage-offers'); // Redirect to manage offers
         } catch (error) {
             console.error('Error creating offer:', error);
             alert('Failed to create offer');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="p-4 md:p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800 uppercase">Add Offer</h1>
-            <form onSubmit={handleSubmit} className="bg-white p-4 md:p-6 rounded-lg shadow-md space-y-4">
+        <div className="p-8 min-h-screen">
+            {/* Header */}
+            <div className="mb-8">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                    <FaPlusCircle className="text-indigo-600" />
+                    Create New Offer
+                </h2>
+                <p className="text-gray-600">Add a new task/offer for users to complete</p>
+            </div>
 
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Name:</label>
-                    <input
-                        type="text" name="offer_name" placeholder="Enter Offer Name"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.offer_name ? 'border-red-500' : ''}`}
-                        value={formData.offer_name} onChange={handleChange}
-                    />
-                    {errors.offer_name && <p className="text-red-500 text-sm mt-1">{errors.offer_name}</p>}
+            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 max-w-5xl border border-gray-200">
+                {/* Form Grid - 2 Columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Offer Name */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Offer Name *</label>
+                        <input
+                            type="text"
+                            name="offer_name"
+                            placeholder="e.g., Welcome Bonus"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.offer_name ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.offer_name}
+                            onChange={handleChange}
+                        />
+                        {errors.offer_name && <p className="text-red-500 text-xs mt-1">{errors.offer_name}</p>}
+                    </div>
+
+                    {/* Offer ID */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Offer ID *</label>
+                        <input
+                            type="text"
+                            name="offer_id"
+                            placeholder="e.g., WELCOME100"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.offer_id ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.offer_id}
+                            onChange={handleChange}
+                        />
+                        {errors.offer_id && <p className="text-red-500 text-xs mt-1">{errors.offer_id}</p>}
+                    </div>
+
+                    {/* Heading */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Heading *</label>
+                        <input
+                            type="text"
+                            name="heading"
+                            placeholder="e.g., Get ₹100 Bonus"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.heading ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.heading}
+                            onChange={handleChange}
+                        />
+                        {errors.heading && <p className="text-red-500 text-xs mt-1">{errors.heading}</p>}
+                    </div>
+
+                    {/* History Name */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">History Name</label>
+                        <input
+                            type="text"
+                            name="history_name"
+                            placeholder="e.g., Signup Offer"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                            value={formData.history_name}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    {/* Offer URL */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Offer URL *</label>
+                        <input
+                            type="text"
+                            name="offer_url"
+                            placeholder="https://example.com/offer"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.offer_url ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.offer_url}
+                            onChange={handleChange}
+                        />
+                        {errors.offer_url && <p className="text-red-500 text-xs mt-1">{errors.offer_url}</p>}
+                    </div>
+
+                    {/* Amount */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Amount (₹) *</label>
+                        <input
+                            type="number"
+                            name="amount"
+                            placeholder="100"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.amount ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.amount}
+                            onChange={handleChange}
+                        />
+                        {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
+                    </div>
+
+                    {/* Event */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Event *</label>
+                        <input
+                            type="text"
+                            name="event_name"
+                            placeholder="e.g., First Purchase"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.event_name ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.event_name}
+                            onChange={handleChange}
+                        />
+                        {errors.event_name && <p className="text-red-500 text-xs mt-1">{errors.event_name}</p>}
+                    </div>
+
+                    {/* Image URL */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Image URL *</label>
+                        <input
+                            type="text"
+                            name="image_url"
+                            placeholder="https://example.com/image.jpg"
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all ${errors.image_url ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            value={formData.image_url}
+                            onChange={handleChange}
+                        />
+                        {errors.image_url && <p className="text-red-500 text-xs mt-1">{errors.image_url}</p>}
+                    </div>
+
+                    {/* Refer Payout */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Refer Payout</label>
+                        <select
+                            name="refer_payout"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all bg-white"
+                            value={formData.refer_payout}
+                            onChange={handleChange}
+                        >
+                            <option value="1st Event">1st Event</option>
+                            <option value="2nd Event">2nd Event</option>
+                        </select>
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2 text-sm">Status</label>
+                        <select
+                            name="status"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all bg-white"
+                            value={formData.status}
+                            onChange={handleChange}
+                        >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Offer Id:</label>
-                    <input
-                        type="text" name="offer_id" placeholder="Enter Offer Id"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.offer_id ? 'border-red-500' : ''}`}
-                        value={formData.offer_id} onChange={handleChange}
-                    />
-                    {errors.offer_id && <p className="text-red-500 text-sm mt-1">{errors.offer_id}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Heading:</label>
-                    <input
-                        type="text" name="heading" placeholder="Enter Heading"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.heading ? 'border-red-500' : ''}`}
-                        value={formData.heading} onChange={handleChange}
-                    />
-                    {errors.heading && <p className="text-red-500 text-sm mt-1">{errors.heading}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">History Name:</label>
-                    <input
-                        type="text" name="history_name" placeholder="Enter History Name"
-                        className="w-full p-2 border rounded focus:outline-none focus:border-blue-500"
-                        value={formData.history_name} onChange={handleChange}
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Offer Url:</label>
-                    <input
-                        type="text" name="offer_url" placeholder="Enter Offer Url"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.offer_url ? 'border-red-500' : ''}`}
-                        value={formData.offer_url} onChange={handleChange}
-                    />
-                    {errors.offer_url && <p className="text-red-500 text-sm mt-1">{errors.offer_url}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Amount:</label>
-                    <input
-                        type="number" name="amount" placeholder="Enter Amount in INR"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.amount ? 'border-red-500' : ''}`}
-                        value={formData.amount} onChange={handleChange}
-                    />
-                    {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Event:</label>
-                    <input
-                        type="text" name="event_name" placeholder="Enter Event"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.event_name ? 'border-red-500' : ''}`}
-                        value={formData.event_name} onChange={handleChange}
-                    />
-                    {errors.event_name && <p className="text-red-500 text-sm mt-1">{errors.event_name}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Description:</label>
+                {/* Description - Full Width */}
+                <div className="mt-6">
+                    <label className="block text-gray-700 font-bold mb-2 text-sm">Description *</label>
                     <textarea
-                        name="description" placeholder="Enter Description" rows="4"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.description ? 'border-red-500' : ''}`}
-                        value={formData.description} onChange={handleChange}
+                        name="description"
+                        placeholder="Enter detailed description of the offer..."
+                        rows="4"
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all resize-none ${errors.description ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                        value={formData.description}
+                        onChange={handleChange}
                     ></textarea>
-                    {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                    {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
 
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Image icon:</label>
-                    <input
-                        type="text" name="image_url" placeholder="Enter Image icon URL"
-                        className={`w-full p-2 border rounded focus:outline-none focus:border-blue-500 ${errors.image_url ? 'border-red-500' : ''}`}
-                        value={formData.image_url} onChange={handleChange}
-                    />
-                    {errors.image_url && <p className="text-red-500 text-sm mt-1">{errors.image_url}</p>}
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Refer Payout:</label>
-                    <select
-                        name="refer_payout"
-                        className="w-full p-2 border rounded focus:outline-none focus:border-blue-500"
-                        value={formData.refer_payout} onChange={handleChange}
+                {/* Buttons */}
+                <div className="mt-8 flex gap-4">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <option value="1st Event">1st Event</option>
-                        <option value="2nd Event">2nd Event</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">Status:</label>
-                    <select
-                        name="status"
-                        className="w-full p-2 border rounded focus:outline-none focus:border-blue-500"
-                        value={formData.status} onChange={handleChange}
+                        <FaSave /> {isSubmitting ? 'Creating...' : 'Create Offer'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/manage-offers')}
+                        className="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all duration-200 flex items-center gap-2"
                     >
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
+                        <FaTimes /> Cancel
+                    </button>
                 </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-                >
-                    Save
-                </button>
-
             </form>
         </div>
     );
