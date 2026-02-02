@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+\import { useEffect, useState } from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { createRecord, deleteRecord, getTableData, getTables, getTableStructure, updateRecord } from '../api';
 
