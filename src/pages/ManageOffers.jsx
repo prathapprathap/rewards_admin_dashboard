@@ -1,9 +1,7 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaTasks, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { getOffers } from '../api';
 
 const ManageOffers = () => {
     const [offers, setOffers] = useState([]);
@@ -17,8 +15,8 @@ const ManageOffers = () => {
     const fetchOffers = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/offers`);
-            setOffers(response.data);
+            const data = await getOffers();
+            setOffers(data);
         } catch (err) {
             Swal.fire({
                 icon: 'error',
@@ -43,7 +41,7 @@ const ManageOffers = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${API_URL}/offers/${id}`);
+                await deleteOffer(id);
                 Swal.fire(
                     'Deleted!',
                     'Offer has been deleted.',

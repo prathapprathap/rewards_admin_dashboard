@@ -1,9 +1,7 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaCheck, FaClock, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { getWithdrawals } from '../api';
 
 const PendingWithdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
@@ -15,8 +13,8 @@ const PendingWithdrawals = () => {
 
     const fetchPendingWithdrawals = async () => {
         try {
-            const response = await axios.get(`${API_URL}/withdrawals`);
-            const pending = response.data.filter(w => w.status.toLowerCase() === 'pending');
+            const data = await getWithdrawals();
+            const pending = data.filter(w => w.status.toLowerCase() === 'pending');
             setWithdrawals(pending);
         } catch (error) {
             console.error('Error fetching withdrawals:', error);
@@ -38,7 +36,7 @@ const PendingWithdrawals = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.put(`${API_URL}/withdrawals/${id}`, { status: 'completed' });
+                await updateWithdrawalStatus(id, 'COMPLETED');
                 Swal.fire('Success!', 'Withdrawal approved successfully.', 'success');
                 fetchPendingWithdrawals();
             } catch (error) {
@@ -60,7 +58,7 @@ const PendingWithdrawals = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.put(`${API_URL}/withdrawals/${id}`, { status: 'rejected' });
+                await updateWithdrawalStatus(id, 'REJECTED');
                 Swal.fire('Rejected', 'Withdrawal has been rejected.', 'info');
                 fetchPendingWithdrawals();
             } catch (error) {

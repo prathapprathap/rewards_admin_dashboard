@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaCheckCircle, FaTasks } from 'react-icons/fa';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { getOffers } from '../api';
 
 const ActiveOffers = () => {
     const [offers, setOffers] = useState([]);
@@ -14,9 +12,9 @@ const ActiveOffers = () => {
 
     const fetchActiveOffers = async () => {
         try {
-            const response = await axios.get(`${API_URL}/offers`);
+            const data = await getOffers();
             // Filter only active offers
-            const activeOffers = response.data.filter(offer => offer.status.toLowerCase() === 'active');
+            const activeOffers = data.filter(offer => offer.status.toLowerCase() === 'active');
             setOffers(activeOffers);
         } catch (error) {
             console.error('Error fetching active offers:', error);

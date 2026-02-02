@@ -103,9 +103,6 @@ const AppSettings = () => {
                 <p className="text-gray-600">Configure global application settings and technical keys</p>
             </div>
 
-            {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border-l-4 border-red-500">{error}</div>}
-            {success && <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-6 border-l-4 border-green-500">{success}</div>}
-
             <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                 <div className="p-8 space-y-6">
                     {settingsConfig.map((config) => (

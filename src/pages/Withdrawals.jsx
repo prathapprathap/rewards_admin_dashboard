@@ -1,14 +1,11 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaCheck, FaMoneyBillWave, FaTimes } from 'react-icons/fa';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import Swal from 'sweetalert2';
+import { getWithdrawals, updateWithdrawalStatus } from '../api';
 
 const Withdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
 
     useEffect(() => {
         fetchWithdrawals();
@@ -17,23 +14,43 @@ const Withdrawals = () => {
     const fetchWithdrawals = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/withdrawals`);
-            setWithdrawals(response.data);
+            const data = await getWithdrawals();
+            setWithdrawals(data);
         } catch (err) {
-            setError('Failed to fetch withdrawals');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to fetch withdrawals.',
+            });
         } finally {
             setLoading(false);
         }
     };
 
     const handleStatusUpdate = async (id, status) => {
-        try {
-            await axios.put(`${API_URL}/withdrawals/${id}`, { status });
-            setSuccess(`Withdrawal ${status.toLowerCase()} successfully`);
-            fetchWithdrawals();
-            setTimeout(() => setSuccess(null), 3000);
-        } catch (err) {
-            setError(`Failed to ${status.toLowerCase()} withdrawal`);
+        const result = await Swal.fire({
+            title: `Confirm ${status.toLowerCase()}?`,
+            text: `Are you sure you want to mark this withdrawal as ${status.toLowerCase()}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: status === 'APPROVED' ? '#10b981' : '#ef4444',
+            confirmButtonText: 'Yes, proceed'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await updateWithdrawalStatus(id, status);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated!',
+                    text: `Withdrawal ${status.toLowerCase()} successfully`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                fetchWithdrawals();
+            } catch (err) {
+                Swal.fire('Error', `Failed to ${status.toLowerCase()} withdrawal`, 'error');
+            }
         }
     };
 
@@ -52,18 +69,6 @@ const Withdrawals = () => {
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Withdrawal Requests</h2>
                 <p className="text-gray-600">Review and manage user withdrawal requests</p>
             </div>
-
-            {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-lg mb-6 shadow-sm animate-pulse">
-                    <p className="font-medium">{error}</p>
-                </div>
-            )}
-
-            {success && (
-                <div className="bg-green-50 border-l-4 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6 shadow-sm animate-pulse">
-                    <p className="font-medium">{success}</p>
-                </div>
-            )}
 
             {loading ? (
                 <div className="flex items-center justify-center py-20">

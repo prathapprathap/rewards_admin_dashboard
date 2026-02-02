@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaCheckCircle, FaMoneyBillWave } from 'react-icons/fa';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { getWithdrawals } from '../api';
 
 const PaidWithdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
@@ -14,8 +12,8 @@ const PaidWithdrawals = () => {
 
     const fetchPaidWithdrawals = async () => {
         try {
-            const response = await axios.get(`${API_URL}/withdrawals`);
-            const completed = response.data.filter(w => w.status.toLowerCase() === 'completed');
+            const data = await getWithdrawals();
+            const completed = data.filter(w => w.status.toLowerCase() === 'completed');
             setWithdrawals(completed);
         } catch (error) {
             console.error('Error fetching withdrawals:', error);

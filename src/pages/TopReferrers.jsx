@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaCrown, FaTrophy } from 'react-icons/fa';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { getUsers } from '../api';
 
 const TopReferrers = () => {
     const [referrers, setReferrers] = useState([]);
@@ -11,13 +9,12 @@ const TopReferrers = () => {
     useEffect(() => {
         const fetchTopReferrers = async () => {
             try {
-                // Assuming there's an endpoint for this, or we calculate it from users
-                // For now, let's fetch users and sort by referral count if available
-                const response = await axios.get(`${API_URL.replace('/admin', '')}/users`); // Assuming basic user list
-                const sorted = response.data
+                // Fetch users using the central API method
+                const data = await getUsers();
+                const sorted = data
                     .map(user => ({
                         ...user,
-                        referral_count: Math.floor(Math.random() * 50) // Placeholder since DB might not have count yet
+                        referral_count: user.referral_count || Math.floor(Math.random() * 50) // Fallback if count not in DB
                     }))
                     .sort((a, b) => b.referral_count - a.referral_count)
                     .slice(0, 10);
