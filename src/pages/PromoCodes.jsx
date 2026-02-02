@@ -1,9 +1,7 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaTimes, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { createPromoCode, deletePromoCode, getPromoCodes } from '../api';
 
 const PromoCodes = () => {
     const [promoCodes, setPromoCodes] = useState([]);
@@ -23,8 +21,8 @@ const PromoCodes = () => {
 
     const fetchPromoCodes = async () => {
         try {
-            const response = await axios.get(`${API_URL}/promocodes`);
-            setPromoCodes(response.data);
+            const data = await getPromoCodes();
+            setPromoCodes(data);
         } catch (error) {
             console.error('Error fetching promocodes:', error);
         } finally {
@@ -35,7 +33,7 @@ const PromoCodes = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${API_URL}/promocodes`, formData);
+            await createPromoCode(formData);
             setShowForm(false);
             setFormData({ code: '', amount: '', users_limit: '', for_whom: 'All', status: 'Active' });
             Swal.fire({
@@ -69,7 +67,7 @@ const PromoCodes = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${API_URL}/promocodes/${id}`);
+                await deletePromoCode(id);
                 Swal.fire(
                     'Deleted!',
                     'Promo code has been deleted.',

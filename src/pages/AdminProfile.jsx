@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaCamera, FaSave, FaUnlockAlt, FaUserShield } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { updatePassword } from '../api';
 
 const AdminProfile = () => {
     const [profile, setProfile] = useState({
@@ -15,8 +16,14 @@ const AdminProfile = () => {
         confirm: ''
     });
 
-    const handlePasswordUpdate = (e) => {
+    const handlePasswordUpdate = async (e) => {
         e.preventDefault();
+
+        if (!passwords.current || !passwords.new || !passwords.confirm) {
+            Swal.fire('Error', 'Please fill all password fields', 'error');
+            return;
+        }
+
         if (passwords.new !== passwords.confirm) {
             Swal.fire({
                 icon: 'error',
@@ -26,15 +33,26 @@ const AdminProfile = () => {
             return;
         }
 
-        // Mock success for now, in a real app this would be an API call
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'Password updated successfully!',
-            timer: 3000,
-            showConfirmButton: false
-        });
-        setPasswords({ current: '', new: '', confirm: '' });
+        try {
+            await updatePassword({
+                currentPassword: passwords.current,
+                newPassword: passwords.new
+            });
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Password updated successfully!',
+                timer: 3000,
+                showConfirmButton: false
+            });
+            setPasswords({ current: '', new: '', confirm: '' });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: error.response?.data?.message || 'Failed to update password.',
+            });
+        }
     };
 
     return (

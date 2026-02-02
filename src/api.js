@@ -71,8 +71,17 @@ export const getPromoCodes = async () => {
     const response = await axios.get(`${API_URL}/promocodes`);
     return response.data;
 };
+export const createPromoCode = async (promoData) => {
+    const response = await axios.post(`${API_URL}/promocodes`, promoData);
+    return response.data;
+};
 
-export const deletePromoCode = async (id) => {
-    const response = await axios.delete(`${API_URL}/promocodes/${id}`);
+export const deleteUser = async (id) => {
+    const response = await axios.delete(`${API_URL}/users/${id}`);
+    return response.data;
+};
+
+export const updatePassword = async (passwordData) => {
+    const response = await axios.put(`${API_URL}/profile/password`, passwordData);
     return response.data;
 };

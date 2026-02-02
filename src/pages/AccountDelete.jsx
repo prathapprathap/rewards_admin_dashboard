@@ -1,10 +1,7 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaExclamationTriangle, FaTrashAlt, FaUsers } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { getUsers } from '../api';
-
-const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
+import { deleteUser, getUsers } from '../api';
 
 const AccountDelete = () => {
     const [users, setUsers] = useState([]);
@@ -45,7 +42,7 @@ const AccountDelete = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${API_URL}/users/${userId}`);
+                await deleteUser(userId);
                 Swal.fire({
                     title: 'Deleted!',
                     text: 'Account has been removed permanently.',
