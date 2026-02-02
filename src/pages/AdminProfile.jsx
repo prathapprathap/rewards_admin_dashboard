@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaCamera, FaSave, FaUnlockAlt, FaUserShield } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const AdminProfile = () => {
     const [profile, setProfile] = useState({
@@ -14,17 +15,26 @@ const AdminProfile = () => {
         confirm: ''
     });
 
-    const [message, setMessage] = useState({ type: '', text: '' });
-
     const handlePasswordUpdate = (e) => {
         e.preventDefault();
         if (passwords.new !== passwords.confirm) {
-            setMessage({ type: 'error', text: 'New passwords do not match!' });
+            Swal.fire({
+                icon: 'error',
+                title: 'Mismatch!',
+                text: 'New passwords do not match!',
+            });
             return;
         }
-        setMessage({ type: 'success', text: 'Password updated successfully!' });
+
+        // Mock success for now, in a real app this would be an API call
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Password updated successfully!',
+            timer: 3000,
+            showConfirmButton: false
+        });
         setPasswords({ current: '', new: '', confirm: '' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     };
 
     return (
@@ -36,12 +46,6 @@ const AdminProfile = () => {
                 </h2>
                 <p className="text-gray-600">Manage your administrative account and security</p>
             </div>
-
-            {message.text && (
-                <div className={`p-4 mb-6 rounded-lg ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {message.text}
-                </div>
-            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Profile Card */}

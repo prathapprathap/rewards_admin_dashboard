@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaCheck, FaClock, FaTimes } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
@@ -25,20 +26,46 @@ const PendingWithdrawals = () => {
     };
 
     const handleApprove = async (id) => {
-        try {
-            await axios.put(`${API_URL}/withdrawals/${id}`, { status: 'completed' });
-            fetchPendingWithdrawals();
-        } catch (error) {
-            console.error('Error approving withdrawal:', error);
+        const result = await Swal.fire({
+            title: 'Approve Payment?',
+            text: "Have you processed the payment to this user?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Approved!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.put(`${API_URL}/withdrawals/${id}`, { status: 'completed' });
+                Swal.fire('Success!', 'Withdrawal approved successfully.', 'success');
+                fetchPendingWithdrawals();
+            } catch (error) {
+                Swal.fire('Error!', 'Failed to approve withdrawal.', 'error');
+            }
         }
     };
 
     const handleReject = async (id) => {
-        try {
-            await axios.put(`${API_URL}/withdrawals/${id}`, { status: 'rejected' });
-            fetchPendingWithdrawals();
-        } catch (error) {
-            console.error('Error rejecting withdrawal:', error);
+        const result = await Swal.fire({
+            title: 'Reject Request?',
+            text: "Are you sure you want to reject this withdrawal?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Reject!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.put(`${API_URL}/withdrawals/${id}`, { status: 'rejected' });
+                Swal.fire('Rejected', 'Withdrawal has been rejected.', 'info');
+                fetchPendingWithdrawals();
+            } catch (error) {
+                Swal.fire('Error!', 'Failed to reject withdrawal.', 'error');
+            }
         }
     };
 

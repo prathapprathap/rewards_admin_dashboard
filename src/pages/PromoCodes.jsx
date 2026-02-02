@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaTimes, FaTrash } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
@@ -37,19 +38,51 @@ const PromoCodes = () => {
             await axios.post(`${API_URL}/promocodes`, formData);
             setShowForm(false);
             setFormData({ code: '', amount: '', users_limit: '', for_whom: 'All', status: 'Active' });
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Promo code created successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
             fetchPromoCodes();
         } catch (error) {
-            alert('Error creating promocode');
+            const errorMsg = error.response?.data?.message || 'Failed to create promo code.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: errorMsg,
+            });
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Delete this promocode?')) return;
-        try {
-            await axios.delete(`${API_URL}/promocodes/${id}`);
-            fetchPromoCodes();
-        } catch (error) {
-            alert('Error deleting promocode');
+        const result = await Swal.fire({
+            title: 'Delete Promo Code?',
+            text: "This removal is permanent!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`${API_URL}/promocodes/${id}`);
+                Swal.fire(
+                    'Deleted!',
+                    'Promo code has been deleted.',
+                    'success'
+                );
+                fetchPromoCodes();
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to delete promo code.',
+                });
+            }
         }
     };
 
@@ -163,7 +196,7 @@ const PromoCodes = () => {
                         <tbody>
                             {promoCodes.map((promo, index) => (
                                 <tr key={promo.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                    <td className="px-4 py-4 border">{index + 16}</td>
+                                    <td className="px-4 py-4 border">{index + 1}</td>
                                     <td className="px-4 py-4 border font-medium">{promo.code}</td>
                                     <td className="px-4 py-4 border text-gray-800 font-bold">₹{promo.amount}</td>
                                     <td className="px-4 py-4 border">{promo.claimed_count || 0}</td>

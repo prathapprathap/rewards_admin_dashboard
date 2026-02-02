@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaExclamationTriangle, FaTrashAlt, FaUsers } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 import { getUsers } from '../api';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
@@ -26,15 +27,40 @@ const AccountDelete = () => {
     };
 
     const handleDelete = async (userId, name) => {
-        if (window.confirm(`CRITICAL: Are you sure you want to PERMANENTLY delete account "${name}"? This cannot be undone.`)) {
+        const result = await Swal.fire({
+            title: 'CRITICAL WARNING!',
+            text: `Are you sure you want to PERMANENTLY delete account "${name}"? This cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, DELETE it!',
+            cancelButtonText: 'Cancel',
+            background: '#fff',
+            customClass: {
+                title: 'text-red-600 font-bold',
+                confirmButton: 'bg-red-600 hover:bg-red-700'
+            }
+        });
+
+        if (result.isConfirmed) {
             try {
-                // Using the specific admin delete endpoint if it exists, otherwise generic
                 await axios.delete(`${API_URL}/users/${userId}`);
-                alert('Account deleted successfully');
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'Account has been removed permanently.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
                 fetchUsers();
             } catch (error) {
                 console.error('Error deleting user:', error);
-                alert('Failed to delete account. Please try again.');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to delete account. Please try again.',
+                    icon: 'error'
+                });
             }
         }
     };

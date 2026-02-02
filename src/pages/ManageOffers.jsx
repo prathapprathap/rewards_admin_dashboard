@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FaTasks, FaTrash } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
@@ -19,20 +20,43 @@ const ManageOffers = () => {
             const response = await axios.get(`${API_URL}/offers`);
             setOffers(response.data);
         } catch (err) {
-            setError('Failed to fetch offers');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Failed to fetch offers!',
+            });
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this offer?')) return;
+        const result = await Swal.fire({
+            title: 'Delete Offer?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
 
-        try {
-            await axios.delete(`${API_URL}/offers/${id}`);
-            fetchOffers();
-        } catch (err) {
-            setError('Failed to delete offer');
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`${API_URL}/offers/${id}`);
+                Swal.fire(
+                    'Deleted!',
+                    'Offer has been deleted.',
+                    'success'
+                );
+                fetchOffers();
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to delete offer.',
+                });
+            }
         }
     };
 

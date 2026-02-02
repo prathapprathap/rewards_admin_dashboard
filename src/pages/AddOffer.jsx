@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaPlusCircle, FaSave, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import { createOffer } from '../api';
 
 const AddOffer = () => {
@@ -58,15 +59,33 @@ const AddOffer = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validate()) return;
+        if (!validate()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please check the form for missing or incorrect fields.',
+            });
+            return;
+        }
 
         setIsSubmitting(true);
         try {
             await createOffer(formData);
-            navigate('/manage-offers'); // Redirect to manage offers
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Offer created successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            navigate('/manage-offers');
         } catch (error) {
             console.error('Error creating offer:', error);
-            alert('Failed to create offer');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to create offer.',
+            });
         } finally {
             setIsSubmitting(false);
         }

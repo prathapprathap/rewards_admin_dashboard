@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { getAppSettings, updateAppSettings } from '../api';
 
 const AppSettings = () => {
@@ -21,8 +22,6 @@ const AppSettings = () => {
         referral_commission_percent: '10'
     });
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
 
     useEffect(() => {
         fetchSettings();
@@ -35,7 +34,11 @@ const AppSettings = () => {
             setLoading(false);
         } catch (err) {
             console.error(err);
-            setError('Failed to fetch settings');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to fetch settings.',
+            });
             setLoading(false);
         }
     };
@@ -47,15 +50,22 @@ const AppSettings = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(null);
         try {
             await updateAppSettings(settings);
-            setSuccess('Settings updated successfully!');
-            setTimeout(() => setSuccess(null), 3000);
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: 'Settings updated successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
         } catch (err) {
             console.error(err);
-            setError('Failed to update settings');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to update settings.',
+            });
         }
     };
 
