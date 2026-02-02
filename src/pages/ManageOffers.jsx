@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
+import { FaTasks, FaTrash } from 'react-icons/fa';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
@@ -72,8 +72,8 @@ const ManageOffers = () => {
                                 <div className="flex justify-between items-start mb-3">
                                     <h3 className="font-bold text-lg text-gray-800 line-clamp-1">{offer.offer_name}</h3>
                                     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${offer.status === 'active'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-gray-100 text-gray-700'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-gray-100 text-gray-700'
                                         }`}>
                                         {offer.status}
                                     </span>
