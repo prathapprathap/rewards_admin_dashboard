@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { FaBars, FaCog, FaHome, FaPlusCircle, FaSignOutAlt, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaBars, FaCog, FaHome, FaMoneyBillWave, FaPlusCircle, FaSignOutAlt, FaTasks, FaTimes, FaUsers } from 'react-icons/fa';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AddOffer from './pages/AddOffer';
 import AppSettings from './pages/AppSettings';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import ManageOffers from './pages/ManageOffers';
 import Users from './pages/Users';
+import Withdrawals from './pages/Withdrawals';
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -73,6 +75,14 @@ const App = () => {
                   <FaPlusCircle className="mr-3" />
                   Add Offer
                 </Link>
+                <Link to="/manage-offers" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                  <FaTasks className="mr-3" />
+                  Manage Offers
+                </Link>
+                <Link to="/withdrawals" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                  <FaMoneyBillWave className="mr-3" />
+                  Withdrawals
+                </Link>
                 <Link to="/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
                   <FaCog className="mr-3" />
                   App Settings
@@ -97,6 +107,8 @@ const App = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/add-offer" element={<AddOffer />} />
+                <Route path="/manage-offers" element={<ManageOffers />} />
+                <Route path="/withdrawals" element={<Withdrawals />} />
                 <Route path="/settings" element={<AppSettings />} />
               </Routes>
             </div>
