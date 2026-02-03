@@ -97,62 +97,84 @@ const AppSettings = () => {
     }
 
     return (
-        <div className="p-8 min-h-screen bg-gray-50">
-            <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">App Settings</h2>
-                <p className="text-gray-600">Configure global application settings and technical keys</p>
+        <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 font-sans">
+            {/* Header section with Action */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] mb-2 px-1">Global Configuration</p>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">SYSTEM <span className="text-indigo-600">SETTINGS</span></h1>
+                </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                <div className="p-8 space-y-6">
-                    {settingsConfig.map((config) => (
-                        <div key={config.key} className="flex flex-col md:flex-row md:items-center border-b border-gray-100 last:border-0 pb-6 last:pb-0">
-                            <div className="md:w-1/3 mb-2 md:mb-0">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <span>{config.icon}</span>
-                                    {config.label}
-                                </label>
-                            </div>
-                            <div className="md:w-2/3">
-                                {config.type === 'textarea' ? (
-                                    <textarea
-                                        name={config.key}
-                                        value={settings[config.key] || ''}
-                                        onChange={handleChange}
-                                        rows="3"
-                                        className="w-full border rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none transition-all"
-                                    />
-                                ) : (
-                                    <input
-                                        type={config.type}
-                                        name={config.key}
-                                        value={settings[config.key] || ''}
-                                        onChange={handleChange}
-                                        className="w-full border rounded-lg px-4 py-2.5 focus:border-indigo-500 outline-none transition-all"
-                                    />
-                                )}
-                            </div>
+            <form onSubmit={handleSubmit} className="space-y-10">
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-indigo-900 p-8 text-white relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-black tracking-tight mb-1 uppercase">Protocol Parameters</h3>
+                            <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest">Core environment variables</p>
                         </div>
-                    ))}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[60px]"></div>
+                    </div>
+
+                    <div className="p-8 md:p-12">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                            {settingsConfig.map((config) => (
+                                <div key={config.key} className="space-y-2 group">
+                                    <div className="flex items-center gap-2 ml-1">
+                                        <span className="text-lg group-focus-within:scale-125 transition-transform duration-300">{config.icon}</span>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] group-focus-within:text-indigo-600 transition-colors">
+                                            {config.label}
+                                        </label>
+                                    </div>
+
+                                    {config.type === 'textarea' ? (
+                                        <textarea
+                                            name={config.key}
+                                            value={settings[config.key] || ''}
+                                            onChange={handleChange}
+                                            rows="3"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 italic resize-none"
+                                            placeholder={`Enter ${config.label.toLowerCase()}...`}
+                                        />
+                                    ) : (
+                                        <input
+                                            type={config.type}
+                                            name={config.key}
+                                            value={settings[config.key] || ''}
+                                            onChange={handleChange}
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900"
+                                            placeholder={`Enter ${config.label.toLowerCase()}...`}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="bg-gray-50 px-8 py-6 border-t border-gray-200">
+                {/* Final Actions */}
+                <div className="flex flex-col md:flex-row gap-4">
                     <button
                         type="submit"
-                        className="bg-blue-600 text-white px-10 py-3 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                        className="flex-1 bg-indigo-600 text-white font-black py-5 px-8 rounded-[2rem] hover:bg-indigo-700 transition-all duration-300 shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3 active:scale-[0.98] tracking-widest text-xs"
                     >
-                        Update
+                        SYNCHRONIZE PARAMETERS
                     </button>
                     <button
                         type="button"
                         onClick={fetchSettings}
-                        className="ml-4 text-gray-600 hover:text-gray-800 font-medium"
+                        className="px-10 py-5 bg-gray-100 text-gray-500 font-black text-xs uppercase tracking-widest rounded-[2rem] hover:bg-gray-200 transition-all duration-300 active:scale-95"
                     >
-                        Reset
+                        REVERT STATE
                     </button>
                 </div>
             </form>
-            <p className="mt-8 text-center text-gray-500 text-sm">Copyright © RewardMobi All right reserved.</p>
+
+            <div className="text-center pt-10">
+                <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">
+                    &copy; {new Date().getFullYear()} REWARDMOBI SECURE SYSTEMS
+                </p>
+            </div>
         </div>
     );
 };

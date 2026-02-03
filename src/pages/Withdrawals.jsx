@@ -63,84 +63,88 @@ const Withdrawals = () => {
     };
 
     return (
-        <div className="p-8 min-h-screen">
-            {/* Header */}
-            <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Withdrawal Requests</h2>
-                <p className="text-gray-600">Review and manage user withdrawal requests</p>
+        <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10 font-sans">
+            {/* Header section with Action */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] mb-2 px-1">Financial Operations</p>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">PAYOUT <span className="text-indigo-600">TRACKER</span></h1>
+                </div>
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                    <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-indigo-600 font-bold text-xs uppercase tracking-widest">Compiling Records...</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
-                                <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">User</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Amount</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Method</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Details</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                        <table className="min-w-full">
+                            <thead>
+                                <tr className="bg-indigo-900">
+                                    <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Transaction</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Subscriber</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Payout Value</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Protocol</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Deployment</th>
+                                    <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Authorization</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-50">
                                 {withdrawals.map((withdrawal) => (
-                                    <tr key={withdrawal.id} className="hover:bg-indigo-50/50 transition-colors duration-150">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            #{withdrawal.id}
+                                    <tr key={withdrawal.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                        <td className="px-8 py-6 text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
+                                            #{String(withdrawal.id).padStart(5, '0')}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-semibold text-gray-900">{withdrawal.name}</div>
-                                            <div className="text-xs text-gray-500">{withdrawal.email}</div>
+                                        <td className="px-8 py-6">
+                                            <div>
+                                                <p className="text-sm font-black text-gray-900 uppercase tracking-tight">{withdrawal.name}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{withdrawal.email}</p>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-lg font-bold text-indigo-600">₹{withdrawal.amount}</span>
+                                        <td className="px-8 py-6">
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-xs font-black text-indigo-600 tracking-tighter">₹</span>
+                                                <span className="text-xl font-black text-indigo-600 tracking-tighter">{withdrawal.amount}</span>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
+                                        <td className="px-8 py-6">
+                                            <span className="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-500 rounded-lg border border-gray-100">
                                                 {withdrawal.method}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{withdrawal.details}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-3 py-1.5 text-xs font-bold rounded-full ${getStatusColor(withdrawal.status)}`}>
+                                        <td className="px-8 py-6">
+                                            <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm ${withdrawal.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' :
+                                                    withdrawal.status === 'REJECTED' ? 'bg-rose-100 text-rose-700' :
+                                                        'bg-amber-100 text-amber-700'
+                                                }`}>
                                                 {withdrawal.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(withdrawal.created_at).toLocaleDateString('en-IN', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric'
-                                            })}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                        <td className="px-8 py-6">
                                             {withdrawal.status === 'PENDING' ? (
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => handleStatusUpdate(withdrawal.id, 'APPROVED')}
-                                                        className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-all duration-200"
-                                                        title="Approve"
+                                                        className="w-10 h-10 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-300 shadow-sm"
+                                                        title="Authorize"
                                                     >
-                                                        <FaCheck size={18} />
+                                                        <FaCheck size={14} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleStatusUpdate(withdrawal.id, 'REJECTED')}
-                                                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200"
-                                                        title="Reject"
+                                                        className="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm"
+                                                        title="Decline"
                                                     >
-                                                        <FaTimes size={18} />
+                                                        <FaTimes size={14} />
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <span className="text-gray-400 text-xs">Processed</span>
+                                                <div className="flex items-center gap-2 text-gray-300">
+                                                    <div className="w-2 h-2 rounded-full bg-current"></div>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest">Logged</p>
+                                                </div>
                                             )}
                                         </td>
                                     </tr>
@@ -150,10 +154,12 @@ const Withdrawals = () => {
                     </div>
 
                     {withdrawals.length === 0 && (
-                        <div className="text-center py-16">
-                            <FaMoneyBillWave size={64} className="mx-auto text-gray-300 mb-4" />
-                            <p className="text-gray-500 text-lg">No withdrawal requests</p>
-                            <p className="text-gray-400 text-sm mt-2">Requests will appear here when users submit them</p>
+                        <div className="text-center py-20 bg-gray-50/50">
+                            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-gray-300 mx-auto mb-6 shadow-sm">
+                                <FaMoneyBillWave size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Clean Ledger Detected</h3>
+                            <p className="text-gray-500 max-w-xs mx-auto">No pending or historical withdrawal nodes have been identified in the system.</p>
                         </div>
                     )}
                 </div>

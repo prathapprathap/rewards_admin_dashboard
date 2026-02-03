@@ -29,76 +29,61 @@ const Users = () => {
     }
 
     return (
-        <div className="p-8 min-h-screen">
-            {/* Header */}
-            <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                    <FaUsers className="text-indigo-600" />
-                    Users
-                </h2>
-                <p className="text-gray-600">Manage and view all registered users</p>
+        <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10 font-sans">
+            {/* Header section with Action */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] mb-2 px-1">Engagement Analytics</p>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">USER <span className="text-indigo-600">DIRECTORY</span></h1>
+                </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    S.No
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    User
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    Email
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    Balance
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                                    Joined
-                                </th>
+                    <table className="min-w-full">
+                        <thead>
+                            <tr className="bg-indigo-900">
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Rank</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Subscriber Profile</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Contact Node</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Credit Value</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Entry Date</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
+                        <tbody className="divide-y divide-gray-50">
                             {users.map((user, index) => (
-                                <tr key={user.id} className="hover:bg-indigo-50/50 transition-colors duration-150">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {index + 1}
+                                <tr key={user.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                    <td className="px-8 py-6 text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
+                                        #{String(index + 1).padStart(3, '0')}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0 w-10 h-10">
-                                                {user.profile_pic ? (
-                                                    <img className="w-full h-full rounded-full ring-2 ring-indigo-200" src={user.profile_pic} alt={user.name} />
-                                                ) : (
-                                                    <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                                                        {user.name ? user.name[0].toUpperCase() : 'U'}
-                                                    </div>
-                                                )}
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                                                {user.name ? user.name[0].toUpperCase() : 'U'}
                                             </div>
-                                            <div className="ml-4">
-                                                <p className="text-sm font-semibold text-gray-900">
-                                                    {user.name}
-                                                </p>
+                                            <div>
+                                                <p className="text-sm font-black text-gray-900 uppercase tracking-tight">{user.name}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Member</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <p className="text-sm text-gray-700">{user.email}</p>
+                                    <td className="px-8 py-6">
+                                        <p className="text-sm font-bold text-gray-600">{user.email}</p>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-3 py-1.5 text-sm font-bold text-green-700 bg-green-100 rounded-full">
-                                            ₹{user.wallet_balance || 0}
-                                        </span>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-xs font-black text-indigo-600 tracking-tighter">₹</span>
+                                            <span className="text-xl font-black text-indigo-600 tracking-tighter">{user.wallet_balance || 0}</span>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {new Date(user.created_at).toLocaleDateString('en-IN', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric'
-                                        })}
+                                    <td className="px-8 py-6">
+                                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                                            {new Date(user.created_at).toLocaleDateString('en-IN', {
+                                                day: '2-digit',
+                                                month: 'short',
+                                                year: 'numeric'
+                                            })}
+                                        </p>
                                     </td>
                                 </tr>
                             ))}
@@ -107,9 +92,12 @@ const Users = () => {
                 </div>
 
                 {users.length === 0 && (
-                    <div className="text-center py-16">
-                        <FaUsers size={64} className="mx-auto text-gray-300 mb-4" />
-                        <p className="text-gray-500 text-lg">No users found</p>
+                    <div className="text-center py-20 bg-gray-50/50">
+                        <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-gray-300 mx-auto mb-6 shadow-sm">
+                            <FaUsers size={32} />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">No Records Detected</h3>
+                        <p className="text-gray-500 max-w-xs mx-auto">Your database is currently empty of active user records.</p>
                     </div>
                 )}
             </div>

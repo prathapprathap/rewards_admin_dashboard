@@ -1,1 +1,68 @@
 @import "tailwindcss";
+
+@theme {
+    --font-sans: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+    body {
+        @apply text-gray-900 antialiased;
+        background-color: #f8fafc;
+    }
+}
+
+@layer utilities {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-white/10 rounded-full;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        @apply bg-white/20;
+    }
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+/* Animations */
+@keyframes slow-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-slow-spin {
+    animation: slow-spin 20s linear infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}

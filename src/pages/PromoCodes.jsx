@@ -93,114 +93,125 @@ const PromoCodes = () => {
     }
 
     return (
-        <div className="p-8 min-h-screen">
-            <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-800 mb-4 uppercase tracking-tight">Promocode</h2>
+        <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10 font-sans">
+            {/* Header section with Action */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] mb-2 px-1">Campaign Management</p>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">VOUCHER <span className="text-indigo-600">PORTAL</span></h1>
+                </div>
                 <button
                     onClick={() => setShowForm(true)}
-                    className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-all font-bold text-lg"
+                    className="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-8 py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
                 >
-                    Add New Promocode
+                    INITIALIZE NEW TOKEN
                 </button>
             </div>
 
             {showForm && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-                        <div className="flex justify-between items-center p-6 border-b">
-                            <h3 className="text-xl font-bold text-gray-800">Add New Promocode</h3>
-                            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
-                                <FaTimes size={24} />
-                            </button>
+                <div className="fixed inset-0 bg-indigo-950/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-300 border border-white/20">
+                        <div className="bg-indigo-900 p-8 text-white relative overflow-hidden">
+                            <div className="relative z-10 flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-xl font-black tracking-tight uppercase leading-none">Token Config</h3>
+                                    <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em] mt-2">New Entry Parameters</p>
+                                </div>
+                                <button onClick={() => setShowForm(false)} className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors">
+                                    <FaTimes size={18} />
+                                </button>
+                            </div>
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 rounded-full blur-[40px]"></div>
                         </div>
-                        <form onSubmit={handleCreate} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Promocode</label>
+
+                        <form onSubmit={handleCreate} className="p-10 space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Promocode Node</label>
                                 <input
                                     type="text"
                                     required
-                                    placeholder="Please Enter Promocode"
-                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="e.g. MEGA2024"
+                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-300"
                                     value={formData.code}
-                                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Amount</label>
-                                <input
-                                    type="number"
-                                    required
-                                    placeholder="Please Provide Positive Amount"
-                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                    value={formData.amount}
-                                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                />
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Value (₹)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        placeholder="0.00"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-indigo-600"
+                                        value={formData.amount}
+                                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Limit</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        placeholder="Max users"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900"
+                                        value={formData.users_limit}
+                                        onChange={(e) => setFormData({ ...formData, users_limit: e.target.value })}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">For Total Users</label>
-                                <input
-                                    type="number"
-                                    required
-                                    placeholder="Please Provide Positive Limit"
-                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                    value={formData.users_limit}
-                                    onChange={(e) => setFormData({ ...formData, users_limit: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">For Whom</label>
-                                <select
-                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none bg-white"
-                                    value={formData.for_whom}
-                                    onChange={(e) => setFormData({ ...formData, for_whom: e.target.value })}
-                                >
-                                    <option value="All">All</option>
-                                    <option value="New">New</option>
-                                    <option value="Old">Old</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Select Status</label>
-                                <select
-                                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none bg-white"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                >
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div className="flex gap-3 pt-4">
-                                <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-gray-500 text-white py-3 rounded-md font-bold hover:bg-gray-600 transition-all">Close</button>
-                                <button type="submit" className="flex-1 bg-blue-500 text-white py-3 rounded-md font-bold hover:bg-blue-600 transition-all">Submit</button>
-                            </div>
+
+                            <button type="submit" className="w-full bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 text-[10px] tracking-widest uppercase">
+                                DEPLOY TOKEN NODE
+                            </button>
                         </form>
                     </div>
                 </div>
             )}
 
-            <div className="bg-white rounded-lg shadow-xl border border-gray-100 p-8">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="min-w-full">
                         <thead>
-                            <tr className="border-b text-gray-700">
-                                <th className="px-4 py-4 font-bold border">No.</th>
-                                <th className="px-4 py-4 font-bold border">Code</th>
-                                <th className="px-4 py-4 font-bold border">Amount</th>
-                                <th className="px-4 py-4 font-bold border">Claimed User</th>
-                                <th className="px-4 py-4 font-bold border">Action</th>
+                            <tr className="bg-indigo-900">
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Key ID</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Token Node</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Credit value</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Usage Meta</th>
+                                <th className="px-8 py-6 text-left text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em]">Decommission</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-gray-50">
                             {promoCodes.map((promo, index) => (
-                                <tr key={promo.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                    <td className="px-4 py-4 border">{index + 1}</td>
-                                    <td className="px-4 py-4 border font-medium">{promo.code}</td>
-                                    <td className="px-4 py-4 border text-gray-800 font-bold">₹{promo.amount}</td>
-                                    <td className="px-4 py-4 border">{promo.claimed_count || 0}</td>
-                                    <td className="px-4 py-4 border">
-                                        <button onClick={() => handleDelete(promo.id)} className="text-red-500 hover:text-red-700">
-                                            <FaTrash />
+                                <tr key={promo.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                    <td className="px-8 py-6 text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
+                                        #{String(index + 1).padStart(3, '0')}
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="bg-gray-50 px-4 py-2 border-2 border-dashed border-gray-200 rounded-xl inline-block group-hover:border-indigo-300 group-hover:bg-indigo-50 transition-all">
+                                            <p className="text-sm font-black text-gray-900 tracking-widest font-mono uppercase">{promo.code}</p>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-xs font-black text-indigo-600 tracking-tighter">₹</span>
+                                            <span className="text-xl font-black text-indigo-600 tracking-tighter">{promo.amount}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100">
+                                                {promo.claimed_count || 0} Claims
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        <button
+                                            onClick={() => handleDelete(promo.id)}
+                                            className="w-10 h-10 flex items-center justify-center bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm"
+                                        >
+                                            <FaTrash size={14} />
                                         </button>
                                     </td>
                                 </tr>
@@ -208,8 +219,23 @@ const PromoCodes = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {promoCodes.length === 0 && (
+                    <div className="text-center py-20 bg-gray-50/50">
+                        <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-gray-300 mx-auto mb-6 shadow-sm">
+                            <FaTrash size={32} />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Tokens</h3>
+                        <p className="text-gray-500 max-w-xs mx-auto text-sm font-medium">Your campaign inventory is empty. Launch your first reward voucher to see records here.</p>
+                    </div>
+                )}
             </div>
-            <p className="mt-8 text-center text-gray-500 text-sm">Copyright © RewardMobi All right reserved.</p>
+
+            <div className="text-center pt-10">
+                <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">
+                    &copy; {new Date().getFullYear()} REWARDMOBI SECURE SYSTEMS
+                </p>
+            </div>
         </div>
     );
 };
