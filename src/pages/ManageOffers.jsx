@@ -1,12 +1,25 @@
 import { useEffect, useState } from 'react';
-import { FaTasks, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTasks, FaTimes, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { deleteOffer, getOffers } from '../api';
+import { deleteOffer, getOffers, updateOffer } from '../api';
 
 const ManageOffers = () => {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [editOffer, setEditOffer] = useState(null);
+    const [formData, setFormData] = useState({
+        offer_name: '',
+        offer_id: '',
+        heading: '',
+        history_name: '',
+        offer_url: '',
+        amount: '',
+        event_name: '',
+        description: '',
+        image_url: '',
+        refer_payout: '',
+        status: 'Active'
+    });
 
     useEffect(() => {
         fetchOffers();
@@ -25,6 +38,45 @@ const ManageOffers = () => {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleEditClick = (offer) => {
+        setEditOffer(offer);
+        setFormData({
+            offer_name: offer.offer_name || '',
+            offer_id: offer.offer_id || '',
+            heading: offer.heading || '',
+            history_name: offer.history_name || '',
+            offer_url: offer.offer_url || '',
+            amount: offer.amount || '',
+            event_name: offer.event_name || '',
+            description: offer.description || '',
+            image_url: offer.image_url || '',
+            refer_payout: offer.refer_payout || 0,
+            status: offer.status || 'Active'
+        });
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await updateOffer(editOffer.id, formData);
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: 'Offer updated successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            setEditOffer(null);
+            fetchOffers();
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to update offer.',
+            });
         }
     };
 
@@ -103,8 +155,8 @@ const ManageOffers = () => {
 
                                 <div className="absolute top-4 right-4 group-hover:scale-110 transition-transform">
                                     <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg backdrop-blur-md ${offer.status?.toLowerCase() === 'active'
-                                            ? 'bg-emerald-500/90 text-white'
-                                            : 'bg-orange-500/90 text-white'
+                                        ? 'bg-emerald-500/90 text-white'
+                                        : 'bg-orange-500/90 text-white'
                                         }`}>
                                         {offer.status || 'Active'}
                                     </span>
@@ -135,6 +187,12 @@ const ManageOffers = () => {
 
                                 <div className="flex gap-3">
                                     <button
+                                        onClick={() => handleEditClick(offer)}
+                                        className="flex-1 bg-indigo-50 text-indigo-600 font-black text-xs uppercase tracking-widest py-4 rounded-2xl hover:bg-indigo-600 hover:text-white transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+                                    >
+                                        <FaEdit size={12} /> EDIT NODE
+                                    </button>
+                                    <button
                                         onClick={() => handleDelete(offer.id)}
                                         className="flex-1 bg-red-50 text-red-600 font-black text-xs uppercase tracking-widest py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
                                     >
@@ -144,6 +202,95 @@ const ManageOffers = () => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editOffer && (
+                <div className="fixed inset-0 bg-indigo-950/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-white/20 max-h-[90vh] flex flex-col">
+                        <div className="bg-indigo-900 p-8 text-white relative overflow-hidden flex-shrink-0">
+                            <div className="relative z-10 flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-xl font-black tracking-tight uppercase leading-none">Modify Offer Node</h3>
+                                    <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Adjust existing parameters</p>
+                                </div>
+                                <button onClick={() => setEditOffer(null)} className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors">
+                                    <FaTimes size={18} />
+                                </button>
+                            </div>
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 rounded-full blur-[40px]"></div>
+                        </div>
+
+                        <form onSubmit={handleUpdate} className="p-10 space-y-8 overflow-y-auto custom-scrollbar">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {/* Form Fields */}
+                                {[
+                                    { id: 'offer_name', label: 'Offer Identity', placeholder: 'e.g. Premium Access', type: 'text' },
+                                    { id: 'offer_id', label: 'Internal UID', placeholder: 'e.g. OFFER_X_101', type: 'text' },
+                                    { id: 'heading', label: 'Call to Action', placeholder: 'e.g. INSTALL & REGISTER', type: 'text' },
+                                    { id: 'history_name', label: 'Ledger Label', placeholder: 'e.g. Signup Completion', type: 'text' },
+                                    { id: 'offer_url', label: 'Target URI', placeholder: 'https://...', type: 'text' },
+                                    { id: 'image_url', label: 'Asset URI (Image)', placeholder: 'https://...', type: 'text' },
+                                    { id: 'amount', label: 'Credit Value (₹)', placeholder: '0.00', type: 'number' },
+                                    { id: 'refer_payout', label: 'Referral Bonus (₹)', placeholder: '0.00', type: 'number' },
+                                    { id: 'event_name', label: 'Tracking Event', placeholder: 'e.g. registration', type: 'text' },
+                                ].map((field) => (
+                                    <div key={field.id} className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">{field.label}</label>
+                                        <input
+                                            type={field.type}
+                                            required
+                                            value={formData[field.id]}
+                                            onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-300"
+                                            placeholder={field.placeholder}
+                                        />
+                                    </div>
+                                ))}
+
+                                <div className="space-y-2 md:col-span-2 lg:col-span-3">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Mission Briefing (Description)</label>
+                                    <textarea
+                                        required
+                                        rows="3"
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 placeholder:text-gray-300 resize-none"
+                                        placeholder="Detailed instructions for the user..."
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Deployment Status</label>
+                                    <select
+                                        value={formData.status}
+                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 appearance-none"
+                                    >
+                                        <option value="Active">ACTIVE</option>
+                                        <option value="Inactive">INACTIVE</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col md:flex-row gap-4 pt-4 pb-6">
+                                <button
+                                    type="submit"
+                                    className="flex-1 bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 text-[10px] tracking-widest uppercase"
+                                >
+                                    AUTHORIZE ADJUSTMENTS
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditOffer(null)}
+                                    className="px-10 py-5 bg-gray-100 text-gray-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all duration-300 active:scale-95"
+                                >
+                                    ABORT MISSION
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

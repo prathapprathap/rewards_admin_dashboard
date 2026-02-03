@@ -41,6 +41,10 @@ export const deleteOffer = async (id) => {
     const response = await axios.delete(`${API_URL}/offers/${id}`);
     return response.data;
 };
+export const updateOffer = async (id, offerData) => {
+    const response = await axios.put(`${API_URL}/offers/${id}`, offerData);
+    return response.data;
+};
 
 export const adminLogin = async (credentials) => {
     const response = await axios.post(`${API_URL}/login`, credentials);
