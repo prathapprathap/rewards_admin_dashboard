@@ -13,7 +13,7 @@ const PaidWithdrawals = () => {
     const fetchPaidWithdrawals = async () => {
         try {
             const data = await getWithdrawals();
-            const completed = data.filter(w => w.status.toLowerCase() === 'completed');
+            const completed = data.filter(w => w.status.toLowerCase() === 'approved');
             setWithdrawals(completed);
         } catch (error) {
             console.error('Error fetching withdrawals:', error);
@@ -67,12 +67,12 @@ const PaidWithdrawals = () => {
                     <tbody className="bg-white divide-y divide-gray-100">
                         {withdrawals.map((withdrawal) => (
                             <tr key={withdrawal.id} className="hover:bg-green-50/50 transition-colors">
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{withdrawal.user_name}</td>
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{withdrawal.name}</td>
                                 <td className="px-6 py-4 font-bold text-lg text-green-600">₹{withdrawal.amount}</td>
                                 <td className="px-6 py-4 text-sm text-gray-600">{withdrawal.method}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500 font-mono">{withdrawal.payment_details}</td>
+                                <td className="px-6 py-4 text-sm text-gray-500 font-mono">{withdrawal.details}</td>
                                 <td className="px-6 py-4 text-sm text-gray-500">
-                                    {new Date(withdrawal.completed_at || withdrawal.requested_at).toLocaleDateString('en-IN')}
+                                    {new Date(withdrawal.created_at).toLocaleDateString('en-IN')}
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-green-100 text-green-700 flex items-center gap-1 w-fit">

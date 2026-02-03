@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaCheck, FaClock, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { getWithdrawals } from '../api';
+import { getWithdrawals, updateWithdrawalStatus } from '../api';
 
 const PendingWithdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
@@ -36,7 +36,7 @@ const PendingWithdrawals = () => {
 
         if (result.isConfirmed) {
             try {
-                await updateWithdrawalStatus(id, 'COMPLETED');
+                await updateWithdrawalStatus(id, 'APPROVED');
                 Swal.fire('Success!', 'Withdrawal approved successfully.', 'success');
                 fetchPendingWithdrawals();
             } catch (error) {
@@ -100,12 +100,12 @@ const PendingWithdrawals = () => {
                     <tbody className="bg-white divide-y divide-gray-100">
                         {withdrawals.map((withdrawal) => (
                             <tr key={withdrawal.id} className="hover:bg-yellow-50/50 transition-colors">
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{withdrawal.user_name}</td>
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">{withdrawal.name}</td>
                                 <td className="px-6 py-4 font-bold text-lg text-yellow-600">₹{withdrawal.amount}</td>
                                 <td className="px-6 py-4 text-sm text-gray-600">{withdrawal.method}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500">{withdrawal.payment_details}</td>
+                                <td className="px-6 py-4 text-sm text-gray-500">{withdrawal.details}</td>
                                 <td className="px-6 py-4 text-sm text-gray-500">
-                                    {new Date(withdrawal.requested_at).toLocaleDateString('en-IN')}
+                                    {new Date(withdrawal.created_at).toLocaleDateString('en-IN')}
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex gap-2">

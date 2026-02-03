@@ -49,6 +49,7 @@ const ManageOffers = () => {
                 );
                 fetchOffers();
             } catch (err) {
+                console.error('Delete error:', err);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',

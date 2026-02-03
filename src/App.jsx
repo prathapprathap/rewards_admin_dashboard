@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   FaBars,
-  FaCheckCircle,
-  FaClock,
   FaCog,
   FaCrown,
   FaGift,
   FaHistory,
   FaHome,
   FaPlusCircle, FaSignOutAlt,
-  FaTasks, FaTimes,
-  FaTrashAlt,
-  FaUserCheck,
+  FaTasks,
   FaUsers,
   FaUserShield
 } from 'react-icons/fa';
@@ -48,91 +44,125 @@ const SectionTitle = ({ children }) => (
   <p className="px-4 mt-6 mb-2 text-[10px] uppercase font-black tracking-widest text-indigo-300/60">{children}</p>
 );
 
+const BottomNavItem = ({ to, icon: Icon, label, active }) => (
+  <Link
+    to={to}
+    className={`flex flex-col items-center justify-center flex-1 py-1 transition-all duration-200 ${active ? 'text-indigo-600' : 'text-gray-400'
+      }`}
+  >
+    <Icon size={20} className={active ? 'scale-110' : ''} />
+    <span className="text-[10px] font-bold mt-1 uppercase tracking-tighter">{label}</span>
+  </Link>
+);
+
 const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSidebar }) => {
   const location = useLocation();
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans">
       {/* Mobile Header */}
-      <div className="md:hidden fixed w-full bg-white shadow-md z-20 flex justify-between items-center px-4 py-3 border-b border-gray-100">
-        <h1 className="text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent uppercase tracking-tighter">Rewards</h1>
-        <button onClick={toggleSidebar} className="text-gray-700 p-1">
-          {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button>
+      <div className="md:hidden fixed top-0 w-full bg-white/80 backdrop-blur-md z-40 flex justify-between items-center px-6 py-4 border-b border-gray-100/50">
+        <div>
+          <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-0.5">Control Panel</p>
+          <h1 className="text-xl font-black text-gray-900 tracking-tighter">REWARDS <span className="text-indigo-600">ADMIN</span></h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link to="/profile" className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+            <FaUserShield size={16} />
+          </Link>
+          <button onClick={toggleSidebar} className="text-gray-900 bg-gray-100 p-2 rounded-xl active:scale-95 transition-transform">
+            <FaBars size={20} />
+          </button>
+        </div>
       </div>
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-all duration-300 ease-in-out w-64 bg-indigo-700 shadow-2xl z-30 flex flex-col border-r border-indigo-800/50`}>
+      {/* Sidebar - Desktop Only */}
+      <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-72 bg-indigo-900 shadow-2xl z-50 flex flex-col`}>
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-indigo-500/30">
-          <h1 className="text-2xl font-black text-white tracking-tighter uppercase">Rewards <span className="text-indigo-300">Admin</span></h1>
-          <div className="flex items-center mt-2 gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            <p className="text-indigo-200 text-[10px] uppercase font-bold tracking-widest">Live Control Panel</p>
+        <div className="p-8 border-b border-white/5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <FaCrown className="text-white" size={20} />
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-white tracking-tighter uppercase leading-tight">Rewards <span className="text-indigo-400">Admin</span></h1>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                <p className="text-indigo-300/60 text-[10px] uppercase font-bold tracking-widest">Active Server</p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 custom-scrollbar">
-          <SectionTitle>Overview</SectionTitle>
+        <nav className="flex-1 overflow-y-auto pt-6 px-4 custom-scrollbar space-y-1">
+          <SectionTitle>Main Menu</SectionTitle>
           <SidebarItem to="/" icon={FaHome} label="Dashboard" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/'} />
+          <SidebarItem to="/manage-offers" icon={FaTasks} label="Manage Offers" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/manage-offers'} />
+          <SidebarItem to="/users" icon={FaUsers} label="Users Directory" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/users'} />
+          <SidebarItem to="/withdrawals" icon={FaHistory} label="Withdrawals" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/withdrawals'} />
 
-          <SectionTitle>Offer Management</SectionTitle>
-          <SidebarItem to="/manage-offers" icon={FaTasks} label="All Offers" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/manage-offers'} />
-          <SidebarItem to="/active-offers" icon={FaCheckCircle} label="Active Offers" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/active-offers'} />
-          <SidebarItem to="/add-offer" icon={FaPlusCircle} label="Add New Offer" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/add-offer'} />
+          <SectionTitle>Quick Actions</SectionTitle>
+          <SidebarItem to="/add-offer" icon={FaPlusCircle} label="Create New Offer" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/add-offer'} />
           <SidebarItem to="/promo-codes" icon={FaGift} label="Promo Codes" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/promo-codes'} />
 
-          <SectionTitle>Withdrawals</SectionTitle>
-          <SidebarItem to="/pending-withdrawals" icon={FaClock} label="Pending Requests" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/pending-withdrawals'} />
-          <SidebarItem to="/paid-withdrawals" icon={FaCheckCircle} label="Paid Withdrawals" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/paid-withdrawals'} />
-          <SidebarItem to="/withdrawals" icon={FaHistory} label="All Withdrawals" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/withdrawals'} />
-
-          <SectionTitle>User Management</SectionTitle>
-          <SidebarItem to="/users" icon={FaUsers} label="All Users" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/users'} />
-          <SidebarItem to="/active-users" icon={FaUserCheck} label="Active Users" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/active-users'} />
-          <SidebarItem to="/top-referrers" icon={FaCrown} label="Top Referrers" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/top-referrers'} />
-          <SidebarItem to="/account-delete" icon={FaTrashAlt} label="Delete Account" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/account-delete'} />
-
-          <SectionTitle>System</SectionTitle>
+          <SectionTitle>Control</SectionTitle>
           <SidebarItem to="/settings" icon={FaCog} label="App Settings" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/settings'} />
           <SidebarItem to="/profile" icon={FaUserShield} label="Admin Profile" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/profile'} />
         </nav>
 
         {/* Logout Button */}
-        <div className="p-4 bg-indigo-800/50">
-          <button onClick={handleLogout} className="flex items-center w-full px-4 py-2.5 text-red-100 bg-red-500/20 rounded-lg hover:bg-red-500/30 transition-all duration-200 group">
+        <div className="p-4 bg-black/20">
+          <button onClick={handleLogout} className="flex items-center w-full px-4 py-3 text-red-100 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all duration-200 group">
             <FaSignOutAlt className="mr-3 group-hover:scale-110 transition-transform" size={16} />
-            <span className="font-bold text-sm">Logout</span>
+            <span className="font-bold text-sm tracking-tight">Sign Out</span>
           </button>
         </div>
       </div>
 
       {/* Overlay for mobile */}
       {isSidebarOpen && (
-        <div onClick={toggleSidebar} className="fixed inset-0 bg-indigo-900/60 backdrop-blur-sm z-10 md:hidden transition-opacity duration-300"></div>
+        <div onClick={toggleSidebar} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 md:hidden animate-fade-in"></div>
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-x-hidden overflow-y-auto pt-16 md:pt-0">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/active-users" element={<ActiveUsers />} />
-          <Route path="/top-referrers" element={<TopReferrers />} />
-          <Route path="/account-delete" element={<AccountDelete />} />
-          <Route path="/add-offer" element={<AddOffer />} />
-          <Route path="/manage-offers" element={<ManageOffers />} />
-          <Route path="/active-offers" element={<ActiveOffers />} />
-          <Route path="/promo-codes" element={<PromoCodes />} />
-          <Route path="/withdrawals" element={<Withdrawals />} />
-          <Route path="/pending-withdrawals" element={<PendingWithdrawals />} />
-          <Route path="/paid-withdrawals" element={<PaidWithdrawals />} />
-          <Route path="/settings" element={<AppSettings />} />
-          <Route path="/profile" element={<AdminProfile />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 relative h-screen overflow-hidden">
+        {/* Content Scroll Area */}
+        <div className="flex-1 overflow-y-auto pt-20 pb-24 md:pt-0 md:pb-0 custom-scrollbar relative z-10">
+          <div className="max-w-7xl mx-auto w-full">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/active-users" element={<ActiveUsers />} />
+              <Route path="/top-referrers" element={<TopReferrers />} />
+              <Route path="/account-delete" element={<AccountDelete />} />
+              <Route path="/add-offer" element={<AddOffer />} />
+              <Route path="/manage-offers" element={<ManageOffers />} />
+              <Route path="/active-offers" element={<ActiveOffers />} />
+              <Route path="/promo-codes" element={<PromoCodes />} />
+              <Route path="/withdrawals" element={<Withdrawals />} />
+              <Route path="/pending-withdrawals" element={<PendingWithdrawals />} />
+              <Route path="/paid-withdrawals" element={<PaidWithdrawals />} />
+              <Route path="/settings" element={<AppSettings />} />
+              <Route path="/profile" element={<AdminProfile />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </div>
+
+        {/* Mobile Bottom Navigation */}
+        <div className="md:hidden fixed bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center px-4 py-2 z-40 pb-safe-area-inset-bottom">
+          <BottomNavItem to="/" icon={FaHome} label="Home" active={location.pathname === '/'} />
+          <BottomNavItem to="/manage-offers" icon={FaTasks} label="Offers" active={location.pathname === '/manage-offers'} />
+          <div className="relative -top-5">
+            <Link to="/add-offer" className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/40 border-4 border-white active:scale-90 transition-transform">
+              <FaPlusCircle size={24} />
+            </Link>
+          </div>
+          <BottomNavItem to="/withdrawals" icon={FaHistory} label="Payout" active={location.pathname === '/withdrawals'} />
+          <BottomNavItem to="/users" icon={FaUsers} label="Users" active={location.pathname === '/users'} />
+        </div>
+      </main>
     </div>
   );
 };
