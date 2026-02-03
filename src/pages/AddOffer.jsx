@@ -37,8 +37,6 @@ const AddOffer = () => {
         if (!formData.heading.trim()) tempErrors.heading = "Heading is required";
         if (!formData.offer_url.trim()) {
             tempErrors.offer_url = "Offer URL is required";
-        } else if (!/^https?:\/\//.test(formData.offer_url)) {
-            tempErrors.offer_url = "URL must start with http:// or https://";
         }
         if (!formData.amount) {
             tempErrors.amount = "Amount is required";
@@ -49,8 +47,6 @@ const AddOffer = () => {
         if (!formData.description.trim()) tempErrors.description = "Description is required";
         if (!formData.image_url.trim()) {
             tempErrors.image_url = "Image URL is required";
-        } else if (!/^https?:\/\//.test(formData.image_url)) {
-            tempErrors.image_url = "URL must start with http:// or https://";
         }
 
         setErrors(tempErrors);
@@ -70,7 +66,13 @@ const AddOffer = () => {
 
         setIsSubmitting(true);
         try {
-            await createOffer(formData);
+            // Auto-prepend https:// if protocol is missing
+            const processedData = {
+                ...formData,
+                offer_url: formData.offer_url.trim().startsWith('http') ? formData.offer_url.trim() : `https://${formData.offer_url.trim()}`,
+                image_url: formData.image_url.trim().startsWith('http') ? formData.image_url.trim() : `https://${formData.image_url.trim()}`
+            };
+            await createOffer(processedData);
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',

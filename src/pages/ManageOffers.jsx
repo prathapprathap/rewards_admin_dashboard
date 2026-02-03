@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaTasks, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { getOffers } from '../api';
+import { deleteOffer, getOffers } from '../api';
 
 const ManageOffers = () => {
     const [offers, setOffers] = useState([]);
