@@ -76,6 +76,11 @@ export const createPromoCode = async (promoData) => {
     return response.data;
 };
 
+export const deletePromoCode = async (id) => {
+    const response = await axios.delete(`${API_URL}/promocodes/${id}`);
+    return response.data;
+};
+
 export const deleteUser = async (id) => {
     const response = await axios.delete(`${API_URL}/users/${id}`);
     return response.data;
