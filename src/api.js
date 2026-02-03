@@ -80,6 +80,11 @@ export const createPromoCode = async (promoData) => {
     return response.data;
 };
 
+export const updatePromoCode = async (id, promoData) => {
+    const response = await axios.put(`${API_URL}/promocodes/${id}`, promoData);
+    return response.data;
+};
+
 export const deletePromoCode = async (id) => {
     const response = await axios.delete(`${API_URL}/promocodes/${id}`);
     return response.data;
@@ -87,6 +92,11 @@ export const deletePromoCode = async (id) => {
 
 export const deleteUser = async (id) => {
     const response = await axios.delete(`${API_URL}/users/${id}`);
+    return response.data;
+};
+
+export const updateUserBalance = async (id, balance) => {
+    const response = await axios.put(`${API_URL}/users/${id}/balance`, { wallet_balance: balance });
     return response.data;
 };
 
