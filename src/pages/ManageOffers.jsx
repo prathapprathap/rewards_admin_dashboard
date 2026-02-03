@@ -72,10 +72,11 @@ const ManageOffers = () => {
             setEditOffer(null);
             fetchOffers();
         } catch (err) {
+            const errorMsg = err.response?.data?.message || 'Failed to update offer.';
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: 'Failed to update offer.',
+                text: errorMsg,
             });
         }
     };

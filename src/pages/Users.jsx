@@ -66,7 +66,8 @@ const Users = () => {
             });
             fetchUsers();
         } catch (error) {
-            Swal.fire('Error!', 'Failed to update balance.', 'error');
+            const errorMsg = error.response?.data?.message || 'Failed to update balance.';
+            Swal.fire('Error!', errorMsg, 'error');
         }
     };
 

@@ -81,10 +81,11 @@ const PromoCodes = () => {
             });
             fetchPromoCodes();
         } catch (error) {
+            const errorMsg = error.response?.data?.message || 'Failed to update promo code.';
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: 'Failed to update promo code.',
+                text: errorMsg,
             });
         }
     };
