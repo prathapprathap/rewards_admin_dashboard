@@ -11,7 +11,9 @@ const AddOffer = () => {
         heading: '',
         history_name: '',
         offer_url: '',
+        tracking_link: '',
         amount: '',
+        currency_type: 'cash',
         event_name: '',
         description: '',
         image_url: '',
@@ -185,9 +187,23 @@ const AddOffer = () => {
                                 {errors.offer_url && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.offer_url}</p>}
                             </div>
 
+                            {/* Tracking Link (Optional - for Offer18) */}
+                            <div className="space-y-2 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Tracking URL (Offer18)</label>
+                                <input
+                                    type="text"
+                                    name="tracking_link"
+                                    placeholder="https://track.offer18.com/... (with macros)"
+                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all placeholder:text-gray-300 font-bold text-gray-900"
+                                    value={formData.tracking_link}
+                                    onChange={handleChange}
+                                />
+                                <p className="text-xs text-gray-400 ml-1">Use macros: {'{clickid}'}, {'{user_id}'}, {'{offer_id}'}</p>
+                            </div>
+
                             {/* Amount */}
                             <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Value Capture (₹)</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Value Capture</label>
                                 <input
                                     type="number"
                                     name="amount"
@@ -197,6 +213,24 @@ const AddOffer = () => {
                                     onChange={handleChange}
                                 />
                                 {errors.amount && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.amount}</p>}
+                            </div>
+
+                            {/* Currency Type */}
+                            <div className="space-y-2 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Currency Type</label>
+                                <div className="relative">
+                                    <select
+                                        name="currency_type"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all appearance-none font-bold text-gray-900"
+                                        value={formData.currency_type}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="cash">💰 Cash (₹)</option>
+                                        <option value="coins">🪙 Coins</option>
+                                        <option value="gems">💎 Gems</option>
+                                    </select>
+                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-black">↓</div>
+                                </div>
                             </div>
 
                             {/* Event */}

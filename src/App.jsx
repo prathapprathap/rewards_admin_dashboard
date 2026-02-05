@@ -18,6 +18,7 @@ import ActiveUsers from './pages/ActiveUsers';
 import AddOffer from './pages/AddOffer';
 import AdminProfile from './pages/AdminProfile';
 import AppSettings from './pages/AppSettings';
+import ConversionAnalytics from './pages/ConversionAnalytics';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import ManageOffers from './pages/ManageOffers';
@@ -105,6 +106,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSideb
           <SectionTitle>Quick Actions</SectionTitle>
           <SidebarItem to="/add-offer" icon={FaPlusCircle} label="Create New Offer" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/add-offer'} />
           <SidebarItem to="/promo-codes" icon={FaGift} label="Promo Codes" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/promo-codes'} />
+          <SidebarItem to="/analytics" icon={FaTasks} label="Conversion Analytics" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/analytics'} />
 
           <SectionTitle>Control</SectionTitle>
           <SidebarItem to="/settings" icon={FaCog} label="App Settings" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/settings'} />
@@ -145,6 +147,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSideb
               <Route path="/paid-withdrawals" element={<PaidWithdrawals />} />
               <Route path="/settings" element={<AppSettings />} />
               <Route path="/profile" element={<AdminProfile />} />
+              <Route path="/analytics" element={<ConversionAnalytics />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>

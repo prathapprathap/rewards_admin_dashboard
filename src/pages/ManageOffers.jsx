@@ -13,7 +13,9 @@ const ManageOffers = () => {
         heading: '',
         history_name: '',
         offer_url: '',
+        tracking_link: '',
         amount: '',
+        currency_type: 'cash',
         event_name: '',
         description: '',
         image_url: '',
@@ -49,7 +51,9 @@ const ManageOffers = () => {
             heading: offer.heading || '',
             history_name: offer.history_name || '',
             offer_url: offer.offer_url || '',
+            tracking_link: offer.tracking_link || '',
             amount: offer.amount || '',
+            currency_type: offer.currency_type || 'cash',
             event_name: offer.event_name || '',
             description: offer.description || '',
             image_url: offer.image_url || '',
@@ -175,15 +179,31 @@ const ManageOffers = () => {
                                     "{offer.description}"
                                 </p>
 
-                                <div className="flex items-center justify-between mb-8">
-                                    <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">User Reward</p>
-                                        <p className="text-3xl font-black text-indigo-600 tracking-tighter">₹{offer.amount}</p>
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">User Reward</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-3xl font-black text-indigo-600 tracking-tighter">
+                                                    {offer.currency_type === 'coins' ? '🪙' : offer.currency_type === 'gems' ? '💎' : '₹'}
+                                                    {offer.amount}
+                                                </p>
+                                                <span className="px-2 py-1 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase rounded-lg">
+                                                    {offer.currency_type || 'cash'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Status Code</p>
+                                            <p className="text-xs font-bold text-gray-900">#OFFER_{offer.id}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Status Code</p>
-                                        <p className="text-xs font-bold text-gray-900">#OFFER_{offer.id}</p>
-                                    </div>
+                                    {offer.tracking_link && (
+                                        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                                            <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-1">🎯 Offer18 Tracking</p>
+                                            <p className="text-xs text-green-700 font-mono truncate">{offer.tracking_link}</p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-3">
@@ -232,16 +252,17 @@ const ManageOffers = () => {
                                     { id: 'heading', label: 'Call to Action', placeholder: 'e.g. INSTALL & REGISTER', type: 'text' },
                                     { id: 'history_name', label: 'Ledger Label', placeholder: 'e.g. Signup Completion', type: 'text' },
                                     { id: 'offer_url', label: 'Target URI', placeholder: 'https://...', type: 'text' },
+                                    { id: 'tracking_link', label: 'Offer18 Tracking URL', placeholder: 'https://track.offer18...', type: 'text', required: false },
                                     { id: 'image_url', label: 'Asset URI (Image)', placeholder: 'https://...', type: 'text' },
-                                    { id: 'amount', label: 'Credit Value (₹)', placeholder: '0.00', type: 'number' },
-                                    { id: 'refer_payout', label: 'Referral Bonus (₹)', placeholder: '0.00', type: 'number' },
+                                    { id: 'amount', label: 'Credit Value', placeholder: '0.00', type: 'number' },
+                                    { id: 'refer_payout', label: 'Referral Bonus', placeholder: '0.00', type: 'number' },
                                     { id: 'event_name', label: 'Tracking Event', placeholder: 'e.g. registration', type: 'text' },
                                 ].map((field) => (
                                     <div key={field.id} className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">{field.label}</label>
                                         <input
                                             type={field.type}
-                                            required
+                                            required={field.required !== false}
                                             value={formData[field.id]}
                                             onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
                                             className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-300"
@@ -260,6 +281,19 @@ const ManageOffers = () => {
                                         className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 placeholder:text-gray-300 resize-none"
                                         placeholder="Detailed instructions for the user..."
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Currency Type</label>
+                                    <select
+                                        value={formData.currency_type}
+                                        onChange={(e) => setFormData({ ...formData, currency_type: e.target.value })}
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 appearance-none"
+                                    >
+                                        <option value="cash">💰 CASH (₹)</option>
+                                        <option value="coins">🪙 COINS</option>
+                                        <option value="gems">💎 GEMS</option>
+                                    </select>
                                 </div>
 
                                 <div className="space-y-2">
