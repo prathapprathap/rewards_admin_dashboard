@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FaGripVertical, FaPlus, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { createOffer } from '../api';
@@ -21,6 +22,8 @@ const AddOffer = () => {
         status: 'Active'
     });
 
+    // Dynamic event steps
+    const [eventSteps, setEventSteps] = useState([]);
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,29 +34,69 @@ const AddOffer = () => {
         }
     };
 
+    // ── Event Step Management ─────────────────────────────────────────────
+    const addEventStep = () => {
+        setEventSteps([
+            ...eventSteps,
+            {
+                event_id: `evt${eventSteps.length}`,
+                event_name: '',
+                points: '',
+                currency_type: formData.currency_type || 'cash',
+            }
+        ]);
+    };
+
+    const updateEventStep = (index, field, value) => {
+        const updated = [...eventSteps];
+        updated[index] = { ...updated[index], [field]: value };
+        setEventSteps(updated);
+    };
+
+    const removeEventStep = (index) => {
+        setEventSteps(eventSteps.filter((_, i) => i !== index));
+    };
+
+    const moveEventStep = (from, to) => {
+        if (to < 0 || to >= eventSteps.length) return;
+        const updated = [...eventSteps];
+        const [moved] = updated.splice(from, 1);
+        updated.splice(to, 0, moved);
+        setEventSteps(updated);
+    };
+
+    // ── Validation ────────────────────────────────────────────────────────
     const validate = () => {
         let tempErrors = {};
         if (!formData.offer_name.trim()) tempErrors.offer_name = "Offer Name is required";
         if (!formData.offer_id.trim()) tempErrors.offer_id = "Offer ID is required";
         if (!formData.heading.trim()) tempErrors.heading = "Heading is required";
-        if (!formData.offer_url.trim()) {
-            tempErrors.offer_url = "Offer URL is required";
-        }
+        if (!formData.offer_url.trim()) tempErrors.offer_url = "Offer URL is required";
         if (!formData.amount) {
             tempErrors.amount = "Amount is required";
         } else if (isNaN(formData.amount) || Number(formData.amount) < 0) {
             tempErrors.amount = "Amount must be a valid positive number";
         }
-        if (!formData.event_name.trim()) tempErrors.event_name = "Event is required";
-        if (!formData.description.trim()) tempErrors.description = "Description is required";
-        if (!formData.image_url.trim()) {
-            tempErrors.image_url = "Image URL is required";
+        // event_name is optional when using event steps
+        if (eventSteps.length === 0 && !formData.event_name.trim()) {
+            tempErrors.event_name = "Either add event steps or set a single event name";
         }
+        if (!formData.description.trim()) tempErrors.description = "Description is required";
+        if (!formData.image_url.trim()) tempErrors.image_url = "Image URL is required";
+
+        // Validate each event step
+        eventSteps.forEach((step, i) => {
+            if (!step.event_name.trim()) tempErrors[`event_step_name_${i}`] = "Event name required";
+            if (!step.points || isNaN(step.points) || Number(step.points) < 0) {
+                tempErrors[`event_step_points_${i}`] = "Valid points required";
+            }
+        });
 
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
 
+    // ── Submit ─────────────────────────────────────────────────────────────
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) {
@@ -67,17 +110,28 @@ const AddOffer = () => {
 
         setIsSubmitting(true);
         try {
-            // Auto-prepend https:// if protocol is missing
             const processedData = {
                 ...formData,
-                offer_url: formData.offer_url.trim().startsWith('http') ? formData.offer_url.trim() : `https://${formData.offer_url.trim()}`,
-                image_url: formData.image_url.trim().startsWith('http') ? formData.image_url.trim() : `https://${formData.image_url.trim()}`
+                offer_url: formData.offer_url.trim().startsWith('http')
+                    ? formData.offer_url.trim()
+                    : `https://${formData.offer_url.trim()}`,
+                image_url: formData.image_url.trim().startsWith('http')
+                    ? formData.image_url.trim()
+                    : `https://${formData.image_url.trim()}`,
+                // Include event steps array
+                events: eventSteps.map((step, i) => ({
+                    event_id: step.event_id || `evt${i}`,
+                    event_name: step.event_name,
+                    points: parseFloat(step.points) || 0,
+                    currency_type: step.currency_type || formData.currency_type,
+                })),
             };
+
             await createOffer(processedData);
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',
-                text: 'Offer created successfully.',
+                text: `Offer deployed with ${eventSteps.length} event step(s).`,
                 timer: 2000,
                 showConfirmButton: false
             });
@@ -94,9 +148,14 @@ const AddOffer = () => {
         }
     };
 
+    // ── Auto-calc total from event steps ──────────────────────────────────
+    const totalFromEvents = eventSteps.reduce(
+        (sum, s) => sum + (parseFloat(s.points) || 0), 0
+    );
+
     return (
         <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 font-sans">
-            {/* Header section with Action */}
+            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] mb-2 px-1">Content Creation</p>
@@ -105,6 +164,7 @@ const AddOffer = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
+                {/* ─── Main Offer Info ─────────────────────────────────────── */}
                 <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
                     <div className="bg-indigo-900 p-8 text-white relative overflow-hidden">
                         <div className="relative z-10">
@@ -115,79 +175,18 @@ const AddOffer = () => {
                     </div>
 
                     <div className="p-8 md:p-12">
-                        {/* Form Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-
                             {/* Offer Name */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Offer Identity</label>
-                                <input
-                                    type="text"
-                                    name="offer_name"
-                                    placeholder="Enter premium name"
-                                    className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${errors.offer_name ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
-                                    value={formData.offer_name}
-                                    onChange={handleChange}
-                                />
-                                {errors.offer_name && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.offer_name}</p>}
-                            </div>
-
+                            <InputField label="Offer Identity" name="offer_name" placeholder="Enter premium name" value={formData.offer_name} onChange={handleChange} error={errors.offer_name} />
                             {/* Offer ID */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">System ID</label>
-                                <input
-                                    type="text"
-                                    name="offer_id"
-                                    placeholder="Unique identifier"
-                                    className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${errors.offer_id ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
-                                    value={formData.offer_id}
-                                    onChange={handleChange}
-                                />
-                                {errors.offer_id && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.offer_id}</p>}
-                            </div>
-
+                            <InputField label="System ID" name="offer_id" placeholder="Unique identifier" value={formData.offer_id} onChange={handleChange} error={errors.offer_id} />
                             {/* Heading */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Public Heading</label>
-                                <input
-                                    type="text"
-                                    name="heading"
-                                    placeholder="Attractive title"
-                                    className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${errors.heading ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
-                                    value={formData.heading}
-                                    onChange={handleChange}
-                                />
-                                {errors.heading && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.heading}</p>}
-                            </div>
-
+                            <InputField label="Public Heading" name="heading" placeholder="Attractive title" value={formData.heading} onChange={handleChange} error={errors.heading} />
                             {/* History Name */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Ledger Name</label>
-                                <input
-                                    type="text"
-                                    name="history_name"
-                                    placeholder="Internal tracking title"
-                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all placeholder:text-gray-300 font-bold text-gray-900"
-                                    value={formData.history_name}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
+                            <InputField label="Ledger Name" name="history_name" placeholder="Internal tracking title" value={formData.history_name} onChange={handleChange} />
                             {/* Offer URL */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Target URI</label>
-                                <input
-                                    type="text"
-                                    name="offer_url"
-                                    placeholder="Destination protocol"
-                                    className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${errors.offer_url ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
-                                    value={formData.offer_url}
-                                    onChange={handleChange}
-                                />
-                                {errors.offer_url && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.offer_url}</p>}
-                            </div>
-
-                            {/* Tracking Link (Optional - for Offer18) */}
+                            <InputField label="Target URI" name="offer_url" placeholder="Destination protocol" value={formData.offer_url} onChange={handleChange} error={errors.offer_url} />
+                            {/* Tracking Link */}
                             <div className="space-y-2 group">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Tracking URL (Offer18)</label>
                                 <input
@@ -200,10 +199,14 @@ const AddOffer = () => {
                                 />
                                 <p className="text-xs text-gray-400 ml-1">Use macros: {'{clickid}'}, {'{user_id}'}, {'{offer_id}'}</p>
                             </div>
-
                             {/* Amount */}
                             <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Value Capture</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">
+                                    Value Capture
+                                    {eventSteps.length > 0 && (
+                                        <span className="ml-2 text-indigo-600 normal-case tracking-normal">(events total: ₹{totalFromEvents.toFixed(2)})</span>
+                                    )}
+                                </label>
                                 <input
                                     type="number"
                                     name="amount"
@@ -214,93 +217,33 @@ const AddOffer = () => {
                                 />
                                 {errors.amount && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.amount}</p>}
                             </div>
-
                             {/* Currency Type */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Currency Type</label>
-                                <div className="relative">
-                                    <select
-                                        name="currency_type"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all appearance-none font-bold text-gray-900"
-                                        value={formData.currency_type}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="cash">💰 Cash (₹)</option>
-                                        <option value="coins">🪙 Coins</option>
-                                        <option value="gems">💎 Gems</option>
-                                    </select>
-                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-black">↓</div>
-                                </div>
-                            </div>
-
-                            {/* Event */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Conversion Node</label>
-                                <input
-                                    type="text"
-                                    name="event_name"
-                                    placeholder="Trigger event"
-                                    className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${errors.event_name ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
-                                    value={formData.event_name}
-                                    onChange={handleChange}
-                                />
-                                {errors.event_name && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.event_name}</p>}
-                            </div>
-
-                            {/* Image icon */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Icon Asset URI</label>
-                                <input
-                                    type="text"
-                                    name="image_url"
-                                    placeholder="Asset CDN link"
-                                    className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${errors.image_url ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
-                                    value={formData.image_url}
-                                    onChange={handleChange}
-                                />
-                                {errors.image_url && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.image_url}</p>}
-                            </div>
-
+                            <SelectField label="Currency Type" name="currency_type" value={formData.currency_type} onChange={handleChange} options={[
+                                { value: 'cash', label: '💰 Cash (₹)' },
+                                { value: 'coins', label: '🪙 Coins' },
+                                { value: 'gems', label: '💎 Gems' },
+                            ]} />
+                            {/* Event Name (legacy single-event) */}
+                            <InputField label="Conversion Node (single event)" name="event_name" placeholder="Trigger event (or use multi-event below)" value={formData.event_name} onChange={handleChange} error={errors.event_name} />
+                            {/* Image URL */}
+                            <InputField label="Icon Asset URI" name="image_url" placeholder="Asset CDN link" value={formData.image_url} onChange={handleChange} error={errors.image_url} />
                             {/* Refer Payout */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Referral Protocol</label>
-                                <div className="relative">
-                                    <select
-                                        name="refer_payout"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all appearance-none font-bold text-gray-900"
-                                        value={formData.refer_payout}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="1st Event">1st Event</option>
-                                        <option value="2nd Event">2nd Event</option>
-                                        <option value="3rd Event">3rd Event</option>
-                                        <option value="4th Event">4th Event</option>
-                                        <option value="All Event">All Event</option>
-                                        <option value="Reffer Pause">Reffer Pause</option>
-                                    </select>
-                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-black">↓</div>
-                                </div>
-                            </div>
-
+                            <SelectField label="Referral Protocol" name="refer_payout" value={formData.refer_payout} onChange={handleChange} options={[
+                                { value: '1st Event', label: '1st Event' },
+                                { value: '2nd Event', label: '2nd Event' },
+                                { value: '3rd Event', label: '3rd Event' },
+                                { value: '4th Event', label: '4th Event' },
+                                { value: 'All Event', label: 'All Event' },
+                                { value: 'Reffer Pause', label: 'Reffer Pause' },
+                            ]} />
                             {/* Status */}
-                            <div className="space-y-2 group">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Deployment Status</label>
-                                <div className="relative">
-                                    <select
-                                        name="status"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all appearance-none font-bold text-gray-900"
-                                        value={formData.status}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="Active">Active Mode</option>
-                                        <option value="Inactive">Standby Mode</option>
-                                    </select>
-                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-black">↓</div>
-                                </div>
-                            </div>
+                            <SelectField label="Deployment Status" name="status" value={formData.status} onChange={handleChange} options={[
+                                { value: 'Active', label: 'Active Mode' },
+                                { value: 'Inactive', label: 'Standby Mode' },
+                            ]} />
                         </div>
 
-                        {/* Description - Full Width */}
+                        {/* Description */}
                         <div className="mt-10 space-y-2 group">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Mission Briefing</label>
                             <textarea
@@ -316,7 +259,157 @@ const AddOffer = () => {
                     </div>
                 </div>
 
-                {/* Final Actions */}
+                {/* ─── Multi-Event Steps Section ──────────────────────────── */}
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-8 text-white relative overflow-hidden">
+                        <div className="relative z-10 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-black tracking-tight mb-1 uppercase">🎯 Multi-Event Steps</h3>
+                                <p className="text-violet-200 text-xs font-bold uppercase tracking-widest">Progressive reward milestones (Install → Level 5 → Purchase)</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={addEventStep}
+                                className="bg-white/20 hover:bg-white/30 text-white font-black text-xs uppercase tracking-widest py-3 px-6 rounded-2xl transition-all duration-300 active:scale-95 flex items-center gap-2 backdrop-blur-sm"
+                            >
+                                <FaPlus size={10} /> Add Step
+                            </button>
+                        </div>
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[40px]"></div>
+                    </div>
+
+                    <div className="p-8 md:p-12">
+                        {eventSteps.length === 0 ? (
+                            <div className="text-center py-16 border-2 border-dashed border-gray-100 rounded-3xl">
+                                <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300 mx-auto mb-4">
+                                    <FaPlus size={24} />
+                                </div>
+                                <h4 className="text-gray-900 font-bold mb-2">No Event Steps Added</h4>
+                                <p className="text-gray-400 text-sm max-w-sm mx-auto mb-6">
+                                    Add multiple reward milestones for this offer. Each step awards specific points when the provider fires the corresponding postback.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={addEventStep}
+                                    className="bg-indigo-50 text-indigo-600 font-black text-xs uppercase tracking-widest py-3 px-8 rounded-2xl hover:bg-indigo-100 transition-all active:scale-95"
+                                >
+                                    <FaPlus className="inline mr-2" size={10} /> Add First Step
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {eventSteps.map((step, index) => (
+                                    <div key={index} className="bg-gray-50 rounded-2xl p-6 border-2 border-gray-100 hover:border-indigo-200 transition-all group">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            {/* Drag handle / reorder */}
+                                            <div className="flex flex-col gap-0.5">
+                                                <button type="button" onClick={() => moveEventStep(index, index - 1)} className="text-gray-300 hover:text-indigo-600 transition-colors" title="Move up">
+                                                    <span className="text-xs">▲</span>
+                                                </button>
+                                                <FaGripVertical className="text-gray-300" size={12} />
+                                                <button type="button" onClick={() => moveEventStep(index, index + 1)} className="text-gray-300 hover:text-indigo-600 transition-colors" title="Move down">
+                                                    <span className="text-xs">▼</span>
+                                                </button>
+                                            </div>
+
+                                            <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                                <span className="text-indigo-600 font-black text-sm">{index + 1}</span>
+                                            </div>
+                                            <span className="font-black text-gray-900 text-sm uppercase tracking-wider flex-1">
+                                                Step {index + 1}
+                                                {step.event_name && <span className="text-indigo-600 ml-2 normal-case tracking-normal">— {step.event_name}</span>}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeEventStep(index)}
+                                                className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                                            >
+                                                <FaTimes size={12} />
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                            {/* Event ID */}
+                                            <div className="space-y-1">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Event ID</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.event_id}
+                                                    onChange={(e) => updateEventStep(index, 'event_id', e.target.value)}
+                                                    placeholder="evt_install"
+                                                    className="w-full bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm placeholder:text-gray-300"
+                                                />
+                                            </div>
+
+                                            {/* Event Name */}
+                                            <div className="space-y-1">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Event Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={step.event_name}
+                                                    onChange={(e) => updateEventStep(index, 'event_name', e.target.value)}
+                                                    placeholder="Install App"
+                                                    className={`w-full bg-white border-2 rounded-xl py-3 px-4 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all font-bold text-gray-900 text-sm placeholder:text-gray-300 ${errors[`event_step_name_${index}`] ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
+                                                />
+                                                {errors[`event_step_name_${index}`] && (
+                                                    <p className="text-red-500 text-[9px] font-black">{errors[`event_step_name_${index}`]}</p>
+                                                )}
+                                            </div>
+
+                                            {/* Points */}
+                                            <div className="space-y-1">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Points / Amount</label>
+                                                <input
+                                                    type="number"
+                                                    value={step.points}
+                                                    onChange={(e) => updateEventStep(index, 'points', e.target.value)}
+                                                    placeholder="0"
+                                                    className={`w-full bg-white border-2 rounded-xl py-3 px-4 outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all font-black text-indigo-600 text-sm placeholder:text-gray-300 ${errors[`event_step_points_${index}`] ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
+                                                />
+                                                {errors[`event_step_points_${index}`] && (
+                                                    <p className="text-red-500 text-[9px] font-black">{errors[`event_step_points_${index}`]}</p>
+                                                )}
+                                            </div>
+
+                                            {/* Currency */}
+                                            <div className="space-y-1">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Currency</label>
+                                                <select
+                                                    value={step.currency_type}
+                                                    onChange={(e) => updateEventStep(index, 'currency_type', e.target.value)}
+                                                    className="w-full bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm appearance-none"
+                                                >
+                                                    <option value="cash">💰 Cash</option>
+                                                    <option value="coins">🪙 Coins</option>
+                                                    <option value="gems">💎 Gems</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {/* Summary */}
+                                <div className="flex items-center justify-between bg-indigo-50 rounded-2xl p-5 mt-4">
+                                    <div>
+                                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">{eventSteps.length} event step(s)</span>
+                                        <p className="text-2xl font-black text-indigo-600 leading-tight mt-1">
+                                            Total: ₹{totalFromEvents.toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addEventStep}
+                                        className="bg-indigo-600 text-white font-black text-xs uppercase tracking-widest py-3 px-6 rounded-2xl hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+                                    >
+                                        <FaPlus size={10} /> Add Another
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* ─── Submit Buttons ──────────────────────────────────────── */}
                 <div className="flex flex-col md:flex-row gap-4">
                     <button
                         type="submit"
@@ -341,5 +434,41 @@ const AddOffer = () => {
         </div>
     );
 };
+
+// ── Reusable Field Components ─────────────────────────────────────────────────
+
+const InputField = ({ label, name, placeholder, value, onChange, error, type = 'text' }) => (
+    <div className="space-y-2 group">
+        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">{label}</label>
+        <input
+            type={type}
+            name={name}
+            placeholder={placeholder}
+            className={`w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-gray-300 font-bold text-gray-900 ${error ? 'border-red-500/50' : 'border-gray-100 focus:border-indigo-500'}`}
+            value={value}
+            onChange={onChange}
+        />
+        {error && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{error}</p>}
+    </div>
+);
+
+const SelectField = ({ label, name, value, onChange, options }) => (
+    <div className="space-y-2 group">
+        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">{label}</label>
+        <div className="relative">
+            <select
+                name={name}
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all appearance-none font-bold text-gray-900"
+                value={value}
+                onChange={onChange}
+            >
+                {options.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+            </select>
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-black">↓</div>
+        </div>
+    </div>
+);
 
 export default AddOffer;
