@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaEdit, FaGripVertical, FaPlus, FaTasks, FaTimes, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { deleteOffer, getOffers, updateOffer } from '../api';
+import { deleteOffer, getOffers, getOfferSteps, updateOffer } from '../api';
 
 const ManageOffers = () => {
     const [offers, setOffers] = useState([]);
@@ -67,7 +67,7 @@ const ManageOffers = () => {
     const totalFromEvents = eventSteps.reduce((s, e) => s + (parseFloat(e.points) || 0), 0);
 
     // ── Edit click ────────────────────────────────────────────────────────
-    const handleEditClick = (offer) => {
+    const handleEditClick = async (offer) => {
         setEditOffer(offer);
         setFormData({
             offer_name: offer.offer_name || '',
@@ -85,17 +85,19 @@ const ManageOffers = () => {
             status: offer.status || 'Active'
         });
 
-        // Parse event_names string (pipe-delimited from backend GROUP_CONCAT)
-        // into step placeholders. Actual editing should refetch full steps.
-        if (offer.event_names) {
-            const names = offer.event_names.split('|');
-            setEventSteps(names.map((n, i) => ({
-                event_id: `evt${i}`,
-                event_name: n,
-                points: '',
-                currency_type: offer.currency_type || 'cash',
-            })));
-        } else {
+        // Refetch full steps
+        try {
+            const steps = await getOfferSteps(offer.id);
+            if (steps && steps.length > 0) {
+                setEventSteps(steps.map(s => ({
+                    ...s,
+                    points: s.points.toString(), // Convert to string for number input
+                })));
+            } else {
+                setEventSteps([]);
+            }
+        } catch (err) {
+            console.error('Failed to fetch steps:', err);
             setEventSteps([]);
         }
     };

@@ -36,6 +36,10 @@ export const getOffers = async () => {
     const response = await axios.get(`${API_URL}/offers`);
     return response.data;
 };
+export const getOfferSteps = async (id) => {
+    const response = await axios.get(`${API_URL}/offers/${id}/steps`);
+    return response.data;
+};
 
 export const deleteOffer = async (id) => {
     const response = await axios.delete(`${API_URL}/offers/${id}`);
