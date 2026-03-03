@@ -218,11 +218,7 @@ const AddOffer = () => {
                                 {errors.amount && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{errors.amount}</p>}
                             </div>
                             {/* Currency Type */}
-                            <SelectField label="Currency Type" name="currency_type" value={formData.currency_type} onChange={handleChange} options={[
-                                { value: 'cash', label: '💰 Cash (₹)' },
-                                { value: 'coins', label: '🪙 Coins' },
-                                { value: 'gems', label: '💎 Gems' },
-                            ]} />
+                            {/* Currency Type removed - defaulting to cash */}
                             {/* Event Name (legacy single-event) */}
                             <InputField label="Conversion Node (single event)" name="event_name" placeholder="Trigger event (or use multi-event below)" value={formData.event_name} onChange={handleChange} error={errors.event_name} />
                             {/* Image URL */}
@@ -329,20 +325,8 @@ const AddOffer = () => {
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                            {/* Event ID */}
-                                            <div className="space-y-1">
-                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Event ID</label>
-                                                <input
-                                                    type="text"
-                                                    value={step.event_id}
-                                                    onChange={(e) => updateEventStep(index, 'event_id', e.target.value)}
-                                                    placeholder="evt_install"
-                                                    className="w-full bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm placeholder:text-gray-300"
-                                                />
-                                            </div>
-
                                             {/* Event Name */}
-                                            <div className="space-y-1">
+                                            <div className="space-y-1 md:col-span-2">
                                                 <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Event Name</label>
                                                 <input
                                                     type="text"
@@ -371,19 +355,7 @@ const AddOffer = () => {
                                                 )}
                                             </div>
 
-                                            {/* Currency */}
-                                            <div className="space-y-1">
-                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Currency</label>
-                                                <select
-                                                    value={step.currency_type}
-                                                    onChange={(e) => updateEventStep(index, 'currency_type', e.target.value)}
-                                                    className="w-full bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm appearance-none"
-                                                >
-                                                    <option value="cash">💰 Cash</option>
-                                                    <option value="coins">🪙 Coins</option>
-                                                    <option value="gems">💎 Gems</option>
-                                                </select>
-                                            </div>
+                                            {/* Currency removed - defaulting to cash */}
                                         </div>
                                     </div>
                                 ))}

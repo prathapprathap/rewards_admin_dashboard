@@ -301,15 +301,7 @@ const ManageOffers = () => {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Currency Type</label>
-                                    <select value={formData.currency_type} onChange={(e) => setFormData({ ...formData, currency_type: e.target.value })}
-                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 appearance-none">
-                                        <option value="cash">💰 CASH (₹)</option>
-                                        <option value="coins">🪙 COINS</option>
-                                        <option value="gems">💎 GEMS</option>
-                                    </select>
-                                </div>
+                                {/* Currency Type removed - defaulting to cash */}
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Deployment Status</label>
@@ -350,18 +342,11 @@ const ManageOffers = () => {
 
                                                 <span className="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center text-indigo-600 font-black text-xs flex-shrink-0">{index + 1}</span>
 
-                                                <input type="text" value={step.event_id} onChange={(e) => updateEventStep(index, 'event_id', e.target.value)} placeholder="evt_id"
-                                                    className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold outline-none focus:border-indigo-500" />
                                                 <input type="text" value={step.event_name} onChange={(e) => updateEventStep(index, 'event_name', e.target.value)} placeholder="Event Name"
-                                                    className="flex-[2] min-w-0 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold outline-none focus:border-indigo-500" />
+                                                    className="flex-[3] min-w-0 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold outline-none focus:border-indigo-500" />
                                                 <input type="number" value={step.points} onChange={(e) => updateEventStep(index, 'points', e.target.value)} placeholder="Points"
                                                     className="w-24 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-black text-indigo-600 outline-none focus:border-indigo-500" />
-                                                <select value={step.currency_type} onChange={(e) => updateEventStep(index, 'currency_type', e.target.value)}
-                                                    className="w-28 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold outline-none focus:border-indigo-500 appearance-none">
-                                                    <option value="cash">💰 Cash</option>
-                                                    <option value="coins">🪙 Coins</option>
-                                                    <option value="gems">💎 Gems</option>
-                                                </select>
+                                                {/* Currency removed - defaulting to cash */}
 
                                                 <button type="button" onClick={() => removeEventStep(index)} className="w-7 h-7 bg-red-50 rounded flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all flex-shrink-0">
                                                     <FaTimes size={10} />
