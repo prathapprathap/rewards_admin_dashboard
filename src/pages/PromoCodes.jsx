@@ -12,6 +12,8 @@ const PromoCodes = () => {
         code: '',
         amount: '',
         users_limit: '',
+        min_offers: 0,
+        min_referrals: 0,
         for_whom: 'All',
         status: 'Active'
     });
@@ -36,7 +38,7 @@ const PromoCodes = () => {
         try {
             await createPromoCode(formData);
             setShowForm(false);
-            setFormData({ code: '', amount: '', users_limit: '', for_whom: 'All', status: 'Active' });
+            setFormData({ code: '', amount: '', users_limit: '', min_offers: 0, min_referrals: 0, for_whom: 'All', status: 'Active' });
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',
@@ -198,6 +200,29 @@ const PromoCodes = () => {
                                         className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900"
                                         value={formData.users_limit}
                                         onChange={(e) => setFormData({ ...formData, users_limit: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Min Offers Req</label>
+                                    <input
+                                        type="number"
+                                        placeholder="0"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black"
+                                        value={formData.min_offers}
+                                        onChange={(e) => setFormData({ ...formData, min_offers: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Min Referrals Req</label>
+                                    <input
+                                        type="number"
+                                        placeholder="0"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black"
+                                        value={formData.min_referrals}
+                                        onChange={(e) => setFormData({ ...formData, min_referrals: e.target.value })}
                                     />
                                 </div>
                             </div>

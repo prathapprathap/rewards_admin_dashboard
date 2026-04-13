@@ -86,6 +86,7 @@ const AppSettings = () => {
         { key: 'min_withdrawal', label: 'Min Withdrawal', type: 'number', icon: '💸' },
         { key: 'referral_reward', label: 'Referral Reward', type: 'number', icon: '👥' },
         { key: 'referral_commission_percent', label: 'Referral %', type: 'number', icon: '📊' },
+        { key: 'primary_color', label: 'Primary Color (Hex)', type: 'text', icon: '🎨' },
     ];
 
     if (loading) {
