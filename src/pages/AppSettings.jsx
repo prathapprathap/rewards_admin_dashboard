@@ -137,6 +137,24 @@ const AppSettings = () => {
                                             className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 italic resize-none"
                                             placeholder={`Enter ${config.label.toLowerCase()}...`}
                                         />
+                                    ) : config.key === 'primary_color' ? (
+                                        <div className="flex items-center gap-4">
+                                            <input
+                                                type="color"
+                                                name={config.key}
+                                                value={settings[config.key] || '#6DC000'}
+                                                onChange={handleChange}
+                                                className="w-16 h-16 bg-gray-50 border-2 border-gray-100 rounded-2xl p-1 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all cursor-pointer"
+                                            />
+                                            <input
+                                                type="text"
+                                                name={config.key}
+                                                value={settings[config.key] || ''}
+                                                onChange={handleChange}
+                                                className="flex-1 bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 font-mono"
+                                                placeholder="#000000"
+                                            />
+                                        </div>
                                     ) : (
                                         <input
                                             type={config.type}
