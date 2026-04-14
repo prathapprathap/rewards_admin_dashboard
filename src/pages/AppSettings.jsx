@@ -87,7 +87,6 @@ const AppSettings = () => {
         { key: 'referral_reward', label: 'Referral Reward', type: 'number', icon: '👥' },
         { key: 'referral_commission_percent', label: 'Referral %', type: 'number', icon: '📊' },
         { key: 'primary_color', label: 'Primary Color', type: 'color', icon: '🎨' },
-        { key: 'secondary_color', label: 'Secondary Color', type: 'color', icon: '🎨' },
         { key: 'daily_checkin_reward', label: 'Daily Check-in Reward', type: 'number', icon: '📅' },
         { key: 'daily_checkin_rewards_list', label: 'Check-in Rewards List', type: 'text', icon: '📜' },
         { key: 'checkin_target_days', label: 'Check-in Target Days', type: 'number', icon: '🎯' },
