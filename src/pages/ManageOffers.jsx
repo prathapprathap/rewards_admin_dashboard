@@ -10,6 +10,7 @@ const ManageOffers = () => {
     const [formData, setFormData] = useState({
         offer_name: '',
         offer_id: '',
+        side_label: '',
         heading: '',
         history_name: '',
         offer_url: '',
@@ -72,6 +73,7 @@ const ManageOffers = () => {
         setFormData({
             offer_name: offer.offer_name || '',
             offer_id: offer.offer_id || '',
+            side_label: offer.side_label || '',
             heading: offer.heading || '',
             history_name: offer.history_name || '',
             offer_url: offer.offer_url || '',
@@ -191,6 +193,13 @@ const ManageOffers = () => {
                                     <h3 className="text-lg font-black text-white leading-tight line-clamp-1 group-hover:text-indigo-400 transition-colors">{offer.offer_name}</h3>
                                     <p className="text-white/70 text-xs font-bold uppercase tracking-wider mt-1">{offer.heading}</p>
                                 </div>
+                                {offer.side_label && (
+                                    <div className="absolute top-4 left-4">
+                                        <span className="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg bg-white text-gray-900">
+                                            {offer.side_label}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Content */}
@@ -271,6 +280,7 @@ const ManageOffers = () => {
                                 {[
                                     { id: 'offer_name', label: 'Offer Identity', placeholder: 'e.g. Premium Access', type: 'text' },
                                     { id: 'offer_id', label: 'Internal UID', placeholder: 'e.g. OFFER_X_101', type: 'text' },
+                                    { id: 'side_label', label: 'Side Label', placeholder: 'e.g. Install / Hot / Special', type: 'text', required: false },
                                     { id: 'heading', label: 'Call to Action', placeholder: 'e.g. INSTALL & REGISTER', type: 'text' },
                                     { id: 'history_name', label: 'Ledger Label', placeholder: 'e.g. Signup Completion', type: 'text' },
                                     { id: 'offer_url', label: 'Target URI', placeholder: 'https://...', type: 'text' },

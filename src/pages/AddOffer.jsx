@@ -9,6 +9,7 @@ const AddOffer = () => {
     const [formData, setFormData] = useState({
         offer_name: '',
         offer_id: '',
+        side_label: '',
         heading: '',
         history_name: '',
         offer_url: '',
@@ -180,6 +181,8 @@ const AddOffer = () => {
                             <InputField label="Offer Identity" name="offer_name" placeholder="Enter premium name" value={formData.offer_name} onChange={handleChange} error={errors.offer_name} />
                             {/* Offer ID */}
                             <InputField label="System ID" name="offer_id" placeholder="Unique identifier" value={formData.offer_id} onChange={handleChange} error={errors.offer_id} />
+                            {/* Side Label */}
+                            <InputField label="Side Label" name="side_label" placeholder="e.g. Install / Hot / Limited" value={formData.side_label} onChange={handleChange} />
                             {/* Heading */}
                             <InputField label="Public Heading" name="heading" placeholder="Attractive title" value={formData.heading} onChange={handleChange} error={errors.heading} />
                             {/* History Name */}
