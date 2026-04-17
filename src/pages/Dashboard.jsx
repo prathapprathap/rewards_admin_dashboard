@@ -3,7 +3,7 @@ import { FaTasks, FaUsers } from 'react-icons/fa';
 import { getStats } from '../api';
 
 const Dashboard = () => {
-    const [stats, setStats] = useState({ totalUsers: 0, totalTasks: 0 });
+    const [stats, setStats] = useState({ totalUsers: 0, totalTasks: 0, totalOffers: 0, totalPayouts: 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -61,21 +61,21 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Additional Placeholder Card - Active Now */}
+                {/* Total Offers Card */}
                 <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 group hover:border-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500">
                     <div className="flex items-center justify-between mb-6">
                         <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500">
-                            <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                            <FaTasks size={24} />
                         </div>
                         <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
                     </div>
                     <div>
-                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Active Now</p>
-                        <p className="text-4xl font-black text-gray-900 tracking-tighter">--</p>
+                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Total Offers</p>
+                        <p className="text-4xl font-black text-gray-900 tracking-tighter">{(stats.totalOffers || 0).toLocaleString()}</p>
                     </div>
                 </div>
 
-                {/* Additional Placeholder Card - Revenue */}
+                {/* Total Payouts Card */}
                 <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 group hover:border-orange-500/20 hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-500">
                     <div className="flex items-center justify-between mb-6">
                         <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 group-hover:scale-110 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500 text-xl font-black">
@@ -84,7 +84,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Total Payouts</p>
-                        <p className="text-4xl font-black text-gray-900 tracking-tighter">--</p>
+                        <p className="text-4xl font-black text-gray-900 tracking-tighter">{(stats.totalPayouts || 0).toLocaleString()}</p>
                     </div>
                 </div>
             </div>
