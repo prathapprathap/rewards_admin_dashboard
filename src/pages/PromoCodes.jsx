@@ -63,6 +63,8 @@ const PromoCodes = () => {
             code: promo.code,
             amount: promo.amount,
             users_limit: promo.users_limit,
+            min_offers: promo.min_offers || 0,
+            min_referrals: promo.min_referrals || 0,
             for_whom: promo.for_whom || 'All',
             status: promo.status || 'Active'
         });
@@ -73,7 +75,7 @@ const PromoCodes = () => {
         try {
             await updatePromoCode(editPromo.id, formData);
             setEditPromo(null);
-            setFormData({ code: '', amount: '', users_limit: '', for_whom: 'All', status: 'Active' });
+            setFormData({ code: '', amount: '', users_limit: '', min_offers: 0, min_referrals: 0, for_whom: 'All', status: 'Active' });
             Swal.fire({
                 icon: 'success',
                 title: 'Updated!',
@@ -141,7 +143,7 @@ const PromoCodes = () => {
                 <button
                     onClick={() => {
                         setEditPromo(null);
-                        setFormData({ code: '', amount: '', users_limit: '', for_whom: 'All', status: 'Active' });
+                        setFormData({ code: '', amount: '', users_limit: '', min_offers: 0, min_referrals: 0, for_whom: 'All', status: 'Active' });
                         setShowForm(true);
                     }}
                     className="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-8 py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
@@ -282,6 +284,11 @@ const PromoCodes = () => {
                                             <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-100">
                                                 {promo.claimed_count || 0} / {promo.users_limit} Claims
                                             </span>
+                                            {(promo.min_offers > 0 || promo.min_referrals > 0) && (
+                                                <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-amber-100">
+                                                    Req: {promo.min_offers || 0}O / {promo.min_referrals || 0}R
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
