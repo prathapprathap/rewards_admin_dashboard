@@ -345,51 +345,51 @@ const ManageOffers = () => {
                                         <p className="text-center text-gray-400 text-sm py-8">No event steps configured. Click "Add" to create reward milestones.</p>
                                     ) : (
                                         eventSteps.map((step, index) => (
-                                            <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col md:flex-row items-start md:items-center gap-3">
-                                                {/* Reorder */}
-                                                <div className="flex flex-col gap-0.5 items-center">
-                                                    <button type="button" onClick={() => moveEventStep(index, index - 1)} className="text-gray-300 hover:text-indigo-600"><span className="text-xs">▲</span></button>
-                                                    <FaGripVertical className="text-gray-300" size={10} />
-                                                    <button type="button" onClick={() => moveEventStep(index, index + 1)} className="text-gray-300 hover:text-indigo-600"><span className="text-xs">▼</span></button>
+                                            <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col gap-3">
+                                                <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                                                    {/* Reorder */}
+                                                    <div className="flex flex-col gap-0.5 items-center">
+                                                        <button type="button" onClick={() => moveEventStep(index, index - 1)} className="text-gray-300 hover:text-indigo-600"><span className="text-xs">▲</span></button>
+                                                        <FaGripVertical className="text-gray-300" size={10} />
+                                                        <button type="button" onClick={() => moveEventStep(index, index + 1)} className="text-gray-300 hover:text-indigo-600"><span className="text-xs">▼</span></button>
+                                                    </div>
+
+                                                    <span className="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center text-indigo-600 font-black text-xs flex-shrink-0">{index + 1}</span>
+
+                                                    <input type="text" value={step.event_name} onChange={(e) => updateEventStep(index, 'event_name', e.target.value)} placeholder="Event Name"
+                                                        className="flex-[3] min-w-0 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold outline-none focus:border-indigo-500" />
+                                                    <input type="number" value={step.points} onChange={(e) => updateEventStep(index, 'points', e.target.value)} placeholder="Points"
+                                                        className="w-24 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-black text-indigo-600 outline-none focus:border-indigo-500" />
+
+                                                    <button type="button" onClick={() => removeEventStep(index)} className="w-7 h-7 bg-red-50 rounded flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all flex-shrink-0">
+                                                        <FaTimes size={10} />
+                                                    </button>
                                                 </div>
-
-                                                <span className="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center text-indigo-600 font-black text-xs flex-shrink-0">{index + 1}</span>
-
-                                                <input type="text" value={step.event_name} onChange={(e) => updateEventStep(index, 'event_name', e.target.value)} placeholder="Event Name"
-                                                    className="flex-[3] min-w-0 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold outline-none focus:border-indigo-500" />
-                                                <input type="number" value={step.points} onChange={(e) => updateEventStep(index, 'points', e.target.value)} placeholder="Points"
-                                                    className="w-24 bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-black text-indigo-600 outline-none focus:border-indigo-500" />
-                                                {/* Currency removed - defaulting to cash */}
-
-                                                <button type="button" onClick={() => removeEventStep(index)} className="w-7 h-7 bg-red-50 rounded flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all flex-shrink-0">
-                                                    <FaTimes size={10} />
-                                                </button>
+                                                <div className="w-full">
+                                                    <textarea
+                                                        value={step.description || ''}
+                                                        onChange={(e) => updateEventStep(index, 'description', e.target.value)}
+                                                        placeholder="Step Instructions (Optional)"
+                                                        className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-xs font-medium outline-none focus:border-indigo-500 resize-none"
+                                                        rows="1"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="w-full">
-                                                <textarea 
-                                                    value={step.description || ''} 
-                                                    onChange={(e) => updateEventStep(index, 'description', e.target.value)} 
-                                                    placeholder="Step Instructions (Optional)"
-                                                    className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-xs font-medium outline-none focus:border-indigo-500 resize-none"
-                                                    rows="1"
-                                                />
-                                            </div>
-                                        </div>
-                                ))
+                                        ))
                                     )}
+                                </div>
                             </div>
-                    </div>
 
-                    <div className="flex flex-col md:flex-row gap-4 pt-4 pb-6">
-                        <button type="submit" className="flex-1 bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 text-[10px] tracking-widest uppercase">
-                            AUTHORIZE ADJUSTMENTS
-                        </button>
-                        <button type="button" onClick={() => { setEditOffer(null); setEventSteps([]); }}
-                            className="px-10 py-5 bg-gray-100 text-gray-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all duration-300 active:scale-95">
-                            ABORT MISSION
-                        </button>
-                    </div>
-                </form>
+                            <div className="flex flex-col md:flex-row gap-4 pt-4 pb-6">
+                                <button type="submit" className="flex-1 bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 text-[10px] tracking-widest uppercase">
+                                    AUTHORIZE ADJUSTMENTS
+                                </button>
+                                <button type="button" onClick={() => { setEditOffer(null); setEventSteps([]); }}
+                                    className="px-10 py-5 bg-gray-100 text-gray-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all duration-300 active:scale-95">
+                                    ABORT MISSION
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div >
             )}
