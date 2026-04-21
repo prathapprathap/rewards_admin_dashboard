@@ -45,7 +45,7 @@ const ManageOffers = () => {
     const addEventStep = () => {
         setEventSteps([
             ...eventSteps,
-            { event_id: `evt${eventSteps.length}`, event_name: '', points: '', currency_type: formData.currency_type || 'cash' }
+            { event_id: `evt${eventSteps.length}`, event_name: '', description: '', points: '', currency_type: formData.currency_type || 'cash' }
         ]);
     };
 
@@ -113,6 +113,7 @@ const ManageOffers = () => {
                 events: eventSteps.map((step, i) => ({
                     event_id: step.event_id || `evt${i}`,
                     event_name: step.event_name,
+                    description: step.description || '',
                     points: parseFloat(step.points) || 0,
                     currency_type: step.currency_type || formData.currency_type,
                 })),
@@ -364,25 +365,35 @@ const ManageOffers = () => {
                                                     <FaTimes size={10} />
                                                 </button>
                                             </div>
-                                        ))
+                                            <div className="w-full">
+                                                <textarea 
+                                                    value={step.description || ''} 
+                                                    onChange={(e) => updateEventStep(index, 'description', e.target.value)} 
+                                                    placeholder="Step Instructions (Optional)"
+                                                    className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-xs font-medium outline-none focus:border-indigo-500 resize-none"
+                                                    rows="1"
+                                                />
+                                            </div>
+                                        </div>
+                                ))
                                     )}
-                                </div>
                             </div>
-
-                            <div className="flex flex-col md:flex-row gap-4 pt-4 pb-6">
-                                <button type="submit" className="flex-1 bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 text-[10px] tracking-widest uppercase">
-                                    AUTHORIZE ADJUSTMENTS
-                                </button>
-                                <button type="button" onClick={() => { setEditOffer(null); setEventSteps([]); }}
-                                    className="px-10 py-5 bg-gray-100 text-gray-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all duration-300 active:scale-95">
-                                    ABORT MISSION
-                                </button>
-                            </div>
-                        </form>
                     </div>
-                </div>
+
+                    <div className="flex flex-col md:flex-row gap-4 pt-4 pb-6">
+                        <button type="submit" className="flex-1 bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-95 text-[10px] tracking-widest uppercase">
+                            AUTHORIZE ADJUSTMENTS
+                        </button>
+                        <button type="button" onClick={() => { setEditOffer(null); setEventSteps([]); }}
+                            className="px-10 py-5 bg-gray-100 text-gray-500 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all duration-300 active:scale-95">
+                            ABORT MISSION
+                        </button>
+                    </div>
+                </form>
+                    </div>
+                </div >
             )}
-        </div>
+        </div >
     );
 };
 

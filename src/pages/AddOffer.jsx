@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { createOffer } from '../api';
 
+const getOrdinal = (n) => {
+    const s = ["th", "st", "nd", "rd"],
+        v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+};
+
 const AddOffer = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -42,6 +48,7 @@ const AddOffer = () => {
             {
                 event_id: `evt${eventSteps.length}`,
                 event_name: '',
+                description: '',
                 points: '',
                 currency_type: formData.currency_type || 'cash',
             }
@@ -123,6 +130,7 @@ const AddOffer = () => {
                 events: eventSteps.map((step, i) => ({
                     event_id: step.event_id || `evt${i}`,
                     event_name: step.event_name,
+                    description: step.description || '',
                     points: parseFloat(step.points) || 0,
                     currency_type: step.currency_type || formData.currency_type,
                 })),
@@ -226,15 +234,22 @@ const AddOffer = () => {
                             <InputField label="Conversion Node (single event)" name="event_name" placeholder="Trigger event (or use multi-event below)" value={formData.event_name} onChange={handleChange} error={errors.event_name} />
                             {/* Image URL */}
                             <InputField label="Icon Asset URI" name="image_url" placeholder="Asset CDN link" value={formData.image_url} onChange={handleChange} error={errors.image_url} />
-                            {/* Refer Payout */}
-                            <SelectField label="Referral Protocol" name="refer_payout" value={formData.refer_payout} onChange={handleChange} options={[
-                                { value: '1st Event', label: '1st Event' },
-                                { value: '2nd Event', label: '2nd Event' },
-                                { value: '3rd Event', label: '3rd Event' },
-                                { value: '4th Event', label: '4th Event' },
-                                { value: 'All Event', label: 'All Event' },
-                                { value: 'Reffer Pause', label: 'Reffer Pause' },
-                            ]} />
+                            <SelectField
+                                label="Referral Protocol"
+                                name="refer_payout"
+                                value={formData.refer_payout}
+                                onChange={handleChange}
+                                options={[
+                                    ...eventSteps.map((_, i) => ({
+                                        value: `${i + 1}${getOrdinal(i + 1)} Event`,
+                                        label: `${i + 1}${getOrdinal(i + 1)} Event`
+                                    })),
+                                    { value: 'All Event', label: 'All Event' },
+                                    { value: 'Reffer Pause', label: 'Reffer Pause' },
+                                ].filter((opt, index, self) =>
+                                    index === self.findIndex((t) => t.value === opt.value)
+                                )}
+                            />
                             {/* Status */}
                             <SelectField label="Deployment Status" name="status" value={formData.status} onChange={handleChange} options={[
                                 { value: 'Active', label: 'Active Mode' },
@@ -359,6 +374,18 @@ const AddOffer = () => {
                                             </div>
 
                                             {/* Currency removed - defaulting to cash */}
+                                        </div>
+
+                                        {/* Step Description */}
+                                        <div className="mt-4 space-y-1">
+                                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Step Instructions / Description</label>
+                                            <textarea
+                                                value={step.description || ''}
+                                                onChange={(e) => updateEventStep(index, 'description', e.target.value)}
+                                                placeholder="e.g. Open the app and register using your mobile number..."
+                                                rows="2"
+                                                className="w-full bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all font-medium text-gray-700 text-sm placeholder:text-gray-300 resize-none"
+                                            ></textarea>
                                         </div>
                                     </div>
                                 ))}
