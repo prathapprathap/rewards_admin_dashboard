@@ -398,13 +398,59 @@ const ManageOffers = () => {
                                                     </button>
                                                 </div>
                                                 <div className="w-full">
-                                                    <textarea
-                                                        value={step.description || ''}
-                                                        onChange={(e) => updateEventStep(index, 'description', e.target.value)}
-                                                        placeholder="Step Instructions (Optional)"
-                                                        className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-xs font-medium outline-none focus:border-indigo-500 resize-none"
-                                                        rows="1"
-                                                    />
+                                                    {/* Dynamic Bullets Instruction Management */}
+                                                    <div className="space-y-2 mt-2">
+                                                        <div className="flex items-center justify-between px-1">
+                                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Instruction Bullets</p>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const current = step.description || '';
+                                                                    const newDesc = current ? `${current}\n• ` : '• ';
+                                                                    updateEventStep(index, 'description', newDesc);
+                                                                }}
+                                                                className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors flex items-center gap-1"
+                                                            >
+                                                                <FaPlus size={7} /> Add Bullet
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            {(step.description || '').split('\n').filter(line => line.trim()).map((bullet, bIndex) => (
+                                                                <div key={bIndex} className="flex gap-2 group/bullet">
+                                                                    <div className="flex-1 relative">
+                                                                        <input
+                                                                            type="text"
+                                                                            value={bullet.startsWith('• ') ? bullet.substring(2) : bullet}
+                                                                            onChange={(e) => {
+                                                                                const lines = (step.description || '').split('\n').filter(line => line.trim());
+                                                                                lines[bIndex] = `• ${e.target.value}`;
+                                                                                updateEventStep(index, 'description', lines.join('\n'));
+                                                                            }}
+                                                                            placeholder="Step milestone instruction..."
+                                                                            className="w-full bg-white border border-gray-100 rounded-lg py-2 px-8 outline-none focus:border-indigo-500 transition-all font-medium text-gray-700 text-xs"
+                                                                        />
+                                                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400 font-bold">•</div>
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const lines = (step.description || '').split('\n').filter(line => line.trim());
+                                                                            lines.splice(bIndex, 1);
+                                                                            updateEventStep(index, 'description', lines.join('\n'));
+                                                                        }}
+                                                                        className="w-8 h-8 bg-gray-50 text-gray-400 hover:text-red-500 rounded-lg flex items-center justify-center transition-all opacity-0 group-hover/bullet:opacity-100"
+                                                                    >
+                                                                        <FaTimes size={9} />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+
+                                                            {!(step.description || '').trim() && (
+                                                                <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest text-center py-2 border border-dashed border-gray-200 rounded-lg">No instructions added</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))
