@@ -26,6 +26,7 @@ const AddOffer = () => {
         description: '',
         image_url: '',
         refer_payout: '1st Event',
+        side_label_color: '',
         status: 'Active'
     });
 
@@ -191,6 +192,8 @@ const AddOffer = () => {
                             <InputField label="System ID" name="offer_id" placeholder="Unique identifier" value={formData.offer_id} onChange={handleChange} error={errors.offer_id} />
                             {/* Side Label */}
                             <InputField label="Side Label" name="side_label" placeholder="e.g. Install / Hot / Limited" value={formData.side_label} onChange={handleChange} />
+                            {/* Side Label Color */}
+                            <InputField label="Label HEX Color" name="side_label_color" placeholder="e.g. #FF5733" value={formData.side_label_color} onChange={handleChange} />
                             {/* Heading */}
                             <InputField label="Public Heading" name="heading" placeholder="Attractive title" value={formData.heading} onChange={handleChange} error={errors.heading} />
                             {/* History Name */}
