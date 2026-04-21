@@ -193,7 +193,7 @@ const AddOffer = () => {
                             {/* Side Label */}
                             <InputField label="Side Label" name="side_label" placeholder="e.g. Install / Hot / Limited" value={formData.side_label} onChange={handleChange} />
                             {/* Side Label Color */}
-                            <InputField label="Label HEX Color" name="side_label_color" placeholder="e.g. #FF5733" value={formData.side_label_color} onChange={handleChange} />
+                            <ColorPickerField label="Label Color" name="side_label_color" value={formData.side_label_color} onChange={handleChange} />
                             {/* Heading */}
                             <InputField label="Public Heading" name="heading" placeholder="Attractive title" value={formData.heading} onChange={handleChange} error={errors.heading} />
                             {/* History Name */}
@@ -473,6 +473,35 @@ const SelectField = ({ label, name, value, onChange, options }) => (
             </select>
             <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 font-black">↓</div>
         </div>
+    </div>
+);
+
+const ColorPickerField = ({ label, name, value, onChange, error }) => (
+    <div className="space-y-2 group">
+        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">{label}</label>
+        <div className="flex gap-3">
+            <div className="relative flex-1 group/color">
+                <input
+                    type="text"
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-400"
+                    placeholder="#000000"
+                />
+                <div
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl border-2 border-white shadow-sm transition-transform group-hover/color:scale-110"
+                    style={{ backgroundColor: value || '#000000' }}
+                ></div>
+            </div>
+            <input
+                type="color"
+                value={value && value.startsWith('#') ? value : '#6366f1'}
+                onChange={(e) => onChange({ target: { name, value: e.target.value.toUpperCase() } })}
+                className="w-16 h-[60px] bg-gray-50 border-2 border-gray-100 rounded-2xl p-1 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all"
+            />
+        </div>
+        {error && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest ml-1">{error}</p>}
     </div>
 );
 

@@ -284,7 +284,12 @@ const ManageOffers = () => {
                                     { id: 'offer_name', label: 'Offer Identity', placeholder: 'e.g. Premium Access', type: 'text' },
                                     { id: 'offer_id', label: 'Internal UID', placeholder: 'e.g. OFFER_X_101', type: 'text' },
                                     { id: 'side_label', label: 'Side Label', placeholder: 'e.g. Install / Hot / Special', type: 'text', required: false },
-                                    { id: 'side_label_color', label: 'Label HEX Color', placeholder: 'e.g. #FF5733', type: 'text', required: false },
+                                    {
+                                        id: 'side_label_color',
+                                        label: 'Label Color',
+                                        type: 'color_picker',
+                                        required: false
+                                    },
                                     { id: 'heading', label: 'Call to Action', placeholder: 'e.g. INSTALL & REGISTER', type: 'text' },
                                     { id: 'history_name', label: 'Ledger Label', placeholder: 'e.g. Signup Completion', type: 'text' },
                                     { id: 'offer_url', label: 'Target URI', placeholder: 'https://...', type: 'text' },
@@ -296,14 +301,38 @@ const ManageOffers = () => {
                                 ].map((field) => (
                                     <div key={field.id} className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">{field.label}</label>
-                                        <input
-                                            type={field.type}
-                                            required={field.required !== false}
-                                            value={formData[field.id]}
-                                            onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-300"
-                                            placeholder={field.placeholder}
-                                        />
+                                        {field.type === 'color_picker' ? (
+                                            <div className="flex gap-3">
+                                                <div className="relative flex-1 group/color">
+                                                    <input
+                                                        type="text"
+                                                        value={formData[field.id]}
+                                                        onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-400"
+                                                        placeholder="#000000"
+                                                    />
+                                                    <div
+                                                        className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl border-2 border-white shadow-sm transition-transform group-hover/color:scale-110"
+                                                        style={{ backgroundColor: formData[field.id] || '#000000' }}
+                                                    ></div>
+                                                </div>
+                                                <input
+                                                    type="color"
+                                                    value={formData[field.id] && formData[field.id].startsWith('#') ? formData[field.id] : '#6366f1'}
+                                                    onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value.toUpperCase() })}
+                                                    className="w-16 h-[60px] bg-gray-50 border-2 border-gray-100 rounded-2xl p-1 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-500/5 transition-all"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <input
+                                                type={field.type}
+                                                required={field.required !== false}
+                                                value={formData[field.id]}
+                                                onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900 placeholder:text-gray-300"
+                                                placeholder={field.placeholder}
+                                            />
+                                        )}
                                     </div>
                                 ))}
 
