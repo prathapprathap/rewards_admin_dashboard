@@ -51,7 +51,7 @@ const AppSettings = () => {
         }
     };
 
-        useEffect(() => {
+    useEffect(() => {
         fetchSettings();
     }, []);
     const handleChange = (e) => {
@@ -107,10 +107,7 @@ const AppSettings = () => {
         { key: 'privacy_policy_url', label: 'Privacy Policy URL', type: 'text', icon: '🔒' },
         { key: 'help_support_url', label: 'Help & Support URL', type: 'text', icon: '🆘' },
         { key: 'refer_text', label: 'Refer Page Text', type: 'textarea', icon: '📝' },
-        { key: 'telegram_reward_amount', label: 'Telegram Reward (₹)', type: 'number', icon: '💎' },
-        { key: 'show_telegram_card', label: 'Show Telegram Card (On/Off)', type: 'text', icon: '👁️' },
-        { key: 'telegram_bot_token', label: 'Telegram Bot Token', type: 'text', icon: '🤖' },
-        { key: 'telegram_chat_id', label: 'Telegram Channel ID (@name)', type: 'text', icon: '🆔' },
+        { key: 'telegram_link', label: 'Telegram Join Link', type: 'text', icon: '✈️' },
     ];
 
     if (loading) {
