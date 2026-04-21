@@ -11,9 +11,8 @@ const AppSettings = () => {
         whatsapp_link: '',
         primary_color: '#6DC000',
         wallet_symbol_image_url: '',
+        currency_symbol: '₹',
         signup_bonus_cash: '5',
-        signup_bonus_coins: '500',
-        coin_rate: '100',
         min_withdrawal: '100',
         referral_fixed_reward: '10',
         referral_commission_percent: '10',
@@ -27,6 +26,10 @@ const AppSettings = () => {
         update_mode: 'Off',
         maintenance_mode: 'Off',
         refer_text: '',
+        apk_download_url: '',
+        app_package_name: '',
+        privacy_policy_url: '',
+        help_support_url: '',
     });
     const [loading, setLoading] = useState(true);
 
@@ -84,9 +87,8 @@ const AppSettings = () => {
         { key: 'whatsapp_link', label: 'WhatsApp Link', type: 'text', icon: '💬' },
         { key: 'primary_color', label: 'Primary Color', type: 'color', icon: '🎨' },
         { key: 'wallet_symbol_image_url', label: 'Wallet Symbol Image URL', type: 'text', icon: '🪙' },
+        { key: 'currency_symbol', label: 'Currency Symbol (₹, $, etc)', type: 'text', icon: '💱' },
         { key: 'signup_bonus_cash', label: 'Signup Bonus (₹)', type: 'number', icon: '🎁' },
-        { key: 'signup_bonus_coins', label: 'Signup Bonus (Coins)', type: 'number', icon: '🪙' },
-        { key: 'coin_rate', label: 'Coin to Cash Rate (e.g. 100)', type: 'number', icon: '💱' },
         { key: 'min_withdrawal', label: 'Min Withdrawal (₹)', type: 'number', icon: '💸' },
         { key: 'referral_fixed_reward', label: 'Referral Reward (₹)', type: 'number', icon: '💰' },
         { key: 'referral_commission_percent', label: 'Referral Commission (%)', type: 'number', icon: '📊' },
@@ -99,6 +101,10 @@ const AppSettings = () => {
         { key: 'payment_mode', label: 'Payment Mode', type: 'text', icon: '💳' },
         { key: 'update_mode', label: 'Update Mode', type: 'text', icon: '🔄' },
         { key: 'maintenance_mode', label: 'Maintenance Mode', type: 'text', icon: '🛠️' },
+        { key: 'apk_download_url', label: 'APK Download URL', type: 'text', icon: '📲' },
+        { key: 'app_package_name', label: 'App Package Name (Play Store)', type: 'text', icon: '📦' },
+        { key: 'privacy_policy_url', label: 'Privacy Policy URL', type: 'text', icon: '🔒' },
+        { key: 'help_support_url', label: 'Help & Support URL', type: 'text', icon: '🆘' },
         { key: 'refer_text', label: 'Refer Page Text', type: 'textarea', icon: '📝' },
     ];
 
