@@ -19,8 +19,8 @@ import ActiveUsers from './pages/ActiveUsers';
 import AddOffer from './pages/AddOffer';
 import AdminProfile from './pages/AdminProfile';
 import AppSettings from './pages/AppSettings';
-import ConversionAnalytics from './pages/ConversionAnalytics';
 import Dashboard from './pages/Dashboard';
+import ImageSlider from './pages/ImageSlider';
 import Login from './pages/Login';
 import ManageOffers from './pages/ManageOffers';
 import PaidWithdrawals from './pages/PaidWithdrawals';
@@ -146,7 +146,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSideb
               <Route path="/image-slider" element={<ImageSlider />} />
               <Route path="/settings" element={<AppSettings />} />
               <Route path="/profile" element={<AdminProfile />} />
-              <Route path="/analytics" element={<ConversionAnalytics />} />
+
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
