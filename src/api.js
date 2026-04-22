@@ -108,3 +108,42 @@ export const updatePassword = async (passwordData) => {
     const response = await axios.put(`${API_URL}/profile/password`, passwordData);
     return response.data;
 };
+
+// Banner management
+export const getBanners = async () => {
+    const response = await axios.get(`${API_URL}/banners`);
+    return response.data;
+};
+
+export const createBanner = async (bannerData) => {
+    const response = await axios.post(`${API_URL}/banners`, bannerData);
+    return response.data;
+};
+
+export const updateBanner = async (id, bannerData) => {
+    const response = await axios.put(`${API_URL}/banners/${id}`, bannerData);
+    return response.data;
+};
+
+export const deleteBanner = async (id) => {
+    const response = await axios.delete(`${API_URL}/banners/${id}`);
+    return response.data;
+};
+
+// Recent Transactions
+export const getTransactions = async () => {
+    const response = await axios.get(`${API_URL}/transactions`);
+    return response.data;
+};
+
+// Account Deactivation Requests
+export const getDeleteRequests = async () => {
+    const response = await axios.get(`${API_URL}/delete-requests`);
+    return response.data;
+};
+
+export const updateDeleteRequestStatus = async (id, status) => {
+    const response = await axios.put(`${API_URL}/delete-requests/${id}`, { status });
+    return response.data;
+};
+

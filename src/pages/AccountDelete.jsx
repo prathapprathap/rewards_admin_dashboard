@@ -1,149 +1,125 @@
 import { useEffect, useState } from 'react';
-import { FaExclamationTriangle, FaTrashAlt, FaUsers } from 'react-icons/fa';
+import { FaSearch, FaTrashAlt, FaUndo } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { deleteUser, getUsers } from '../api';
+import { getDeleteRequests, updateDeleteRequestStatus } from '../api';
 
 const AccountDelete = () => {
-    const [users, setUsers] = useState([]);
+    const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        fetchUsers();
+        fetchRequests();
     }, []);
 
-    const fetchUsers = async () => {
+    const fetchRequests = async () => {
         try {
-            const data = await getUsers();
-            setUsers(data);
+            const data = await getDeleteRequests();
+            setRequests(data);
         } catch (error) {
-            console.error('Error fetching users:', error);
+            console.error('Error fetching delete requests:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = async (userId, name) => {
+    const handleAction = async (requestId, status, email) => {
+        const actionText = status === 'DELETED' ? 'permanently DELETE' : 'CANCEL deactivation for';
         const result = await Swal.fire({
-            title: 'CRITICAL WARNING!',
-            text: `Are you sure you want to PERMANENTLY delete account "${name}"? This cannot be undone.`,
-            icon: 'warning',
+            title: 'Confirm Action',
+            text: `Are you sure you want to ${actionText} ${email}?`,
+            icon: status === 'DELETED' ? 'warning' : 'info',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, DELETE it!',
-            cancelButtonText: 'Cancel',
-            background: '#fff',
-            customClass: {
-                title: 'text-red-600 font-bold',
-                confirmButton: 'bg-red-600 hover:bg-red-700'
-            }
+            confirmButtonColor: status === 'DELETED' ? '#d33' : '#3085d6',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Yes, proceed!'
         });
 
         if (result.isConfirmed) {
             try {
-                await deleteUser(userId);
-                Swal.fire({
-                    title: 'Deleted!',
-                    text: 'Account has been removed permanently.',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                fetchUsers();
+                await updateDeleteRequestStatus(requestId, status);
+                Swal.fire('Success', `Request updated to ${status}`, 'success');
+                fetchRequests();
             } catch (error) {
-                console.error('Error deleting user:', error);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to delete account. Please try again.',
-                    icon: 'error'
-                });
+                console.error('Error updating request:', error);
+                Swal.fire('Error', 'Failed to update request', 'error');
             }
         }
     };
 
-    const filteredUsers = users.filter(user =>
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredRequests = requests.filter(req =>
+        req.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            </div>
-        );
-    }
+    if (loading) return <div className="p-8 text-center">Loading Requests...</div>;
 
     return (
-        <div className="p-8 min-h-screen">
+        <div className="p-4 md:p-8">
             <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                    <FaTrashAlt className="text-red-600" />
-                    Account Management
-                </h2>
-                <p className="text-gray-600">Permanently delete user accounts and data</p>
+                <h1 className="text-2xl font-bold text-gray-800">ACCOUNT DELETE REQUESTS</h1>
+                <p className="text-gray-500 text-sm">Review and process user account deactivation requests</p>
             </div>
 
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg shadow-sm">
-                <div className="flex items-center">
-                    <FaExclamationTriangle className="text-red-500 mr-3" size={24} />
-                    <p className="text-red-800 font-medium text-sm">
-                        Warning: Deleting an account is permanent and will remove all user earnings, history, and referral data.
-                    </p>
-                </div>
-            </div>
-
-            <div className="mb-6">
-                <div className="relative max-w-md">
+            <div className="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div className="relative flex-1 max-w-md">
                     <input
                         type="text"
-                        placeholder="Search by name or email..."
-                        className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition-all"
+                        placeholder="Search by Email..."
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none text-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <FaUsers className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-red-50">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-red-700 uppercase">User</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-red-700 uppercase">Email</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-red-700 uppercase">Joined</th>
-                                <th className="px-6 py-4 text-right text-xs font-bold text-red-700 uppercase">Action</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">No.</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Email</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Balance</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Note</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Date</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
-                            {filteredUsers.map((user) => (
-                                <tr key={user.id} className="hover:bg-red-50/20 transition-colors">
-                                    <td className="px-6 py-4 font-semibold text-gray-800">{user.name}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(user.created_at).toLocaleDateString()}
+                        <tbody className="divide-y divide-gray-50">
+                            {filteredRequests.map((req, index) => (
+                                <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-6 py-4 text-sm font-bold text-gray-500">{index + 1}</td>
+                                    <td className="px-6 py-4 text-sm font-bold text-gray-800">{req.email}</td>
+                                    <td className="px-6 py-4 text-sm font-black text-indigo-600">₹{req.balance}</td>
+                                    <td className="px-6 py-4 text-xs text-gray-500 max-w-[200px] truncate">{req.note}</td>
+                                    <td className="px-6 py-4 text-xs text-gray-500">
+                                        {new Date(req.created_at).toLocaleString()}
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-6 py-4 flex items-center justify-center gap-2">
                                         <button
-                                            onClick={() => handleDelete(user.id, user.name)}
-                                            className="bg-white border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2 ml-auto"
+                                            onClick={() => handleAction(req.id, 'CANCELLED', req.email)}
+                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all"
                                         >
-                                            <FaTrashAlt /> DELETE ACCOUNT
+                                            <FaUndo size={10} /> CANCEL
+                                        </button>
+                                        <button
+                                            onClick={() => handleAction(req.id, 'DELETED', req.email)}
+                                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all"
+                                        >
+                                            <FaTrashAlt size={10} /> DELETE
                                         </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    {filteredRequests.length === 0 && (
+                        <div className="py-20 text-center text-gray-400">
+                            No pending delete requests found.
+                        </div>
+                    )}
                 </div>
-                {filteredUsers.length === 0 && (
-                    <div className="text-center py-16">
-                        <p className="text-gray-400">No users found matching your search</p>
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -1,116 +1,173 @@
 import { useEffect, useState } from 'react';
-import { FaTasks, FaUsers } from 'react-icons/fa';
-import { getStats } from '../api';
+import { FaCheckCircle, FaClock, FaExchangeAlt, FaLink, FaList, FaTasks, FaUserCheck, FaUsers, FaWallet } from 'react-icons/fa';
+import { getStats, getTransactions } from '../api';
 
 const Dashboard = () => {
-    const [stats, setStats] = useState({ totalUsers: 0, totalTasks: 0, totalOffers: 0, totalPayouts: 0 });
+    const [stats, setStats] = useState({
+        totalUsers: 0,
+        todayLogin: 0,
+        newJoinedToday: 0,
+        todayLeads: 0,
+        activeOffer: 0,
+        pendingPayouts: 0,
+        todayWithdrawals: 0,
+        todayPayouts: 0
+    });
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const data = await getStats();
-                setStats(data);
-            } catch (error) {
-                console.error('Error fetching stats:', error);
-            }
-        };
-        fetchStats();
+        fetchData();
     }, []);
 
+    const fetchData = async () => {
+        try {
+            const [statsData, transData] = await Promise.all([getStats(), getTransactions()]);
+            setStats(statsData);
+            setTransactions(transData);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const StatCard = ({ label, value, icon: Icon, colorClass, iconBgClass }) => (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between group hover:shadow-md transition-all">
+            <div>
+                <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${colorClass}`}>{label}</p>
+                <p className="text-2xl font-black text-gray-800">{value}</p>
+            </div>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg ${iconBgClass}`}>
+                <Icon size={20} />
+            </div>
+        </div>
+    );
+
+    if (loading) return <div className="p-8 text-center text-gray-500 font-bold animate-pulse">Initializing Dashboard...</div>;
+
     return (
-        <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10 font-sans">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] mb-2 px-1">Overview Analytics</p>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">System <span className="text-indigo-600">Dashboard</span></h1>
-                </div>
-                <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl text-indigo-700 font-bold text-xs">
-                    <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></div>
-                    REAL-TIME UPDATES ENABLED
-                </div>
-            </div>
-
+        <div className="space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Total Users Card */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 group hover:border-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
-                            <FaUsers size={24} />
-                        </div>
-                        <span className="text-green-500 font-black text-xs bg-green-50 px-2 py-1 rounded-lg">+12.5%</span>
-                    </div>
-                    <div>
-                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Total Users</p>
-                        <p className="text-4xl font-black text-gray-900 tracking-tighter">{stats.totalUsers.toLocaleString()}</p>
-                    </div>
-                </div>
-
-                {/* Total Tasks Card */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 group hover:border-purple-500/20 hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-500">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all duration-500">
-                            <FaTasks size={24} />
-                        </div>
-                        <span className="text-purple-500 font-black text-xs bg-purple-50 px-2 py-1 rounded-lg">LIVE</span>
-                    </div>
-                    <div>
-                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Total Tasks</p>
-                        <p className="text-4xl font-black text-gray-900 tracking-tighter">{stats.totalTasks.toLocaleString()}</p>
-                    </div>
-                </div>
-
-                {/* Total Offers Card */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 group hover:border-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500">
-                            <FaTasks size={24} />
-                        </div>
-                        <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                    </div>
-                    <div>
-                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Total Offers</p>
-                        <p className="text-4xl font-black text-gray-900 tracking-tighter">{(stats.totalOffers || 0).toLocaleString()}</p>
-                    </div>
-                </div>
-
-                {/* Total Payouts Card */}
-                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 group hover:border-orange-500/20 hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-500">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 group-hover:scale-110 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500 text-xl font-black">
-                            ₹
-                        </div>
-                    </div>
-                    <div>
-                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Total Payouts</p>
-                        <p className="text-4xl font-black text-gray-900 tracking-tighter">{(stats.totalPayouts || 0).toLocaleString()}</p>
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                    label="Total User"
+                    value={stats.totalUsers}
+                    icon={FaUsers}
+                    colorClass="text-blue-500"
+                    iconBgClass="bg-blue-500 shadow-blue-200"
+                />
+                <StatCard
+                    label="Today's Login"
+                    value={stats.todayLogin}
+                    icon={FaUserCheck}
+                    colorClass="text-purple-500"
+                    iconBgClass="bg-purple-500 shadow-purple-200"
+                />
+                <StatCard
+                    label="New Joined Today"
+                    value={stats.newJoinedToday}
+                    icon={FaList}
+                    colorClass="text-orange-500"
+                    iconBgClass="bg-orange-500 shadow-orange-200"
+                />
+                <StatCard
+                    label="Today Leads"
+                    value={stats.todayLeads}
+                    icon={FaLink}
+                    colorClass="text-yellow-500"
+                    iconBgClass="bg-yellow-500 shadow-yellow-200"
+                />
+                <StatCard
+                    label="Active Offer"
+                    value={stats.activeOffer}
+                    icon={FaTasks}
+                    colorClass="text-red-500"
+                    iconBgClass="bg-red-500 shadow-red-200"
+                />
+                <StatCard
+                    label="Pending Payouts"
+                    value={stats.pendingPayouts}
+                    icon={FaClock}
+                    colorClass="text-emerald-500"
+                    iconBgClass="bg-emerald-500 shadow-emerald-200"
+                />
+                <StatCard
+                    label="Today Withdrawals"
+                    value={stats.todayWithdrawals}
+                    icon={FaWallet}
+                    colorClass="text-gray-500"
+                    iconBgClass="bg-gray-500 shadow-gray-200"
+                />
+                <StatCard
+                    label="Today Payouts"
+                    value={`₹${stats.todayPayouts}`}
+                    icon={FaCheckCircle}
+                    colorClass="text-green-600"
+                    iconBgClass="bg-green-600 shadow-green-200"
+                />
             </div>
 
-            {/* Extra Visual Section */}
-            <div className="bg-indigo-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-900/20">
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="max-w-md">
-                        <h3 className="text-3xl font-black tracking-tight mb-4 leading-tight">Welcome to the New <span className="text-indigo-400">Admin Control</span></h3>
-                        <p className="text-indigo-200 font-medium">Manage your reward ecosystem with professional tools and real-time data insights.</p>
+            {/* Recent Transactions Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-800">Recent 500 Transactions</h2>
+                        <p className="text-xs text-gray-500">Latest earnings and withdrawals across the platform</p>
                     </div>
-                    <div className="flex gap-4">
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center flex-1">
-                            <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
-                            <p className="font-bold text-xl uppercase italic">Secure</p>
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 text-center flex-1">
-                            <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest mb-1">Node</p>
-                            <p className="font-bold text-xl">#001C</p>
-                        </div>
-                    </div>
+                    <FaExchangeAlt className="text-gray-300" size={24} />
                 </div>
-
-                {/* Decorative BG pattern */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px]"></div>
-                <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px]"></div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50/50">
+                            <tr>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Txn Type</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Amount</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Email</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Date</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {transactions.map((txn) => (
+                                <tr key={txn.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${txn.transaction_type === 'withdrawal' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
+                                                }`}>
+                                                {txn.transaction_type.substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-700">{txn.transaction_type}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm font-black text-gray-800">₹{txn.amount}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-600">{txn.email}</td>
+                                    <td className="px-6 py-4 text-xs text-gray-500">
+                                        {new Date(txn.created_at).toLocaleString('en-IN', {
+                                            day: '2-digit',
+                                            month: 'short',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: true
+                                        })}
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${txn.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                            }`}>
+                                            {txn.status || 'Pending'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {transactions.length === 0 && (
+                        <div className="py-20 text-center text-gray-400">
+                            No recent transactions found.
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
