@@ -99,6 +99,26 @@ export const deleteUser = async (id) => {
     return response.data;
 };
 
+export const getUserDetails = async (id) => {
+    const response = await axios.get(`${API_URL}/users/${id}`);
+    return response.data;
+};
+
+export const getUserTransactions = async (id) => {
+    const response = await axios.get(`${API_URL}/users/${id}/transactions`);
+    return response.data;
+};
+
+export const getUserWithdrawals = async (id) => {
+    const response = await axios.get(`${API_URL}/users/${id}/withdrawals`);
+    return response.data;
+};
+
+export const getTopReferrers = async () => {
+    const response = await axios.get(`${API_URL}/top-referrers`);
+    return response.data;
+};
+
 export const updateUserBalance = async (id, balance) => {
     const response = await axios.put(`${API_URL}/users/${id}/balance`, { wallet_balance: balance });
     return response.data;
@@ -109,9 +129,21 @@ export const updatePassword = async (passwordData) => {
     return response.data;
 };
 
+export const getAdminProfile = async () => {
+    const response = await axios.get(`${API_URL}/profile`);
+    return response.data;
+};
+
 // Banner management
 export const getBanners = async () => {
     const response = await axios.get(`${API_URL}/banners`);
+    return response.data;
+};
+
+export const uploadBannerImage = async (imageFile) => {
+    const response = await axios.post(`${API_URL}/banners/upload`, {
+        image_file: imageFile,
+    });
     return response.data;
 };
 
@@ -146,4 +178,3 @@ export const updateDeleteRequestStatus = async (id, status) => {
     const response = await axios.put(`${API_URL}/delete-requests/${id}`, { status });
     return response.data;
 };
-

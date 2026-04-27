@@ -10,10 +10,16 @@ const ActiveUsers = () => {
         const fetchActiveUsers = async () => {
             try {
                 const data = await getUsers();
-                // Simulating "active" by checking if they joined recently or have a balance
-                // In a real app, you'd check a 'last_login' or 'last_active' timestamp
-                // For now, let's just show users with a balance > 0 as "active"
-                const active = data.filter(user => user.wallet_balance > 0 || new Date(user.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
+                const recentThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                const active = data.filter((user) => {
+                    const lastLogin = user.last_login_at ? new Date(user.last_login_at) : null;
+                    const createdAt = user.created_at ? new Date(user.created_at) : null;
+                    return (
+                        (lastLogin && lastLogin >= recentThreshold) ||
+                        (createdAt && createdAt >= recentThreshold) ||
+                        parseFloat(user.wallet_balance || 0) > 0
+                    );
+                });
                 setUsers(active);
             } catch (error) {
                 console.error('Error fetching active users:', error);
@@ -39,7 +45,7 @@ const ActiveUsers = () => {
                     <FaUserCheck className="text-green-600" />
                     Active Users
                 </h2>
-                <p className="text-gray-600">Users who have been active or have earnings in the last 7 days</p>
+                <p className="text-gray-600">Users with a recent login, recent join, or wallet activity</p>
             </div>
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
@@ -51,6 +57,7 @@ const ActiveUsers = () => {
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">User</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Email</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Balance</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Last Login</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Status</th>
                             </tr>
                         </thead>
@@ -68,6 +75,11 @@ const ActiveUsers = () => {
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
                                     <td className="px-6 py-4 font-bold text-indigo-600">₹{user.wallet_balance}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-500">
+                                        {user.last_login_at
+                                            ? new Date(user.last_login_at).toLocaleString('en-IN')
+                                            : 'Not available'}
+                                    </td>
                                     <td className="px-6 py-4">
                                         <span className="px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700">Online</span>
                                     </td>

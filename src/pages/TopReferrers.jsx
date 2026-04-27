@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaCrown, FaTrophy } from 'react-icons/fa';
-import { getUsers } from '../api';
+import { getTopReferrers } from '../api';
 
 const TopReferrers = () => {
     const [referrers, setReferrers] = useState([]);
@@ -9,16 +9,8 @@ const TopReferrers = () => {
     useEffect(() => {
         const fetchTopReferrers = async () => {
             try {
-                // Fetch users using the central API method
-                const data = await getUsers();
-                const sorted = data
-                    .map(user => ({
-                        ...user,
-                        referral_count: user.referral_count || Math.floor(Math.random() * 50) // Fallback if count not in DB
-                    }))
-                    .sort((a, b) => b.referral_count - a.referral_count)
-                    .slice(0, 10);
-                setReferrers(sorted);
+                const data = await getTopReferrers();
+                setReferrers(data);
             } catch (error) {
                 console.error('Error fetching top referrers:', error);
             } finally {
@@ -43,7 +35,7 @@ const TopReferrers = () => {
                     <FaCrown className="text-yellow-500" />
                     Top Referrers
                 </h2>
-                <p className="text-gray-600">Top 10 users with the most successful referrals</p>
+                <p className="text-gray-600">Top users with the highest real referral counts</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -60,11 +52,11 @@ const TopReferrers = () => {
                         <div className="flex justify-between items-end">
                             <div>
                                 <p className="text-gray-400 text-xs uppercase font-bold tracking-wider">Referrals</p>
-                                <p className="text-3xl font-black text-indigo-600">{user.referral_count}</p>
+                                <p className="text-3xl font-black text-indigo-600">{user.total_referrals}</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-gray-400 text-xs uppercase font-bold tracking-wider">Earned</p>
-                                <p className="text-xl font-bold text-green-600">₹{user.referral_count * 10}</p>
+                                <p className="text-gray-400 text-xs uppercase font-bold tracking-wider">Wallet</p>
+                                <p className="text-xl font-bold text-green-600">₹{user.wallet_balance}</p>
                             </div>
                         </div>
                     </div>
@@ -77,17 +69,22 @@ const TopReferrers = () => {
                         <tr>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Rank</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">User</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Device Id</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Referrals</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Earnings</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Refer Code</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
                         {referrers.slice(3).map((user, index) => (
                             <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 text-sm font-bold text-gray-500">{index + 4}</td>
-                                <td className="px-6 py-4 font-medium text-gray-900">{user.name}</td>
-                                <td className="px-6 py-4 font-bold text-indigo-600">{user.referral_count}</td>
-                                <td className="px-6 py-4 font-bold text-green-600">₹{user.referral_count * 10}</td>
+                                <td className="px-6 py-4">
+                                    <p className="font-medium text-gray-900">{user.name}</p>
+                                    <p className="text-xs text-gray-500">{user.email}</p>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-600">{user.device_id || '-'}</td>
+                                <td className="px-6 py-4 font-bold text-indigo-600">{user.total_referrals}</td>
+                                <td className="px-6 py-4 font-bold text-green-600">{user.referral_code || '-'}</td>
                             </tr>
                         ))}
                     </tbody>

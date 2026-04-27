@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaUserShield } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { updatePassword } from '../api';
+import { getAdminProfile, updatePassword } from '../api';
 
 const AdminProfile = () => {
     const [profile, setProfile] = useState({
         username: 'admin',
-        email: 'admin@rewardsapp.com',
-        role: 'Super Admin'
+        name: 'Admin',
+        email: 'admin@rewardmobi.xyz',
+        role: 'Administrator'
     });
 
     const [passwords, setPasswords] = useState({
@@ -15,6 +16,24 @@ const AdminProfile = () => {
         new: '',
         confirm: ''
     });
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await getAdminProfile();
+                setProfile({
+                    username: data.username || 'admin',
+                    name: data.name || data.username || 'Admin',
+                    email: data.email || 'admin@rewardmobi.xyz',
+                    role: 'Administrator',
+                });
+            } catch (error) {
+                console.error('Error fetching admin profile:', error);
+            }
+        };
+
+        fetchProfile();
+    }, []);
 
     const handlePasswordUpdate = async (e) => {
         e.preventDefault();
@@ -73,7 +92,7 @@ const AdminProfile = () => {
 
                         <div className="relative w-40 h-40 mx-auto mb-8">
                             <div className="w-full h-full rounded-3xl bg-indigo-900 flex items-center justify-center text-white text-6xl font-black shadow-2xl group-hover:scale-105 transition-transform duration-500">
-                                {profile.username[0].toUpperCase()}
+                                {(profile.name || profile.username || 'A')[0].toUpperCase()}
                             </div>
                             <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-indigo-600 border border-gray-50">
                                 <FaUserShield size={20} />
@@ -81,7 +100,7 @@ const AdminProfile = () => {
                         </div>
 
                         <div className="space-y-1 mb-8">
-                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">{profile.username}</h3>
+                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">{profile.name}</h3>
                             <p className="text-indigo-600 font-bold text-[10px] uppercase tracking-[0.2em]">{profile.role}</p>
                         </div>
 
