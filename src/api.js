@@ -183,3 +183,25 @@ export const updateDeleteRequestStatus = async (id, status) => {
     const response = await axios.put(`${API_URL}/delete-requests/${id}`, { status });
     return response.data;
 };
+
+// ── Payment Accounts (Bank / UPI) ──────────────────────────────────────────
+export const getUserPaymentAccounts = async (userId) => {
+    const response = await axios.get(`${API_URL}/users/${userId}/payment-accounts`);
+    return response.data;
+};
+
+export const createPaymentAccount = async (userId, accountData) => {
+    const response = await axios.post(`${API_URL}/users/${userId}/payment-accounts`, accountData);
+    return response.data;
+};
+
+export const updatePaymentAccount = async (accountId, accountData) => {
+    const response = await axios.put(`${API_URL}/payment-accounts/${accountId}`, accountData);
+    return response.data;
+};
+
+export const deletePaymentAccount = async (accountId) => {
+    const response = await axios.delete(`${API_URL}/payment-accounts/${accountId}`);
+    return response.data;
+};
+
