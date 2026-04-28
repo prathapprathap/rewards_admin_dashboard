@@ -160,8 +160,15 @@ const ActiveUsers = () => {
             const payload = {};
             EDIT_FIELDS.forEach(({ key, type }) => {
                 const val = editForm[key];
-                if (val === '' || val === null || val === undefined) return; // skip blanks
-                payload[key] = type === 'number' ? parseFloat(val) : String(val).trim();
+                if (val === '' || val === null || val === undefined) return;
+                
+                if (type === 'number') {
+                    payload[key] = parseFloat(val);
+                } else if (type === 'checkbox') {
+                    payload[key] = !!val;
+                } else {
+                    payload[key] = String(val).trim();
+                }
             });
 
             await updateUser(selectedUser.id, payload);
@@ -426,12 +433,12 @@ const ActiveUsers = () => {
                                                         {label}{required && <span className="text-red-500 ml-0.5">*</span>}:
                                                     </label>
                                                     {type === 'checkbox' ? (
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={!!editForm[key]}
-                                                            onChange={e => setEditForm({ ...editForm, [key]: e.target.checked })}
-                                                            className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                                        />
+                                                        <div 
+                                                            onClick={() => setEditForm({ ...editForm, [key]: !editForm[key] })}
+                                                            className={`relative w-11 h-6 rounded-full cursor-pointer transition-colors duration-200 ease-in-out ${editForm[key] ? 'bg-red-500' : 'bg-gray-200'}`}
+                                                        >
+                                                            <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transition-transform duration-200 ease-in-out ${editForm[key] ? 'translate-x-5' : 'translate-x-0'}`} />
+                                                        </div>
                                                     ) : (
                                                         <input
                                                             type={type}
