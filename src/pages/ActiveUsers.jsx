@@ -26,7 +26,9 @@ const EDIT_FIELDS = [
     { key: 'wallet_balance',    label: 'Wallet Balance (₹)', type: 'number', required: false },
     { key: 'total_earnings',    label: 'Total Earnings (₹)', type: 'number', required: false },
     { key: 'referral_earnings', label: 'Referral Earnings (₹)', type: 'number', required: false },
+    { key: 'is_blocked',        label: 'Account Blocked',    type: 'checkbox', required: false },
 ];
+
 
 /* ─── read-only display rows ───────────────────────────────────────────── */
 const DETAIL_ROWS = [
@@ -43,7 +45,9 @@ const DETAIL_ROWS = [
     { label: 'Total Withdraw',    key: 'total_withdraw_amount', prefix: '₹' },
     { label: 'Today Withdraw',    key: 'today_withdraw_amount', prefix: '₹' },
     { label: 'Total Tasks Done',  key: 'total_tasks' },
+    { label: 'Status',            key: 'is_blocked',    isStatus: true },
     { label: 'Last Login',        key: 'last_login_at',  isDate: true },
+
     { label: 'Created At',        key: 'created_at',     isDate: true },
 ];
 
@@ -237,7 +241,9 @@ const ActiveUsers = () => {
         const raw = user[row.key];
         if (raw === null || raw === undefined || raw === '') return row.fallback ?? '—';
         if (row.isDate) return new Date(raw).toLocaleString('en-IN');
+        if (row.isStatus) return raw === 1 ? <span className="text-red-600 font-bold">BLOCKED</span> : <span className="text-green-600 font-bold">ACTIVE</span>;
         return `${row.prefix ?? ''}${raw}`;
+
     };
 
     /* ═══════════════════════════════════════════════════════════════════ */
@@ -287,8 +293,12 @@ const ActiveUsers = () => {
                                     <td className="px-4 py-3 text-sm text-gray-600">{user.device_id || '—'}</td>
                                     <td className="px-4 py-3 font-bold text-gray-800">₹{user.wallet_balance}</td>
                                     <td className="px-4 py-3 text-sm text-gray-500">{user.upi_id || 'no'}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-700">{user.referral_code}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-700">
+                                        {user.referral_code}
+                                        {user.is_blocked === 1 && <span className="ml-2 bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded">BLOCKED</span>}
+                                    </td>
                                     <td className="px-4 py-3">
+
                                         <button
                                             onClick={() => openDetail(user)}
                                             className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded hover:bg-indigo-700 transition-colors"
@@ -415,16 +425,26 @@ const ActiveUsers = () => {
                                                     <label className="block text-xs font-semibold text-gray-600 mb-1">
                                                         {label}{required && <span className="text-red-500 ml-0.5">*</span>}:
                                                     </label>
-                                                    <input
-                                                        type={type}
-                                                        required={required}
-                                                        step={type === 'number' ? '0.01' : undefined}
-                                                        value={editForm[key] ?? ''}
-                                                        onChange={e => setEditForm({ ...editForm, [key]: e.target.value })}
-                                                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-shadow"
-                                                        placeholder={label}
-                                                    />
+                                                    {type === 'checkbox' ? (
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!editForm[key]}
+                                                            onChange={e => setEditForm({ ...editForm, [key]: e.target.checked })}
+                                                            className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                        />
+                                                    ) : (
+                                                        <input
+                                                            type={type}
+                                                            required={required}
+                                                            step={type === 'number' ? '0.01' : undefined}
+                                                            value={editForm[key] ?? ''}
+                                                            onChange={e => setEditForm({ ...editForm, [key]: e.target.value })}
+                                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-shadow"
+                                                            placeholder={label}
+                                                        />
+                                                    )}
                                                 </div>
+
                                             ))}
                                         </div>
 
