@@ -99,6 +99,11 @@ export const deleteUser = async (id) => {
     return response.data;
 };
 
+export const updateUser = async (id, userData) => {
+    const response = await axios.put(`${API_URL}/users/${id}`, userData);
+    return response.data;
+};
+
 export const getUserDetails = async (id) => {
     const response = await axios.get(`${API_URL}/users/${id}`);
     return response.data;
