@@ -8,7 +8,11 @@ import {
     getUserWithdrawals,
     getUsers,
     updateUser,
+    getUserPaymentAccounts,
+    deletePaymentAccount,
 } from '../api';
+import { FaPlus, FaTrash, FaCheckCircle, FaExclamationCircle, FaUniversity, FaMobileAlt } from 'react-icons/fa';
+
 
 /* ─── field definitions (matches users table schema) ──────────────────── */
 const EDIT_FIELDS = [
@@ -54,6 +58,8 @@ const ActiveUsers = () => {
     const [activeTab, setActiveTab]       = useState('details');
     const [transactions, setTransactions] = useState([]);
     const [withdrawals, setWithdrawals]   = useState([]);
+    const [paymentAccounts, setPaymentAccounts] = useState([]);
+
 
     /* edit state */
     const [editMode, setEditMode]   = useState(false);
@@ -89,6 +95,8 @@ const ActiveUsers = () => {
         setActiveTab('details');
         setTransactions([]);
         setWithdrawals([]);
+        setPaymentAccounts([]);
+
         try {
             const detail = await getUserDetails(user.id);
             setSelectedUser(detail);
@@ -124,12 +132,21 @@ const ActiveUsers = () => {
         catch (e) { console.error(e); }
     };
 
+    const loadPaymentAccounts = async () => {
+        if (!selectedUser) return;
+        try { setPaymentAccounts(await getUserPaymentAccounts(selectedUser.id)); }
+        catch (e) { console.error(e); }
+    };
+
+
     const handleTabChange = (tab) => {
         setActiveTab(tab);
         setEditMode(false);
         if (tab === 'transactions' && transactions.length === 0) loadTransactions();
         if (tab === 'withdrawals'  && withdrawals.length  === 0) loadWithdrawals();
+        if (tab === 'payments'     && paymentAccounts.length === 0) loadPaymentAccounts();
     };
+
 
     /* ── edit save ───────────────────────────────────────────────────── */
     const handleEditSave = async () => {
@@ -179,7 +196,26 @@ const ActiveUsers = () => {
                 Swal.fire('Error', 'Failed to delete user.', 'error');
             }
         }
+    const handleDeletePaymentAccount = async (accountId) => {
+        const result = await Swal.fire({
+            title: 'Delete Account?',
+            text: 'Are you sure you want to remove this payment account?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, Delete',
+        });
+        if (result.isConfirmed) {
+            try {
+                await deletePaymentAccount(accountId);
+                Swal.fire('Deleted!', 'Payment account removed.', 'success');
+                loadPaymentAccounts();
+            } catch (e) {
+                Swal.fire('Error', 'Failed to delete account.', 'error');
+            }
+        }
     };
+
 
     /* ── filter ──────────────────────────────────────────────────────── */
     const filteredUsers = users.filter(u => {
@@ -298,7 +334,7 @@ const ActiveUsers = () => {
                                 {/* Tabs (hidden when editing) */}
                                 {!editMode && (
                                     <div className="flex gap-2 mb-5 border-b border-gray-200">
-                                        {['details', 'transactions', 'withdrawals'].map(tab => (
+                                        {['details', 'transactions', 'withdrawals', 'payments'].map(tab => (
                                             <button
                                                 key={tab}
                                                 onClick={() => handleTabChange(tab)}
@@ -308,9 +344,10 @@ const ActiveUsers = () => {
                                                         : 'border-transparent text-gray-500 hover:text-gray-700'
                                                 }`}
                                             >
-                                                {tab}
+                                                {tab === 'payments' ? 'Payment Accounts' : tab}
                                             </button>
                                         ))}
+
                                     </div>
                                 )}
 
@@ -348,7 +385,14 @@ const ActiveUsers = () => {
                                             >
                                                 Withdrawal History
                                             </button>
+                                            <button
+                                                onClick={() => handleTabChange('payments')}
+                                                className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-700 transition-colors"
+                                            >
+                                                Payment Accounts
+                                            </button>
                                         </div>
+
                                         <div>
                                             <button
                                                 onClick={() => handleDelete(selectedUser.id)}
@@ -475,6 +519,72 @@ const ActiveUsers = () => {
                                         )}
                                     </div>
                                 )}
+
+                                {/* ── PAYMENTS TAB ───────────────────────────── */}
+                                {activeTab === 'payments' && (
+                                    <div>
+                                        {paymentAccounts.length === 0 ? (
+                                            <div className="text-center py-10">
+                                                <FaUniversity size={48} className="mx-auto text-gray-300 mb-3" />
+                                                <p className="text-gray-500">No bank or UPI accounts linked.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                {paymentAccounts.map(acc => (
+                                                    <div key={acc.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 relative group">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex gap-3">
+                                                                <div className="mt-1">
+                                                                    {acc.account_type === 'upi' ? (
+                                                                        <FaMobileAlt className="text-purple-600 text-xl" />
+                                                                    ) : (
+                                                                        <FaUniversity className="text-blue-600 text-xl" />
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-bold text-gray-800 uppercase text-sm">
+                                                                            {acc.account_type === 'upi' ? 'UPI ID' : acc.bank_name || 'Bank Account'}
+                                                                        </span>
+                                                                        {acc.is_primary === 1 && (
+                                                                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">Primary</span>
+                                                                        )}
+                                                                        {acc.verified === 1 ? (
+                                                                            <FaCheckCircle className="text-green-500 text-xs" title="Verified" />
+                                                                        ) : (
+                                                                            <FaExclamationCircle className="text-yellow-500 text-xs" title="Unverified" />
+                                                                        )}
+                                                                    </div>
+                                                                    
+                                                                    {acc.account_type === 'upi' ? (
+                                                                        <p className="text-indigo-600 font-medium text-sm mt-0.5">{acc.upi_id}</p>
+                                                                    ) : (
+                                                                        <div className="text-sm text-gray-600 mt-0.5 space-y-0.5">
+                                                                            <p><span className="font-semibold">A/C:</span> {acc.account_number}</p>
+                                                                            <p><span className="font-semibold">IFSC:</span> {acc.ifsc_code}</p>
+                                                                            <p><span className="font-semibold">Holder:</span> {acc.account_holder}</p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <button 
+                                                                onClick={() => handleDeletePaymentAccount(acc.id)}
+                                                                className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                                                            >
+                                                                <FaTrash size={14} />
+                                                            </button>
+                                                        </div>
+                                                        <div className="mt-2 text-[10px] text-gray-400">
+                                                            Added on: {new Date(acc.created_at).toLocaleString()}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
 
                             </div>
                         )}
