@@ -196,6 +196,8 @@ const ActiveUsers = () => {
                 Swal.fire('Error', 'Failed to delete user.', 'error');
             }
         }
+    };
+
     const handleDeletePaymentAccount = async (accountId) => {
         const result = await Swal.fire({
             title: 'Delete Account?',
