@@ -64,12 +64,17 @@ const Notifications = () => {
                 target_user_id: form.target === 'user' ? Number(form.target_user_id) : null,
             };
             const res = await createNotification(payload);
+            const delivered = res.push?.successCount ?? 0;
+            const recipients = res.recipients ?? 0;
+            const reason = res.push?.reason;
             await Swal.fire({
-                icon: 'success',
-                title: 'Sent!',
-                text: `Recipients: ${res.recipients ?? 0} · Push delivered: ${res.push?.successCount ?? 0}`,
-                timer: 2500,
-                showConfirmButton: false,
+                icon: delivered > 0 ? 'success' : 'warning',
+                title: delivered > 0 ? 'Sent!' : 'Saved, but no push delivered',
+                text: reason
+                    ? `Recipients: ${recipients} · Delivered: ${delivered}\n${reason}`
+                    : `Recipients: ${recipients} · Push delivered: ${delivered}`,
+                timer: delivered > 0 ? 2500 : undefined,
+                showConfirmButton: delivered === 0,
             });
             setForm(blankForm);
             fetchAll();

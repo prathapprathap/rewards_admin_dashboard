@@ -192,7 +192,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
 
         {/* Mobile Bottom Navigation */}
         {!isDesktop && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center px-4 py-2 z-40 pb-safe-area-inset-bottom">
+          <div className="mobile-bottom-nav fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center px-4 py-2 z-40 pb-safe-area-inset-bottom">
             <BottomNavItem to="/" icon={FaHome} label="Home" active={location.pathname === '/'} />
             <BottomNavItem to="/manage-offers" icon={FaTasks} label="Offers" active={location.pathname === '/manage-offers'} />
             <div className="relative -top-5">

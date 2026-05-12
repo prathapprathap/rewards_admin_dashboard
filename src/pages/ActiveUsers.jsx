@@ -81,6 +81,14 @@ const ActiveUsers = () => {
 
     useEffect(() => { fetchActiveUsers(); }, []);
 
+    /* While the detail panel is open, hide the global mobile bottom nav
+       (different stacking context, so z-index alone isn't reliable). */
+    useEffect(() => {
+        const open = detailLoading || !!selectedUser;
+        document.body.classList.toggle('user-detail-open', open);
+        return () => document.body.classList.remove('user-detail-open');
+    }, [detailLoading, selectedUser]);
+
     /* ── data fetching ───────────────────────────────────────────────── */
     const fetchActiveUsers = async () => {
         setLoading(true);

@@ -9,6 +9,11 @@
         @apply text-gray-900 antialiased;
         background-color: #f8fafc;
     }
+
+    /* Hide the mobile bottom nav while a fullscreen user-detail panel is open */
+    body.user-detail-open .mobile-bottom-nav {
+        display: none !important;
+    }
 }
 
 @layer utilities {
