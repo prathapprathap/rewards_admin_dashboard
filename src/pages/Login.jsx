@@ -10,6 +10,22 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        if (!username.trim()) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Username required',
+                text: 'Please enter your username.',
+                confirmButtonColor: '#4f46e5',
+            });
+        }
+        if (password.length < 6) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'Password too short',
+                text: 'Password must be at least 6 characters.',
+                confirmButtonColor: '#4f46e5',
+            });
+        }
         setIsSubmitting(true);
         try {
             const data = await adminLogin({ username, password });
@@ -58,7 +74,7 @@ const Login = () => {
 
                 {/* Login Card */}
                 <div className="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 p-8 md:p-10">
-                    <form onSubmit={handleLogin} className="space-y-6">
+                    <form onSubmit={handleLogin} noValidate className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-700 ml-1 uppercase tracking-wider">Username</label>
                             <div className="relative group">
@@ -71,7 +87,6 @@ const Login = () => {
                                     placeholder="your unique username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    required
                                 />
                             </div>
                         </div>
@@ -90,7 +105,6 @@ const Login = () => {
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    required
                                 />
                             </div>
                         </div>

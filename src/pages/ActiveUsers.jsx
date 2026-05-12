@@ -19,6 +19,7 @@ import {
     getUserTransactions,
     getUserWithdrawals,
     getUsers,
+    updateReferralCount,
     updateUser,
 } from '../api';
 
@@ -46,6 +47,7 @@ const FIELD_SECTIONS = [
         fields: [
             { key: 'referral_code', label: 'Referral Code', type: 'text' },
             { key: 'referred_by', label: 'Referred By (code)', type: 'text' },
+            { key: 'total_referrals', label: 'Referral Count', type: 'number', step: '1', refCount: true },
         ],
     },
     {
@@ -177,8 +179,14 @@ const ActiveUsers = () => {
         setSaving(true);
         try {
             const payload = {};
-            FIELD_SECTIONS.flatMap(s => s.fields).forEach(({ key, type }) => {
+            let refCountVal = null;
+            FIELD_SECTIONS.flatMap(s => s.fields).forEach(({ key, type, refCount }) => {
                 const val = form[key];
+                if (refCount) {
+                    if (val === '' || val === null || val === undefined || isNaN(parseInt(val, 10))) return;
+                    refCountVal = Math.max(0, parseInt(val, 10));
+                    return;
+                }
                 if (type === 'number') {
                     if (val === '' || val === null || val === undefined || isNaN(parseFloat(val))) return;
                     payload[key] = parseFloat(val);
@@ -190,6 +198,9 @@ const ActiveUsers = () => {
             });
 
             await updateUser(selectedUser.id, payload);
+            if (refCountVal !== null && refCountVal !== Number(selectedUser.total_referrals ?? 0)) {
+                await updateReferralCount(selectedUser.id, refCountVal);
+            }
             Swal.fire({ icon: 'success', title: 'Saved', timer: 1500, showConfirmButton: false });
             const refreshed = await getUserDetails(selectedUser.id);
             setSelectedUser(refreshed);
@@ -374,7 +385,7 @@ const ActiveUsers = () => {
                         onClick={closeDetail}
                         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden md:block animate-fade-in"
                     />
-                    <div className="fixed inset-0 md:inset-y-0 md:right-0 md:left-auto md:w-[min(720px,95vw)] bg-white z-50 flex flex-col shadow-2xl md:rounded-l-3xl animate-slide-in-right">
+                    <div className="fixed inset-0 md:inset-y-0 md:right-0 md:left-auto md:w-[min(720px,95vw)] bg-white z-[60] flex flex-col shadow-2xl md:rounded-l-3xl animate-slide-in-right">
 
                         {/* Header */}
                         <div className="bg-gradient-to-r from-indigo-700 to-indigo-600 text-white px-5 sm:px-6 py-4 md:rounded-tl-3xl flex items-center justify-between flex-shrink-0">
@@ -642,40 +653,61 @@ const ActiveUsers = () => {
 
                         {/* Sticky footer with Save + Delete */}
                         {!detailLoading && selectedUser && (
-                            <div className="border-t border-gray-200 bg-gray-50 px-5 sm:px-6 py-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 flex-shrink-0">
-                                <button
-                                    onClick={() => handleDelete(selectedUser.id)}
-                                    className="hidden sm:flex px-4 py-2.5 bg-white text-red-600 border border-red-200 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors items-center gap-2"
-                                >
-                                    <FaTrash size={12} /> Delete User
-                                </button>
-                                <div className="flex items-center gap-2 w-full sm:w-auto">
-                                    {dirty && (
-                                        <span className="hidden sm:inline text-[11px] font-bold text-amber-600 uppercase tracking-widest">
-                                            Unsaved
-                                        </span>
-                                    )}
+                            <div className="border-t border-gray-200 bg-gray-50 px-5 sm:px-6 py-4 flex-shrink-0">
+                                {/* Desktop layout */}
+                                <div className="hidden sm:flex items-center justify-between gap-3">
                                     <button
-                                        onClick={closeDetail}
-                                        className="flex-1 sm:flex-none px-4 py-2.5 bg-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-300 transition-colors"
+                                        onClick={() => handleDelete(selectedUser.id)}
+                                        className="px-4 py-2.5 bg-white text-red-600 border border-red-200 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
                                     >
-                                        Close
+                                        <FaTrash size={12} /> Delete User
                                     </button>
+                                    <div className="flex items-center gap-2">
+                                        {dirty && (
+                                            <span className="text-[11px] font-bold text-amber-600 uppercase tracking-widest">
+                                                Unsaved
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={closeDetail}
+                                            className="px-4 py-2.5 bg-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-300 transition-colors"
+                                        >
+                                            Close
+                                        </button>
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={saving || !dirty}
+                                            className="px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-600/20"
+                                        >
+                                            {saving ? 'Saving…' : 'Save Changes'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Mobile layout — all three buttons stacked, visible */}
+                                <div className="sm:hidden flex flex-col gap-2">
                                     <button
                                         onClick={handleSave}
                                         disabled={saving || !dirty}
-                                        className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-600/20"
+                                        className="w-full px-6 py-3 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-600/20"
                                     >
-                                        {saving ? 'Saving…' : 'Save Changes'}
+                                        {saving ? 'Saving…' : dirty ? 'Save Changes' : 'Saved'}
                                     </button>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={closeDetail}
+                                            className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-300 transition-colors"
+                                        >
+                                            Close
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(selectedUser.id)}
+                                            className="flex-1 px-4 py-3 bg-white text-red-600 border border-red-200 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <FaTrash size={12} /> Delete
+                                        </button>
+                                    </div>
                                 </div>
-                                {/* Mobile-only delete row */}
-                                <button
-                                    onClick={() => handleDelete(selectedUser.id)}
-                                    className="sm:hidden w-full px-4 py-2.5 bg-white text-red-600 border border-red-200 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <FaTrash size={12} /> Delete User
-                                </button>
                             </div>
                         )}
                     </div>
