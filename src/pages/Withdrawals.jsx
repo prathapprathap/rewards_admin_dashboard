@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { FaCheck, FaMoneyBillWave, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { getWithdrawals, updateWithdrawalStatus } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const Withdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { currentPage, setCurrentPage, pageItems: pagedWithdrawals, total, pageSize } = usePagination(withdrawals);
 
     useEffect(() => {
         fetchWithdrawals();
@@ -92,7 +95,7 @@ const Withdrawals = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {withdrawals.map((withdrawal) => (
+                                {pagedWithdrawals.map((withdrawal) => (
                                     <tr key={withdrawal.id} className="hover:bg-indigo-50/30 transition-colors group">
                                         <td className="px-8 py-6 text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
                                             #{String(withdrawal.id).padStart(5, '0')}
@@ -152,6 +155,8 @@ const Withdrawals = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
 
                     {withdrawals.length === 0 && (
                         <div className="text-center py-20 bg-gray-50/50">

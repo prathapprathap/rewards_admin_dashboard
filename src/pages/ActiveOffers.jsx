@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { FaCheckCircle, FaTasks } from 'react-icons/fa';
 import { getOffers } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const ActiveOffers = () => {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { currentPage, setCurrentPage, pageItems: pagedOffers, total, pageSize } = usePagination(offers);
 
     useEffect(() => {
         fetchActiveOffers();
@@ -47,8 +50,9 @@ const ActiveOffers = () => {
                     <p className="text-gray-500 text-lg">No active offers found</p>
                 </div>
             ) : (
+                <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {offers.map((offer) => (
+                    {pagedOffers.map((offer) => (
                         <div key={offer.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-green-200">
                             {offer.image_url && (
                                 <div className="relative h-40 overflow-hidden">
@@ -72,6 +76,10 @@ const ActiveOffers = () => {
                         </div>
                     ))}
                 </div>
+                <div className="bg-white rounded-xl border border-gray-100 overflow-hidden mt-6">
+                    <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
+                </div>
+                </>
             )}
         </div>
     );

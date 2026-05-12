@@ -22,6 +22,8 @@ import {
     updateReferralCount,
     updateUser,
 } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 /* ─── Editable field schema (matches users table) ─────────────────────── */
 const FIELD_SECTIONS = [
@@ -274,6 +276,8 @@ const ActiveUsers = () => {
         );
     });
 
+    const { currentPage, setCurrentPage, pageItems: pagedUsers, total: totalUsers, pageSize, startIndex } = usePagination(filteredUsers);
+
     /* ══════════════════════════════════════════════════════════════════ */
     if (loading) return (
         <div className="flex items-center justify-center min-h-screen">
@@ -315,9 +319,9 @@ const ActiveUsers = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
-                            {filteredUsers.map((user, i) => (
+                            {pagedUsers.map((user, i) => (
                                 <tr key={user.id} className="hover:bg-green-50/30 transition-colors">
-                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{i + 1}</td>
+                                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{startIndex + i + 1}</td>
                                     <td className="px-4 py-3 text-sm text-blue-600 font-medium">{user.email}</td>
                                     <td className="px-4 py-3 text-sm text-gray-600">{user.device_id || '—'}</td>
                                     <td className="px-4 py-3 font-bold text-gray-800">₹{user.wallet_balance}</td>
@@ -339,6 +343,7 @@ const ActiveUsers = () => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination currentPage={currentPage} totalItems={totalUsers} pageSize={pageSize} onPageChange={setCurrentPage} />
                 {filteredUsers.length === 0 && (
                     <div className="text-center py-16">
                         <FaUsers size={56} className="mx-auto text-gray-300 mb-4" />
@@ -349,7 +354,7 @@ const ActiveUsers = () => {
 
             {/* Card list (mobile) */}
             <div className="md:hidden space-y-3">
-                {filteredUsers.map((user, i) => (
+                {pagedUsers.map((user, i) => (
                     <button
                         key={user.id}
                         onClick={() => openDetail(user)}
@@ -358,7 +363,7 @@ const ActiveUsers = () => {
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-[10px] font-bold text-gray-400">#{i + 1}</span>
+                                    <span className="text-[10px] font-bold text-gray-400">#{startIndex + i + 1}</span>
                                     {user.is_blocked === 1 && (
                                         <span className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded">BLOCKED</span>
                                     )}
@@ -377,6 +382,9 @@ const ActiveUsers = () => {
                         </div>
                     </button>
                 ))}
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <Pagination currentPage={currentPage} totalItems={totalUsers} pageSize={pageSize} onPageChange={setCurrentPage} />
+                </div>
                 {filteredUsers.length === 0 && (
                     <div className="bg-white rounded-2xl border border-gray-100 text-center py-16">
                         <FaUsers size={48} className="mx-auto text-gray-300 mb-4" />

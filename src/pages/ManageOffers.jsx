@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { FaEdit, FaGripVertical, FaPlus, FaTasks, FaTimes, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { deleteOffer, getOffers, getOfferSteps, updateOffer } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const ManageOffers = () => {
     const [offers, setOffers] = useState([]);
@@ -25,6 +27,7 @@ const ManageOffers = () => {
         status: 'Active'
     });
     const [eventSteps, setEventSteps] = useState([]);
+    const { currentPage, setCurrentPage, pageItems: pagedOffers, total: totalOffers, pageSize } = usePagination(offers);
 
     useEffect(() => {
         fetchOffers();
@@ -174,8 +177,9 @@ const ManageOffers = () => {
                     <p className="text-gray-500 max-w-xs mx-auto mb-8">Your inventory is currently empty. Start by creating a new offer to engage your users.</p>
                 </div>
             ) : (
+                <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {offers.map((offer) => (
+                    {pagedOffers.map((offer) => (
                         <div key={offer.id} className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-500">
                             {/* Image Container */}
                             <div className="relative h-56 overflow-hidden bg-gray-100">
@@ -259,6 +263,10 @@ const ManageOffers = () => {
                         </div>
                     ))}
                 </div>
+                <div className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden">
+                    <Pagination currentPage={currentPage} totalItems={totalOffers} pageSize={pageSize} onPageChange={setCurrentPage} />
+                </div>
+                </>
             )}
 
             {/* ─── Edit Modal ─────────────────────────────────────────────── */}

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { FaEdit, FaTimes, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { createPromoCode, deletePromoCode, getPromoCodes, updatePromoCode } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const PromoCodes = () => {
     const [promoCodes, setPromoCodes] = useState([]);
@@ -17,6 +19,7 @@ const PromoCodes = () => {
         for_whom: 'All',
         status: 'Active'
     });
+    const { currentPage, setCurrentPage, pageItems: pagedPromos, total, pageSize, startIndex } = usePagination(promoCodes);
 
     useEffect(() => {
         fetchPromoCodes();
@@ -263,10 +266,10 @@ const PromoCodes = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {promoCodes.map((promo, index) => (
+                            {pagedPromos.map((promo, index) => (
                                 <tr key={promo.id} className="hover:bg-indigo-50/30 transition-colors group">
                                     <td className="px-8 py-6 text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
-                                        #{String(index + 1).padStart(3, '0')}
+                                        #{String(startIndex + index + 1).padStart(3, '0')}
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="bg-gray-50 px-4 py-2 border-2 border-dashed border-gray-200 rounded-xl inline-block group-hover:border-indigo-300 group-hover:bg-indigo-50 transition-all">
@@ -317,6 +320,8 @@ const PromoCodes = () => {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
 
                 {promoCodes.length === 0 && (
                     <div className="text-center py-20 bg-gray-50/50">

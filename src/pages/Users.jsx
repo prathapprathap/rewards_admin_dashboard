@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 import { FaEdit, FaTimes, FaTrash, FaUsers } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { deleteUser, getUsers, updateUserBalance } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editUser, setEditUser] = useState(null);
     const [newBalance, setNewBalance] = useState('');
+    const { currentPage, setCurrentPage, pageItems: pagedUsers, total, pageSize, startIndex } = usePagination(users);
 
     useEffect(() => {
         fetchUsers();
@@ -103,10 +106,10 @@ const Users = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {users.map((user, index) => (
+                            {pagedUsers.map((user, index) => (
                                 <tr key={user.id} className="hover:bg-indigo-50/30 transition-colors group">
                                     <td className="px-8 py-6 text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
-                                        #{String(index + 1).padStart(3, '0')}
+                                        #{String(startIndex + index + 1).padStart(3, '0')}
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
@@ -158,6 +161,8 @@ const Users = () => {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
 
                 {users.length === 0 && (
                     <div className="text-center py-20 bg-gray-50/50">

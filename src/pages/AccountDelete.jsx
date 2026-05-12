@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { FaSearch, FaTrashAlt, FaUndo } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { getDeleteRequests, updateDeleteRequestStatus } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const AccountDelete = () => {
     const [requests, setRequests] = useState([]);
@@ -50,6 +52,7 @@ const AccountDelete = () => {
     const filteredRequests = requests.filter(req =>
         req.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const { currentPage, setCurrentPage, pageItems: pagedRequests, total, pageSize, startIndex } = usePagination(filteredRequests);
 
     if (loading) {
         return (
@@ -93,9 +96,9 @@ const AccountDelete = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {filteredRequests.map((req, index) => (
+                            {pagedRequests.map((req, index) => (
                                 <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-4 text-sm font-bold text-gray-500">{index + 1}</td>
+                                    <td className="px-6 py-4 text-sm font-bold text-gray-500">{startIndex + index + 1}</td>
                                     <td className="px-6 py-4 text-sm font-bold text-gray-800">{req.email}</td>
                                     <td className="px-6 py-4 text-sm font-black text-indigo-600">₹{req.balance}</td>
                                     <td className="px-6 py-4 text-xs text-gray-500 max-w-[200px] truncate">{req.note}</td>
@@ -120,6 +123,7 @@ const AccountDelete = () => {
                             ))}
                         </tbody>
                     </table>
+                    <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
                     {filteredRequests.length === 0 && (
                         <div className="py-20 text-center text-gray-400">
                             No pending delete requests found.

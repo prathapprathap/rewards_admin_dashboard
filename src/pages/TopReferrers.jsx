@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { FaCrown, FaPen, FaTrophy } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { getTopReferrers, updateReferralCount } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const TopReferrers = () => {
     const [referrers, setReferrers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const restReferrers = referrers.slice(3);
+    const { currentPage, setCurrentPage, pageItems: pagedReferrers, total, pageSize, startIndex } = usePagination(restReferrers);
 
     const fetchTopReferrers = async () => {
         try {
@@ -118,9 +122,9 @@ const TopReferrers = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
-                        {referrers.slice(3).map((user, index) => (
+                        {pagedReferrers.map((user, index) => (
                             <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 text-sm font-bold text-gray-500">{index + 4}</td>
+                                <td className="px-6 py-4 text-sm font-bold text-gray-500">{startIndex + index + 4}</td>
                                 <td className="px-6 py-4">
                                     <p className="font-medium text-gray-900">{user.name}</p>
                                     <p className="text-xs text-gray-500">{user.email}</p>
@@ -148,6 +152,7 @@ const TopReferrers = () => {
                         ))}
                     </tbody>
                 </table>
+                <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

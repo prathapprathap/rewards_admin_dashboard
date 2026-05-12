@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FaCheckCircle, FaClock, FaExchangeAlt, FaLink, FaList, FaTasks, FaUserCheck, FaUsers, FaWallet } from 'react-icons/fa';
 import { getStats, getTransactions } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const Dashboard = () => {
     const [stats, setStats] = useState({
@@ -15,6 +17,7 @@ const Dashboard = () => {
     });
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { currentPage, setCurrentPage, pageItems: pagedTransactions, total: totalTransactions, pageSize } = usePagination(transactions);
 
     useEffect(() => {
         fetchData();
@@ -151,7 +154,7 @@ const Dashboard = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {transactions.map((txn) => (
+                            {pagedTransactions.map((txn) => (
                                 <tr key={txn.id} className="hover:bg-indigo-50/30 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
@@ -184,6 +187,7 @@ const Dashboard = () => {
                             ))}
                         </tbody>
                     </table>
+                    <Pagination currentPage={currentPage} totalItems={totalTransactions} pageSize={pageSize} onPageChange={setCurrentPage} />
                     {transactions.length === 0 && (
                         <div className="py-24 text-center">
                             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">

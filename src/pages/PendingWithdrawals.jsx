@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { FaCheck, FaClock, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { getWithdrawals, updateWithdrawalStatus } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const PendingWithdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { currentPage, setCurrentPage, pageItems: pagedWithdrawals, total, pageSize } = usePagination(withdrawals);
 
     useEffect(() => {
         fetchPendingWithdrawals();
@@ -98,7 +101,7 @@ const PendingWithdrawals = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
-                        {withdrawals.map((withdrawal) => (
+                        {pagedWithdrawals.map((withdrawal) => (
                             <tr key={withdrawal.id} className="hover:bg-yellow-50/50 transition-colors">
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{withdrawal.name}</td>
                                 <td className="px-6 py-4 font-bold text-lg text-yellow-600">₹{withdrawal.amount}</td>
@@ -127,6 +130,7 @@ const PendingWithdrawals = () => {
                         ))}
                     </tbody>
                 </table>
+                <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
                 {withdrawals.length === 0 && (
                     <div className="text-center py-16">
                         <FaClock size={64} className="mx-auto text-gray-300 mb-4" />

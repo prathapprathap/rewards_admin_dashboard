@@ -7,6 +7,8 @@ import {
     getNotifications,
     getUsers,
 } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const blankForm = {
     title: '',
@@ -23,6 +25,7 @@ const Notifications = () => {
     const [form, setForm] = useState(blankForm);
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
+    const { currentPage, setCurrentPage, pageItems: pagedList, total, pageSize } = usePagination(list);
 
     const fetchAll = async () => {
         try {
@@ -221,8 +224,9 @@ const Notifications = () => {
                 ) : list.length === 0 ? (
                     <p className="text-gray-400 italic">No notifications yet.</p>
                 ) : (
+                    <>
                     <ul className="space-y-3">
-                        {list.map((n) => (
+                        {pagedList.map((n) => (
                             <li
                                 key={n.id}
                                 className="border border-gray-100 rounded-2xl p-4 flex items-start justify-between gap-4 hover:bg-gray-50 transition-colors"
@@ -250,6 +254,10 @@ const Notifications = () => {
                             </li>
                         ))}
                     </ul>
+                    <div className="mt-4 -mx-6 md:-mx-10 -mb-6 md:-mb-10 border-t border-gray-100">
+                        <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
+                    </div>
+                    </>
                 )}
             </div>
         </div>

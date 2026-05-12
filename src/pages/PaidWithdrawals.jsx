@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { FaCheckCircle, FaMoneyBillWave } from 'react-icons/fa';
 import { getWithdrawals } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const PaidWithdrawals = () => {
     const [withdrawals, setWithdrawals] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { currentPage, setCurrentPage, pageItems: pagedWithdrawals, total, pageSize } = usePagination(withdrawals);
 
     useEffect(() => {
         fetchPaidWithdrawals();
@@ -65,7 +68,7 @@ const PaidWithdrawals = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
-                        {withdrawals.map((withdrawal) => (
+                        {pagedWithdrawals.map((withdrawal) => (
                             <tr key={withdrawal.id} className="hover:bg-green-50/50 transition-colors">
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{withdrawal.name}</td>
                                 <td className="px-6 py-4 font-bold text-lg text-green-600">₹{withdrawal.amount}</td>
@@ -83,6 +86,7 @@ const PaidWithdrawals = () => {
                         ))}
                     </tbody>
                 </table>
+                <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
                 {withdrawals.length === 0 && (
                     <div className="text-center py-16">
                         <FaMoneyBillWave size={64} className="mx-auto text-gray-300 mb-4" />

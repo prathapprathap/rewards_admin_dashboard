@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { FaEdit, FaImage, FaPlus, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { createBanner, deleteBanner, getBanners, updateBanner } from '../api';
+import Pagination from '../components/Pagination';
+import { usePagination } from '../components/usePagination';
 
 const emptyForm = {
     click_url: '',
@@ -18,6 +20,7 @@ const ImageSlider = () => {
     const [formData, setFormData] = useState(emptyForm);
     const [previewUrl, setPreviewUrl] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const { currentPage, setCurrentPage, pageItems: pagedBanners, total, pageSize } = usePagination(banners);
 
     useEffect(() => {
         fetchBanners();
@@ -186,7 +189,7 @@ const ImageSlider = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {banners.map((banner) => (
+                            {pagedBanners.map((banner) => (
                                 <tr key={banner.id} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="px-6 py-4 text-sm font-medium text-gray-500">{banner.id}</td>
                                     <td className="px-6 py-4">
@@ -236,6 +239,8 @@ const ImageSlider = () => {
                         </tbody>
                     </table>
                 </div>
+
+                <Pagination currentPage={currentPage} totalItems={total} pageSize={pageSize} onPageChange={setCurrentPage} />
 
                 {banners.length === 0 && (
                     <div className="py-20 text-center">
