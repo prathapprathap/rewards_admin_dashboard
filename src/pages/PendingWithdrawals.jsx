@@ -76,7 +76,7 @@ const PendingWithdrawals = () => {
     }
 
     return (
-        <div className="p-8 min-h-screen">
+        <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
                     <FaClock className="text-yellow-600" />

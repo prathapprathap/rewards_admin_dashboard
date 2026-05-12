@@ -127,7 +127,7 @@ const Dashboard = () => {
 
             {/* Recent Transactions Section */}
             <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden relative z-10">
-                <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-gradient-to-r from-white to-gray-50/30">
+                <div className="p-4 sm:p-6 lg:p-8 border-b border-gray-50 flex items-center justify-between bg-gradient-to-r from-white to-gray-50/30">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="w-2 h-2 rounded-full bg-indigo-500"></span>

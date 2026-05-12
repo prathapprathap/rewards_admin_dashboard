@@ -129,6 +129,11 @@ export const updateUserBalance = async (id, balance) => {
     return response.data;
 };
 
+export const updateReferralCount = async (id, totalReferrals) => {
+    const response = await axios.put(`${API_URL}/users/${id}/referral-count`, { total_referrals: totalReferrals });
+    return response.data;
+};
+
 export const updatePassword = async (passwordData) => {
     const response = await axios.put(`${API_URL}/profile/password`, passwordData);
     return response.data;
@@ -202,6 +207,22 @@ export const updatePaymentAccount = async (accountId, accountData) => {
 
 export const deletePaymentAccount = async (accountId) => {
     const response = await axios.delete(`${API_URL}/payment-accounts/${accountId}`);
+    return response.data;
+};
+
+// ── Notifications (Push + In-app) ─────────────────────────────────────────
+export const getNotifications = async () => {
+    const response = await axios.get(`${API_URL}/notifications`);
+    return response.data;
+};
+
+export const createNotification = async (payload) => {
+    const response = await axios.post(`${API_URL}/notifications`, payload);
+    return response.data;
+};
+
+export const deleteNotification = async (id) => {
+    const response = await axios.delete(`${API_URL}/notifications/${id}`);
     return response.data;
 };
 

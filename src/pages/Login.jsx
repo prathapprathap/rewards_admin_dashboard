@@ -15,6 +15,9 @@ const Login = () => {
             const data = await adminLogin({ username, password });
             if (data.message === 'Login successful') {
                 localStorage.setItem('adminAuth', 'true');
+                if (data.admin?.username) {
+                    localStorage.setItem('adminUsername', data.admin.username);
+                }
                 Swal.fire({
                     icon: 'success',
                     title: 'Welcome Back!',

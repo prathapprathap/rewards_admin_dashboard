@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   FaBars,
+  FaBell,
   FaCog,
   FaGift,
   FaHistory,
@@ -22,6 +23,7 @@ import AppSettings from './pages/AppSettings';
 import Dashboard from './pages/Dashboard';
 import ImageSlider from './pages/ImageSlider';
 import Login from './pages/Login';
+import Notifications from './pages/Notifications';
 import ManageOffers from './pages/ManageOffers';
 import PaidWithdrawals from './pages/PaidWithdrawals';
 import PendingWithdrawals from './pages/PendingWithdrawals';
@@ -30,104 +32,142 @@ import TopReferrers from './pages/TopReferrers';
 import Users from './pages/Users';
 import Withdrawals from './pages/Withdrawals';
 
-const SidebarItem = ({ to, icon: Icon, label, onClick, active }) => (
+const SidebarItem = ({ to, icon: Icon, label, onClick, active, collapsed }) => (
   <Link
     to={to}
     onClick={onClick}
-    className={`flex items-center px-6 py-3.5 rounded-2xl transition-all duration-300 group mb-2 ${active
-      ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/30 font-bold translate-x-2'
+    title={collapsed ? label : undefined}
+    className={`flex items-center ${collapsed ? 'justify-center px-2' : 'px-6'} py-3.5 rounded-2xl transition-all duration-300 group mb-2 ${active
+      ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/30 font-bold' + (collapsed ? '' : ' translate-x-2')
       : 'text-indigo-200/60 hover:bg-white/10 hover:text-white'
       }`}
   >
-    <Icon className={`mr-4 ${active ? 'text-white' : 'text-indigo-400 group-hover:text-indigo-200'} transition-transform group-hover:scale-110`} size={18} />
-    <span className="text-sm tracking-tight">{label}</span>
+    <Icon className={`${collapsed ? '' : 'mr-4'} ${active ? 'text-white' : 'text-indigo-400 group-hover:text-indigo-200'} transition-transform group-hover:scale-110`} size={18} />
+    {!collapsed && <span className="text-sm tracking-tight">{label}</span>}
   </Link>
 );
 
-const SectionTitle = ({ children }) => (
-  <p className="px-6 mt-8 mb-3 text-[10px] uppercase font-black tracking-[0.25em] text-indigo-400/50">{children}</p>
+const SectionTitle = ({ children, collapsed }) => (
+  collapsed
+    ? <div className="mx-4 my-3 border-t border-white/10" />
+    : <p className="px-6 mt-8 mb-3 text-[10px] uppercase font-black tracking-[0.25em] text-indigo-400/50">{children}</p>
 );
 
-const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSidebar }) => {
+const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handleLogout, toggleSidebar, isDesktop }) => {
   const location = useLocation();
+
+  const closeOnMobile = () => {
+    if (!isDesktop) setIsSidebarOpen(false);
+  };
+
+  // Visible sidebar logic
+  const sidebarVisible = isDesktop ? true : isSidebarOpen;
+  const collapsed = isDesktop && isDesktopCollapsed;
+  const sidebarWidth = collapsed ? 'w-20' : 'w-72';
 
   return (
     <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans">
-      {/* Mobile Top Header */}
-      <div className="md:hidden fixed top-0 w-full bg-white/80 backdrop-blur-md z-40 flex justify-between items-center px-6 py-4 border-b border-gray-100/50">
-        <div>
-          <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-0.5">Control Panel</p>
-          <h1 className="text-xl font-black text-gray-900 tracking-tighter">REWARDS <span className="text-indigo-600">ADMIN</span></h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link to="/profile" className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-            <FaUserShield size={16} />
-          </Link>
-          <button onClick={toggleSidebar} className="text-gray-900 bg-gray-100 p-2 rounded-xl active:scale-95 transition-transform">
+      {/* Top Header */}
+      <div
+        className={`fixed top-0 right-0 bg-white/80 backdrop-blur-md z-40 flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100/50 transition-all duration-300`}
+        style={{
+          left: isDesktop ? (collapsed ? '5rem' : '18rem') : 0,
+        }}
+      >
+        <div className="flex items-center gap-3 sm:gap-4">
+          <button
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar"
+            className="text-gray-900 bg-gray-100 hover:bg-gray-200 p-2 rounded-xl active:scale-95 transition-transform"
+          >
             <FaBars size={20} />
           </button>
+          <div>
+            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-0.5 hidden sm:block">Control Panel</p>
+            <h1 className="text-lg sm:text-xl font-black text-gray-900 tracking-tighter">REWARDS <span className="text-indigo-600">ADMIN</span></h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link to="/profile" className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 hover:bg-indigo-200 transition-colors">
+            <FaUserShield size={16} />
+          </Link>
         </div>
       </div>
 
-      {/* Sidebar - Desktop Only */}
-      <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-72 bg-indigo-900 shadow-2xl z-50 flex flex-col`}>
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 ${sidebarWidth} bg-indigo-900 shadow-2xl z-50 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          sidebarVisible ? 'translate-x-0' : '-translate-x-full'
+        } ${isDesktop ? '' : 'max-w-[85vw]'}`}
+      >
         {/* Sidebar Header */}
-        <div className="p-8 border-b border-white/5">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div className={`${collapsed ? 'p-4' : 'p-8'} border-b border-white/5`}>
+          <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} mb-2`}>
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
               <FaHistory className="text-white" size={20} />
             </div>
-            <div>
-              <h1 className="text-xl font-black text-white tracking-tighter uppercase leading-tight">Rewards <span className="text-indigo-400">Admin</span></h1>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-                <p className="text-indigo-300/60 text-[10px] uppercase font-bold tracking-widest">Active Server</p>
+            {!collapsed && (
+              <div>
+                <h1 className="text-xl font-black text-white tracking-tighter uppercase leading-tight">Rewards <span className="text-indigo-400">Admin</span></h1>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                  <p className="text-indigo-300/60 text-[10px] uppercase font-bold tracking-widest">Active Server</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto pt-6 px-4 custom-scrollbar space-y-1">
-          <SectionTitle>Main Menu</SectionTitle>
-          <SidebarItem to="/" icon={FaHome} label="Dashboard" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/'} />
-          <SidebarItem to="/manage-offers" icon={FaTasks} label="Manage Offers" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/manage-offers'} />
-          <SidebarItem to="/active-offers" icon={FaTasks} label="Active Offer" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/active-offers'} />
+        <nav className={`flex-1 overflow-y-auto overflow-x-hidden ${collapsed ? 'pt-4 px-2' : 'pt-6 px-4'} custom-scrollbar space-y-1`}>
+          <SectionTitle collapsed={collapsed}>Main Menu</SectionTitle>
+          <SidebarItem to="/" icon={FaHome} label="Dashboard" onClick={closeOnMobile} active={location.pathname === '/'} collapsed={collapsed} />
+          <SidebarItem to="/manage-offers" icon={FaTasks} label="Manage Offers" onClick={closeOnMobile} active={location.pathname === '/manage-offers'} collapsed={collapsed} />
+          <SidebarItem to="/active-offers" icon={FaTasks} label="Active Offer" onClick={closeOnMobile} active={location.pathname === '/active-offers'} collapsed={collapsed} />
 
-          <SectionTitle>User Management</SectionTitle>
-          <SidebarItem to="/active-users" icon={FaUsers} label="Active Users" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/active-users'} />
-          <SidebarItem to="/top-referrers" icon={FaUsers} label="Top Referrers" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/top-referrers'} />
-          <SidebarItem to="/account-delete" icon={FaTrashAlt} label="Account Delete" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/account-delete'} />
+          <SectionTitle collapsed={collapsed}>User Management</SectionTitle>
+          <SidebarItem to="/active-users" icon={FaUsers} label="Active Users" onClick={closeOnMobile} active={location.pathname === '/active-users'} collapsed={collapsed} />
+          <SidebarItem to="/top-referrers" icon={FaUsers} label="Top Referrers" onClick={closeOnMobile} active={location.pathname === '/top-referrers'} collapsed={collapsed} />
+          <SidebarItem to="/account-delete" icon={FaTrashAlt} label="Account Delete" onClick={closeOnMobile} active={location.pathname === '/account-delete'} collapsed={collapsed} />
 
-          <SectionTitle>Financials</SectionTitle>
-          <SidebarItem to="/pending-withdrawals" icon={FaHistory} label="Pending Payouts" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/pending-withdrawals'} />
-          <SidebarItem to="/paid-withdrawals" icon={FaHistory} label="Paid History" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/paid-withdrawals'} />
+          <SectionTitle collapsed={collapsed}>Financials</SectionTitle>
+          <SidebarItem to="/pending-withdrawals" icon={FaHistory} label="Pending Payouts" onClick={closeOnMobile} active={location.pathname === '/pending-withdrawals'} collapsed={collapsed} />
+          <SidebarItem to="/paid-withdrawals" icon={FaHistory} label="Paid History" onClick={closeOnMobile} active={location.pathname === '/paid-withdrawals'} collapsed={collapsed} />
 
-          <SectionTitle>Configuration</SectionTitle>
-          <SidebarItem to="/promo-codes" icon={FaGift} label="Promo Codes" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/promo-codes'} />
-          <SidebarItem to="/image-slider" icon={FaHistory} label="Image Slider" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/image-slider'} />
-          <SidebarItem to="/settings" icon={FaCog} label="System Settings" onClick={() => setIsSidebarOpen(false)} active={location.pathname === '/settings'} />
+          <SectionTitle collapsed={collapsed}>Configuration</SectionTitle>
+          <SidebarItem to="/promo-codes" icon={FaGift} label="Promo Codes" onClick={closeOnMobile} active={location.pathname === '/promo-codes'} collapsed={collapsed} />
+          <SidebarItem to="/image-slider" icon={FaHistory} label="Image Slider" onClick={closeOnMobile} active={location.pathname === '/image-slider'} collapsed={collapsed} />
+          <SidebarItem to="/notifications" icon={FaBell} label="Notifications" onClick={closeOnMobile} active={location.pathname === '/notifications'} collapsed={collapsed} />
+          <SidebarItem to="/settings" icon={FaCog} label="System Settings" onClick={closeOnMobile} active={location.pathname === '/settings'} collapsed={collapsed} />
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-4 bg-black/20">
-          <button onClick={handleLogout} className="flex items-center w-full px-4 py-3.5 text-red-100 bg-red-500/10 border border-red-500/20 rounded-2xl hover:bg-red-500/20 transition-all duration-200 group">
-            <FaSignOutAlt className="mr-3 group-hover:scale-110 transition-transform" size={16} />
-            <span className="font-bold text-sm tracking-tight text-center flex-1">Logout Account</span>
+        {/* Logout */}
+        <div className={`${collapsed ? 'p-2' : 'p-4'} bg-black/20`}>
+          <button
+            onClick={handleLogout}
+            title={collapsed ? 'Logout' : undefined}
+            className={`flex items-center w-full ${collapsed ? 'justify-center px-2' : 'px-4'} py-3.5 text-red-100 bg-red-500/10 border border-red-500/20 rounded-2xl hover:bg-red-500/20 transition-all duration-200 group`}
+          >
+            <FaSignOutAlt className={`${collapsed ? '' : 'mr-3'} group-hover:scale-110 transition-transform`} size={16} />
+            {!collapsed && <span className="font-bold text-sm tracking-tight text-center flex-1">Logout Account</span>}
           </button>
         </div>
-      </div>
+      </aside>
 
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div onClick={toggleSidebar} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 md:hidden animate-fade-in"></div>
+      {/* Overlay (mobile only) */}
+      {!isDesktop && isSidebarOpen && (
+        <div onClick={toggleSidebar} className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 animate-fade-in"></div>
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 relative h-screen overflow-hidden">
-        {/* Content Scroll Area */}
-        <div className="flex-1 overflow-y-auto pt-24 pb-24 md:pt-0 md:pb-0 custom-scrollbar relative z-10">
-          <div className="max-w-7xl mx-auto w-full">
+      <main
+        className="flex-1 flex flex-col min-w-0 relative h-screen overflow-hidden transition-all duration-300"
+        style={{
+          marginLeft: isDesktop ? (collapsed ? '5rem' : '18rem') : 0,
+        }}
+      >
+        <div className="flex-1 overflow-y-auto pt-20 pb-24 md:pb-6 custom-scrollbar relative z-10">
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/users" element={<Users />} />
@@ -143,6 +183,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSideb
               <Route path="/paid-withdrawals" element={<PaidWithdrawals />} />
               <Route path="/image-slider" element={<ImageSlider />} />
               <Route path="/settings" element={<AppSettings />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/profile" element={<AdminProfile />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -150,17 +191,19 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, handleLogout, toggleSideb
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <div className="md:hidden fixed bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center px-4 py-2 z-40 pb-safe-area-inset-bottom">
-          <BottomNavItem to="/" icon={FaHome} label="Home" active={location.pathname === '/'} />
-          <BottomNavItem to="/manage-offers" icon={FaTasks} label="Offers" active={location.pathname === '/manage-offers'} />
-          <div className="relative -top-5">
-            <Link to="/add-offer" className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/40 border-4 border-white active:scale-90 transition-transform">
-              <FaPlusCircle size={24} />
-            </Link>
+        {!isDesktop && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center px-4 py-2 z-40 pb-safe-area-inset-bottom">
+            <BottomNavItem to="/" icon={FaHome} label="Home" active={location.pathname === '/'} />
+            <BottomNavItem to="/manage-offers" icon={FaTasks} label="Offers" active={location.pathname === '/manage-offers'} />
+            <div className="relative -top-5">
+              <Link to="/add-offer" className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/40 border-4 border-white active:scale-90 transition-transform">
+                <FaPlusCircle size={24} />
+              </Link>
+            </div>
+            <BottomNavItem to="/withdrawals" icon={FaHistory} label="Payout" active={location.pathname === '/withdrawals'} />
+            <BottomNavItem to="/users" icon={FaUsers} label="Users" active={location.pathname === '/users'} />
           </div>
-          <BottomNavItem to="/withdrawals" icon={FaHistory} label="Payout" active={location.pathname === '/withdrawals'} />
-          <BottomNavItem to="/users" icon={FaUsers} label="Users" active={location.pathname === '/users'} />
-        </div>
+        )}
       </main>
     </div>
   );
@@ -175,7 +218,11 @@ const BottomNavItem = ({ to, icon: Icon, label, active }) => (
 
 
 const App = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const getIsDesktop = () => typeof window !== 'undefined' && window.innerWidth >= 768;
+
+  const [isDesktop, setIsDesktop] = useState(getIsDesktop);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // mobile drawer
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false); // desktop icon-only
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -183,7 +230,19 @@ const App = () => {
     setIsAuthenticated(auth === 'true');
   }, []);
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  useEffect(() => {
+    const onResize = () => setIsDesktop(getIsDesktop());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (isDesktop) {
+      setIsDesktopCollapsed((v) => !v);
+    } else {
+      setIsSidebarOpen((v) => !v);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
@@ -200,8 +259,10 @@ const App = () => {
             <AppContent
               isSidebarOpen={isSidebarOpen}
               setIsSidebarOpen={setIsSidebarOpen}
+              isDesktopCollapsed={isDesktopCollapsed}
               handleLogout={handleLogout}
               toggleSidebar={toggleSidebar}
+              isDesktop={isDesktop}
             />
           ) : (
             <Navigate to="/login" replace />

@@ -52,24 +52,32 @@ const AdminProfile = () => {
             return;
         }
 
+        if (passwords.new.length < 6) {
+            Swal.fire('Error', 'New password must be at least 6 characters', 'error');
+            return;
+        }
+
         try {
-            await updatePassword({
+            const res = await updatePassword({
                 currentPassword: passwords.current,
-                newPassword: passwords.new
+                newPassword: passwords.new,
+                username: localStorage.getItem('adminUsername') || profile.username,
             });
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',
-                text: 'Password updated successfully!',
+                text: res?.message || 'Password updated successfully!',
                 timer: 3000,
                 showConfirmButton: false
             });
             setPasswords({ current: '', new: '', confirm: '' });
         } catch (error) {
+            console.error('Password update failed:', error);
+            const backendMsg = error.response?.data?.message;
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: error.response?.data?.message || 'Failed to update password.',
+                text: backendMsg || error.message || 'Failed to update password.',
             });
         }
     };
@@ -126,7 +134,7 @@ const AdminProfile = () => {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[60px]"></div>
                         </div>
 
-                        <form onSubmit={handlePasswordUpdate} className="p-8 md:p-12 space-y-8">
+                        <form onSubmit={handlePasswordUpdate} className="p-4 sm:p-6 lg:p-8 md:p-12 space-y-8">
                             <div className="space-y-2 group">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Current Credentials</label>
                                 <input

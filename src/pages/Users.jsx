@@ -172,7 +172,7 @@ const Users = () => {
 
             {/* Edit Balance Modal */}
             {editUser && (
-                <div className="fixed inset-0 bg-indigo-950/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-indigo-950/40 backdrop-blur-md z-50 overflow-y-auto p-4 pb-28 sm:pb-4 flex items-start sm:items-center justify-center">
                     <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-300 border border-white/20">
                         <div className="bg-indigo-900 p-8 text-white relative overflow-hidden">
                             <div className="relative z-10 flex justify-between items-center">

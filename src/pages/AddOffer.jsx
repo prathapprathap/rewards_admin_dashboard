@@ -184,7 +184,7 @@ const AddOffer = () => {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[60px]"></div>
                     </div>
 
-                    <div className="p-8 md:p-12">
+                    <div className="p-4 sm:p-6 lg:p-8 md:p-12">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                             {/* Offer Name */}
                             <InputField label="Offer Identity" name="offer_name" placeholder="Enter premium name" value={formData.offer_name} onChange={handleChange} error={errors.offer_name} />
@@ -295,7 +295,7 @@ const AddOffer = () => {
                         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[40px]"></div>
                     </div>
 
-                    <div className="p-8 md:p-12">
+                    <div className="p-4 sm:p-6 lg:p-8 md:p-12">
                         {eventSteps.length === 0 ? (
                             <div className="text-center py-16 border-2 border-dashed border-gray-100 rounded-3xl">
                                 <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300 mx-auto mb-4">

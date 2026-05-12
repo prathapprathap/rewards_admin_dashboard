@@ -149,7 +149,13 @@ const ImageSlider = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Loading...</div>;
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 md:p-8">
@@ -240,7 +246,7 @@ const ImageSlider = () => {
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[60] overflow-y-auto p-4 pb-28 sm:pb-4 flex items-start sm:items-center justify-center">
                     <div
                         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                         onClick={resetModal}

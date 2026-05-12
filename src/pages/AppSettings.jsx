@@ -25,6 +25,11 @@ const AppSettings = () => {
         payment_mode: 'Manual',
         update_mode: 'Off',
         maintenance_mode: 'Off',
+        maintenance_message: '',
+        latest_version: '',
+        min_supported_version: '',
+        update_message: '',
+        update_url: '',
         refer_text: '',
         apk_download_url: '',
         app_package_name: '',
@@ -100,8 +105,13 @@ const AppSettings = () => {
         { key: 'checkin_target_days', label: 'Check-in Goal (Days)', type: 'number', icon: '🎯' },
         { key: 'checkin_target_reward', label: 'Check-in Reward (₹)', type: 'number', icon: '🏆' },
         { key: 'payment_mode', label: 'Payment Mode', type: 'text', icon: '💳' },
-        { key: 'update_mode', label: 'Update Mode', type: 'text', icon: '🔄' },
-        { key: 'maintenance_mode', label: 'Maintenance Mode', type: 'text', icon: '🛠️' },
+        { key: 'maintenance_mode', label: 'Maintenance Mode', type: 'toggle', icon: '🛠️' },
+        { key: 'maintenance_message', label: 'Maintenance Message', type: 'textarea', icon: '📣' },
+        { key: 'update_mode', label: 'Update Mode (legacy)', type: 'toggle', icon: '🔄' },
+        { key: 'latest_version', label: 'Latest App Version (e.g. 1.3.0)', type: 'text', icon: '🆕' },
+        { key: 'min_supported_version', label: 'Minimum Supported Version (force update below)', type: 'text', icon: '⛔' },
+        { key: 'update_message', label: 'Update Prompt Message', type: 'textarea', icon: '📝' },
+        { key: 'update_url', label: 'Update URL (Play Store / APK)', type: 'text', icon: '⬆️' },
         { key: 'apk_download_url', label: 'APK Download URL', type: 'text', icon: '📲' },
         { key: 'app_package_name', label: 'App Package Name (Play Store)', type: 'text', icon: '📦' },
         { key: 'privacy_policy_url', label: 'Privacy Policy URL', type: 'text', icon: '🔒' },
@@ -138,7 +148,7 @@ const AppSettings = () => {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[60px]"></div>
                     </div>
 
-                    <div className="p-8 md:p-12">
+                    <div className="p-4 sm:p-6 lg:p-8 md:p-12">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                             {settingsConfig.map((config) => (
                                 <div key={config.key} className="space-y-2 group">
@@ -149,7 +159,31 @@ const AppSettings = () => {
                                         </label>
                                     </div>
 
-                                    {config.type === 'textarea' ? (
+                                    {config.type === 'toggle' ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setSettings({ ...settings, [config.key]: settings[config.key] === 'On' ? 'Off' : 'On' })}
+                                            className={`relative inline-flex items-center h-10 w-20 rounded-full transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 ${settings[config.key] === 'On' ? 'bg-indigo-600' : 'bg-gray-300'}`}
+                                        >
+                                            <span
+                                                className={`inline-block w-8 h-8 transform bg-white rounded-full shadow-lg transition-transform duration-300 ${settings[config.key] === 'On' ? 'translate-x-11' : 'translate-x-1'}`}
+                                            />
+                                            <span className={`absolute font-black text-[10px] uppercase tracking-widest ${settings[config.key] === 'On' ? 'left-2 text-white' : 'right-2 text-gray-600'}`}>
+                                                {settings[config.key] === 'On' ? 'On' : 'Off'}
+                                            </span>
+                                        </button>
+                                    ) : config.type === 'select' ? (
+                                        <select
+                                            name={config.key}
+                                            value={settings[config.key] || ''}
+                                            onChange={handleChange}
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900"
+                                        >
+                                            {(config.options || []).map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
+                                    ) : config.type === 'textarea' ? (
                                         <textarea
                                             name={config.key}
                                             value={settings[config.key] || ''}

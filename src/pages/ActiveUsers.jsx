@@ -1,74 +1,81 @@
 import { useEffect, useState } from 'react';
-import { FaEdit, FaTimes, FaUserCheck, FaUsers } from 'react-icons/fa';
+import {
+    FaCheckCircle,
+    FaExclamationCircle,
+    FaMobileAlt,
+    FaSearch,
+    FaTimes,
+    FaTrash,
+    FaUniversity,
+    FaUserCheck,
+    FaUsers,
+} from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import {
+    deletePaymentAccount,
     deleteUser,
     getUserDetails,
+    getUserPaymentAccounts,
     getUserTransactions,
     getUserWithdrawals,
     getUsers,
     updateUser,
-    getUserPaymentAccounts,
-    deletePaymentAccount,
 } from '../api';
-import { FaPlus, FaTrash, FaCheckCircle, FaExclamationCircle, FaUniversity, FaMobileAlt } from 'react-icons/fa';
 
-
-/* ─── field definitions (matches users table schema) ──────────────────── */
-const EDIT_FIELDS = [
-    { key: 'name',              label: 'Name',               type: 'text',   required: true  },
-    { key: 'email',             label: 'Email',              type: 'email',  required: true  },
-    { key: 'upi_id',            label: 'UPI ID',             type: 'text',   required: false },
-    { key: 'telegram_id',       label: 'Telegram ID',        type: 'text',   required: false },
-    { key: 'device_id',         label: 'Device ID',          type: 'text',   required: false },
-    { key: 'referral_code',     label: 'Referral Code',      type: 'text',   required: false },
-    { key: 'referred_by',       label: 'Referred By (code)', type: 'text',   required: false },
-    { key: 'wallet_balance',    label: 'Wallet Balance (₹)', type: 'number', required: false },
-    { key: 'total_earnings',    label: 'Total Earnings (₹)', type: 'number', required: false },
-    { key: 'referral_earnings', label: 'Referral Earnings (₹)', type: 'number', required: false },
-    { key: 'is_blocked',        label: 'Account Blocked',    type: 'checkbox', required: false },
+/* ─── Editable field schema (matches users table) ─────────────────────── */
+const FIELD_SECTIONS = [
+    {
+        title: 'Profile',
+        fields: [
+            { key: 'name', label: 'Name', type: 'text', required: true },
+            { key: 'email', label: 'Email', type: 'email', required: true },
+            { key: 'telegram_id', label: 'Telegram ID', type: 'text' },
+            { key: 'upi_id', label: 'UPI ID', type: 'text' },
+        ],
+    },
+    {
+        title: 'Wallet',
+        fields: [
+            { key: 'wallet_balance', label: 'Wallet Balance (₹)', type: 'number', step: '0.01' },
+            { key: 'total_earnings', label: 'Total Earnings (₹)', type: 'number', step: '0.01' },
+            { key: 'referral_earnings', label: 'Referral Earnings (₹)', type: 'number', step: '0.01' },
+        ],
+    },
+    {
+        title: 'Referral',
+        fields: [
+            { key: 'referral_code', label: 'Referral Code', type: 'text' },
+            { key: 'referred_by', label: 'Referred By (code)', type: 'text' },
+        ],
+    },
+    {
+        title: 'Device & Access',
+        fields: [
+            { key: 'device_id', label: 'Device ID', type: 'text' },
+            { key: 'is_blocked', label: 'Block this account', type: 'toggle' },
+        ],
+    },
 ];
 
-
-/* ─── read-only display rows ───────────────────────────────────────────── */
-const DETAIL_ROWS = [
-    { label: 'Name',              key: 'name' },
-    { label: 'Email',             key: 'email' },
-    { label: 'UPI ID',            key: 'upi_id',        fallback: '—' },
-    { label: 'Telegram ID',       key: 'telegram_id',   fallback: '—' },
-    { label: 'Device ID',         key: 'device_id',     fallback: '—' },
-    { label: 'Refer Code',        key: 'referral_code', fallback: '—' },
-    { label: 'Referred By',       key: 'referred_by',   fallback: '—' },
-    { label: 'Wallet Balance',    key: 'wallet_balance',    prefix: '₹' },
-    { label: 'Total Earnings',    key: 'total_earnings',    prefix: '₹' },
-    { label: 'Referral Earnings', key: 'referral_earnings', prefix: '₹' },
-    { label: 'Total Withdraw',    key: 'total_withdraw_amount', prefix: '₹' },
-    { label: 'Today Withdraw',    key: 'today_withdraw_amount', prefix: '₹' },
-    { label: 'Total Tasks Done',  key: 'total_tasks' },
-    { label: 'Status',            key: 'is_blocked',    isStatus: true },
-    { label: 'Last Login',        key: 'last_login_at',  isDate: true },
-
-    { label: 'Created At',        key: 'created_at',     isDate: true },
-];
+const EDITABLE_KEYS = FIELD_SECTIONS.flatMap(s => s.fields.map(f => f.key));
 
 const ActiveUsers = () => {
-    const [users, setUsers]               = useState([]);
-    const [loading, setLoading]           = useState(true);
-    const [searchQuery, setSearchQuery]   = useState('');
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     /* modal state */
     const [selectedUser, setSelectedUser] = useState(null);
     const [detailLoading, setDetailLoading] = useState(false);
-    const [activeTab, setActiveTab]       = useState('details');
+    const [activeTab, setActiveTab] = useState('profile');
     const [transactions, setTransactions] = useState([]);
-    const [withdrawals, setWithdrawals]   = useState([]);
+    const [withdrawals, setWithdrawals] = useState([]);
     const [paymentAccounts, setPaymentAccounts] = useState([]);
 
-
     /* edit state */
-    const [editMode, setEditMode]   = useState(false);
-    const [editForm, setEditForm]   = useState({});
-    const [saving, setSaving]       = useState(false);
+    const [form, setForm] = useState({});
+    const [saving, setSaving] = useState(false);
+    const [dirty, setDirty] = useState(false);
 
     useEffect(() => { fetchActiveUsers(); }, []);
 
@@ -81,7 +88,7 @@ const ActiveUsers = () => {
             setUsers(
                 data.filter(u => {
                     const ll = u.last_login_at ? new Date(u.last_login_at) : null;
-                    const ca = u.created_at    ? new Date(u.created_at)    : null;
+                    const ca = u.created_at ? new Date(u.created_at) : null;
                     return (ll && ll >= threshold) || (ca && ca >= threshold) || parseFloat(u.wallet_balance || 0) > 0;
                 })
             );
@@ -95,16 +102,16 @@ const ActiveUsers = () => {
     const openDetail = async (user) => {
         setDetailLoading(true);
         setSelectedUser(null);
-        setEditMode(false);
-        setActiveTab('details');
+        setActiveTab('profile');
         setTransactions([]);
         setWithdrawals([]);
         setPaymentAccounts([]);
+        setDirty(false);
 
         try {
             const detail = await getUserDetails(user.id);
             setSelectedUser(detail);
-            initEditForm(detail);
+            hydrateForm(detail);
         } catch (e) {
             console.error(e);
             Swal.fire('Error', 'Failed to load user details.', 'error');
@@ -113,15 +120,30 @@ const ActiveUsers = () => {
         }
     };
 
-    const initEditForm = (detail) => {
-        const form = {};
-        EDIT_FIELDS.forEach(f => { form[f.key] = detail[f.key] ?? ''; });
-        setEditForm(form);
+    const hydrateForm = (detail) => {
+        const f = {};
+        EDITABLE_KEYS.forEach(k => { f[k] = detail[k] ?? ''; });
+        setForm(f);
     };
 
-    const closeDetail = () => {
+    const closeDetail = async () => {
+        if (dirty) {
+            const ok = await Swal.fire({
+                title: 'Discard changes?',
+                text: 'You have unsaved edits.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Discard',
+            });
+            if (!ok.isConfirmed) return;
+        }
         setSelectedUser(null);
-        setEditMode(false);
+        setDirty(false);
+    };
+
+    const handleField = (key, value) => {
+        setForm(prev => ({ ...prev, [key]: value }));
+        setDirty(true);
     };
 
     const loadTransactions = async () => {
@@ -142,41 +164,37 @@ const ActiveUsers = () => {
         catch (e) { console.error(e); }
     };
 
-
     const handleTabChange = (tab) => {
         setActiveTab(tab);
-        setEditMode(false);
         if (tab === 'transactions' && transactions.length === 0) loadTransactions();
-        if (tab === 'withdrawals'  && withdrawals.length  === 0) loadWithdrawals();
-        if (tab === 'payments'     && paymentAccounts.length === 0) loadPaymentAccounts();
+        if (tab === 'withdrawals' && withdrawals.length === 0) loadWithdrawals();
+        if (tab === 'payments' && paymentAccounts.length === 0) loadPaymentAccounts();
     };
 
-
-    /* ── edit save ───────────────────────────────────────────────────── */
-    const handleEditSave = async () => {
+    /* ── save ─────────────────────────────────────────────────────────── */
+    const handleSave = async () => {
+        if (!selectedUser) return;
         setSaving(true);
         try {
-            /* Build payload — only send non-empty strings / valid numbers */
             const payload = {};
-            EDIT_FIELDS.forEach(({ key, type }) => {
-                const val = editForm[key];
-                if (val === '' || val === null || val === undefined) return;
-                
+            FIELD_SECTIONS.flatMap(s => s.fields).forEach(({ key, type }) => {
+                const val = form[key];
                 if (type === 'number') {
+                    if (val === '' || val === null || val === undefined || isNaN(parseFloat(val))) return;
                     payload[key] = parseFloat(val);
-                } else if (type === 'checkbox') {
-                    payload[key] = !!val;
+                } else if (type === 'toggle') {
+                    payload[key] = val ? 1 : 0;
                 } else {
-                    payload[key] = String(val).trim();
+                    payload[key] = (val ?? '').toString().trim();
                 }
             });
 
             await updateUser(selectedUser.id, payload);
-            Swal.fire({ icon: 'success', title: 'Saved!', text: 'User details updated successfully.', timer: 2000, showConfirmButton: false });
-            setEditMode(false);
+            Swal.fire({ icon: 'success', title: 'Saved', timer: 1500, showConfirmButton: false });
             const refreshed = await getUserDetails(selectedUser.id);
             setSelectedUser(refreshed);
-            initEditForm(refreshed);
+            hydrateForm(refreshed);
+            setDirty(false);
             fetchActiveUsers();
         } catch (e) {
             console.error(e);
@@ -186,7 +204,7 @@ const ActiveUsers = () => {
         }
     };
 
-    /* ── delete ──────────────────────────────────────────────────────── */
+    /* ── delete ───────────────────────────────────────────────────────── */
     const handleDelete = async (id) => {
         const result = await Swal.fire({
             title: 'Delete User?',
@@ -194,66 +212,50 @@ const ActiveUsers = () => {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, Delete!',
+            confirmButtonText: 'Yes, Delete',
         });
-        if (result.isConfirmed) {
-            try {
-                await deleteUser(id);
-                Swal.fire('Deleted!', 'User removed successfully.', 'success');
-                closeDetail();
-                fetchActiveUsers();
-            } catch (e) {
-                Swal.fire('Error', 'Failed to delete user.', 'error');
-            }
+        if (!result.isConfirmed) return;
+        try {
+            await deleteUser(id);
+            Swal.fire('Deleted', 'User removed.', 'success');
+            setSelectedUser(null);
+            fetchActiveUsers();
+        } catch (e) {
+            Swal.fire('Error', 'Failed to delete user.', 'error');
         }
     };
 
     const handleDeletePaymentAccount = async (accountId) => {
-        const result = await Swal.fire({
-            title: 'Delete Account?',
-            text: 'Are you sure you want to remove this payment account?',
+        const r = await Swal.fire({
+            title: 'Remove payment account?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, Delete',
+            confirmButtonText: 'Remove',
         });
-        if (result.isConfirmed) {
-            try {
-                await deletePaymentAccount(accountId);
-                Swal.fire('Deleted!', 'Payment account removed.', 'success');
-                loadPaymentAccounts();
-            } catch (e) {
-                Swal.fire('Error', 'Failed to delete account.', 'error');
-            }
+        if (!r.isConfirmed) return;
+        try {
+            await deletePaymentAccount(accountId);
+            loadPaymentAccounts();
+        } catch (e) {
+            Swal.fire('Error', 'Failed to delete account.', 'error');
         }
     };
 
-
-    /* ── filter ──────────────────────────────────────────────────────── */
+    /* ── filter ───────────────────────────────────────────────────────── */
     const filteredUsers = users.filter(u => {
         const q = searchQuery.toLowerCase();
         return (
-            (u.email          || '').toLowerCase().includes(q) ||
-            (u.device_id      || '').toLowerCase().includes(q) ||
-            (u.upi_id         || '').toLowerCase().includes(q) ||
-            (u.referral_code  || '').toLowerCase().includes(q) ||
-            (u.name           || '').toLowerCase().includes(q) ||
-            (u.telegram_id    || '').toLowerCase().includes(q)
+            (u.email || '').toLowerCase().includes(q) ||
+            (u.device_id || '').toLowerCase().includes(q) ||
+            (u.upi_id || '').toLowerCase().includes(q) ||
+            (u.referral_code || '').toLowerCase().includes(q) ||
+            (u.name || '').toLowerCase().includes(q) ||
+            (u.telegram_id || '').toLowerCase().includes(q)
         );
     });
 
-    /* ── helpers ─────────────────────────────────────────────────────── */
-    const formatDetailValue = (row, user) => {
-        const raw = user[row.key];
-        if (raw === null || raw === undefined || raw === '') return row.fallback ?? '—';
-        if (row.isDate) return new Date(raw).toLocaleString('en-IN');
-        if (row.isStatus) return raw === 1 ? <span className="text-red-600 font-bold">BLOCKED</span> : <span className="text-green-600 font-bold">ACTIVE</span>;
-        return `${row.prefix ?? ''}${raw}`;
-
-    };
-
-    /* ═══════════════════════════════════════════════════════════════════ */
+    /* ══════════════════════════════════════════════════════════════════ */
     if (loading) return (
         <div className="flex items-center justify-center min-h-screen">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
@@ -261,28 +263,29 @@ const ActiveUsers = () => {
     );
 
     return (
-        <div className="p-8 min-h-screen">
+        <div className="p-4 sm:p-6 lg:p-8 min-h-screen">
             {/* Page header */}
             <div className="mb-6">
                 <h2 className="text-3xl font-bold text-gray-800 mb-1 flex items-center gap-3">
                     <FaUserCheck className="text-green-600" /> Active Users
                 </h2>
-                <p className="text-gray-500 text-sm">Users with recent login, recent join, or wallet activity</p>
+                <p className="text-gray-500 text-sm">Tap a user to edit their profile, view activity, or manage payouts.</p>
             </div>
 
             {/* Search */}
-            <div className="mb-4">
+            <div className="mb-4 relative">
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                 <input
                     type="text"
                     placeholder="Search by Email, Device ID, UPI, Refer Code, Telegram ID…"
-                    className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                 />
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            {/* Table (desktop) */}
+            <div className="hidden md:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gradient-to-r from-green-50 to-emerald-50">
@@ -305,12 +308,11 @@ const ActiveUsers = () => {
                                         {user.is_blocked === 1 && <span className="ml-2 bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded">BLOCKED</span>}
                                     </td>
                                     <td className="px-4 py-3">
-
                                         <button
                                             onClick={() => openDetail(user)}
                                             className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded hover:bg-indigo-700 transition-colors"
                                         >
-                                            Detail
+                                            Manage
                                         </button>
                                     </td>
                                 </tr>
@@ -326,300 +328,373 @@ const ActiveUsers = () => {
                 )}
             </div>
 
-            {/* ══════════════ DETAIL MODAL ══════════════════════════════════════ */}
+            {/* Card list (mobile) */}
+            <div className="md:hidden space-y-3">
+                {filteredUsers.map((user, i) => (
+                    <button
+                        key={user.id}
+                        onClick={() => openDetail(user)}
+                        className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-left active:scale-[0.98] transition-transform"
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-[10px] font-bold text-gray-400">#{i + 1}</span>
+                                    {user.is_blocked === 1 && (
+                                        <span className="bg-red-100 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded">BLOCKED</span>
+                                    )}
+                                </div>
+                                <p className="text-sm text-blue-600 font-bold truncate">{user.email}</p>
+                                <p className="text-xs text-gray-500 truncate mt-0.5">{user.device_id || 'no device'}</p>
+                            </div>
+                            <div className="text-right shrink-0">
+                                <p className="text-base font-black text-gray-900">₹{user.wallet_balance}</p>
+                                <p className="text-[10px] text-gray-400 uppercase tracking-wider">Balance</p>
+                            </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <span className="text-gray-500">Code: <span className="font-bold text-gray-800">{user.referral_code || '—'}</span></span>
+                            <span className="text-indigo-600 font-bold">Manage →</span>
+                        </div>
+                    </button>
+                ))}
+                {filteredUsers.length === 0 && (
+                    <div className="bg-white rounded-2xl border border-gray-100 text-center py-16">
+                        <FaUsers size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500 text-sm">No active users found</p>
+                    </div>
+                )}
+            </div>
+
+            {/* ══════════════ SLIDE-IN DETAIL / EDIT PANEL ══════════════════ */}
             {(detailLoading || selectedUser) && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-y-auto py-6 px-4">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl relative">
+                <>
+                    {/* Backdrop (desktop only — mobile gets full-screen) */}
+                    <div
+                        onClick={closeDetail}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden md:block animate-fade-in"
+                    />
+                    <div className="fixed inset-0 md:inset-y-0 md:right-0 md:left-auto md:w-[min(720px,95vw)] bg-white z-50 flex flex-col shadow-2xl md:rounded-l-3xl animate-slide-in-right">
 
                         {/* Header */}
-                        <div className="bg-indigo-700 text-white px-6 py-4 rounded-t-xl flex items-center justify-between">
-                            <h3 className="text-lg font-bold">
-                                {editMode ? '✏️ Edit User' : 'User Details'}
-                                {selectedUser && <span className="ml-2 text-sm font-normal text-indigo-200">#{selectedUser.id}</span>}
-                            </h3>
-                            <button onClick={closeDetail} className="hover:bg-white/20 p-1.5 rounded-lg transition-colors">
+                        <div className="bg-gradient-to-r from-indigo-700 to-indigo-600 text-white px-5 sm:px-6 py-4 md:rounded-tl-3xl flex items-center justify-between flex-shrink-0">
+                            <div className="flex items-center gap-3">
+                                {selectedUser?.profile_pic ? (
+                                    <img src={selectedUser.profile_pic} alt="" className="w-10 h-10 rounded-full border-2 border-white/50" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-black">
+                                        {(selectedUser?.name || selectedUser?.email || '?')[0]?.toUpperCase()}
+                                    </div>
+                                )}
+                                <div>
+                                    <h3 className="text-lg font-black tracking-tight">
+                                        {selectedUser?.name || 'User'}
+                                        {selectedUser?.is_blocked === 1 && (
+                                            <span className="ml-2 text-[10px] font-bold uppercase tracking-widest bg-red-500 px-2 py-0.5 rounded">Blocked</span>
+                                        )}
+                                    </h3>
+                                    <p className="text-indigo-200 text-xs">#{selectedUser?.id} · {selectedUser?.email}</p>
+                                </div>
+                            </div>
+                            <button onClick={closeDetail} className="hover:bg-white/20 p-2 rounded-lg transition-colors">
                                 <FaTimes size={16} />
                             </button>
                         </div>
 
-                        {/* Loading spinner */}
-                        {detailLoading ? (
-                            <div className="flex items-center justify-center py-20">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
-                            </div>
-                        ) : selectedUser && (
-                            <div className="p-6">
-
-                                {/* Tabs (hidden when editing) */}
-                                {!editMode && (
-                                    <div className="flex gap-2 mb-5 border-b border-gray-200">
-                                        {['details', 'transactions', 'withdrawals', 'payments'].map(tab => (
-                                            <button
-                                                key={tab}
-                                                onClick={() => handleTabChange(tab)}
-                                                className={`px-4 py-2 text-sm font-semibold capitalize border-b-2 transition-colors -mb-px ${
-                                                    activeTab === tab
-                                                        ? 'border-indigo-600 text-indigo-600'
-                                                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        {/* Tabs */}
+                        {!detailLoading && selectedUser && (
+                            <div className="border-b border-gray-200 px-6 bg-gray-50 flex-shrink-0">
+                                <div className="flex gap-1 overflow-x-auto">
+                                    {[
+                                        { id: 'profile', label: 'Profile & Edit' },
+                                        { id: 'activity', label: 'Activity' },
+                                        { id: 'transactions', label: 'Transactions' },
+                                        { id: 'withdrawals', label: 'Withdrawals' },
+                                        { id: 'payments', label: 'Payment Accounts' },
+                                    ].map(tab => (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => handleTabChange(tab.id)}
+                                            className={`px-4 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors -mb-px ${activeTab === tab.id
+                                                ? 'border-indigo-600 text-indigo-700 bg-white'
+                                                : 'border-transparent text-gray-500 hover:text-gray-700'
                                                 }`}
-                                            >
-                                                {tab === 'payments' ? 'Payment Accounts' : tab}
-                                            </button>
-                                        ))}
+                                        >
+                                            {tab.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
-                                    </div>
-                                )}
+                        {/* Body */}
+                        <div className="flex-1 overflow-y-auto">
+                            {detailLoading ? (
+                                <div className="flex items-center justify-center py-20">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
+                                </div>
+                            ) : selectedUser && (
+                                <div className="p-6">
 
-                                {/* ── DETAILS TAB ──────────────────────────────── */}
-                                {activeTab === 'details' && !editMode && (
-                                    <div>
-                                        <div className="space-y-2.5 mb-6">
-                                            {DETAIL_ROWS.map(row => (
-                                                <div key={row.key}>
-                                                    <label className="block text-xs font-semibold text-gray-500 mb-0.5">{row.label}:</label>
-                                                    <div className="w-full border border-gray-200 rounded bg-gray-50 px-3 py-2 text-sm text-gray-800">
-                                                        {formatDetailValue(row, selectedUser)}
+                                    {/* ── PROFILE / EDIT ─────────────────────────────── */}
+                                    {activeTab === 'profile' && (
+                                        <div className="space-y-6">
+                                            {FIELD_SECTIONS.map(section => (
+                                                <div key={section.title}>
+                                                    <h4 className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-3">
+                                                        {section.title}
+                                                    </h4>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {section.fields.map(field => (
+                                                            <div key={field.key}>
+                                                                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                                                                    {field.label}
+                                                                    {field.required && <span className="text-red-500 ml-0.5">*</span>}
+                                                                </label>
+                                                                {field.type === 'toggle' ? (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleField(field.key, !form[field.key])}
+                                                                        className={`relative inline-flex items-center h-9 w-20 rounded-full transition-colors ${form[field.key] ? 'bg-red-500' : 'bg-gray-300'}`}
+                                                                    >
+                                                                        <span className={`inline-block w-7 h-7 transform bg-white rounded-full shadow transition-transform ${form[field.key] ? 'translate-x-12' : 'translate-x-1'}`} />
+                                                                        <span className={`absolute font-bold text-[10px] uppercase tracking-widest ${form[field.key] ? 'left-2 text-white' : 'right-2 text-gray-600'}`}>
+                                                                            {form[field.key] ? 'On' : 'Off'}
+                                                                        </span>
+                                                                    </button>
+                                                                ) : (
+                                                                    <input
+                                                                        type={field.type}
+                                                                        step={field.step}
+                                                                        required={field.required}
+                                                                        value={form[field.key] ?? ''}
+                                                                        onChange={e => handleField(field.key, e.target.value)}
+                                                                        className="w-full border-2 border-gray-100 bg-gray-50 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:border-indigo-500 transition-colors"
+                                                                        placeholder={field.label}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
+                                    )}
 
-                                        {/* Action buttons — matching the screenshot layout */}
-                                        <div className="flex flex-wrap gap-2 mb-3">
-                                            <button
-                                                onClick={() => setEditMode(true)}
-                                                className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-700 transition-colors"
-                                            >
-                                                <FaEdit size={12} /> Update Details
-                                            </button>
-                                            <button
-                                                onClick={() => handleTabChange('transactions')}
-                                                className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-700 transition-colors"
-                                            >
-                                                Transaction History
-                                            </button>
-                                            <button
-                                                onClick={() => handleTabChange('withdrawals')}
-                                                className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-700 transition-colors"
-                                            >
-                                                Withdrawal History
-                                            </button>
-                                            <button
-                                                onClick={() => handleTabChange('payments')}
-                                                className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-700 transition-colors"
-                                            >
-                                                Payment Accounts
-                                            </button>
+                                    {/* ── ACTIVITY (read-only stats) ─────────────────── */}
+                                    {activeTab === 'activity' && (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                            <StatTile label="Wallet" value={`₹${selectedUser.wallet_balance || 0}`} />
+                                            <StatTile label="Total Earnings" value={`₹${selectedUser.total_earnings || 0}`} />
+                                            <StatTile label="Referral Earnings" value={`₹${selectedUser.referral_earnings || 0}`} />
+                                            <StatTile label="Total Withdraw" value={`₹${selectedUser.total_withdraw_amount || 0}`} />
+                                            <StatTile label="Today Withdraw" value={`₹${selectedUser.today_withdraw_amount || 0}`} />
+                                            <StatTile label="Tasks Done" value={selectedUser.total_tasks ?? 0} />
+                                            <StatTile label="Last Login" value={selectedUser.last_login_at ? new Date(selectedUser.last_login_at).toLocaleString('en-IN') : '—'} wide />
+                                            <StatTile label="Joined" value={selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleString('en-IN') : '—'} wide />
+                                            <StatTile
+                                                label="Status"
+                                                value={selectedUser.is_blocked === 1 ? 'BLOCKED' : 'ACTIVE'}
+                                                tone={selectedUser.is_blocked === 1 ? 'danger' : 'good'}
+                                            />
                                         </div>
+                                    )}
 
+                                    {/* ── TRANSACTIONS ────────────────────────────────── */}
+                                    {activeTab === 'transactions' && (
                                         <div>
-                                            <button
-                                                onClick={() => handleDelete(selectedUser.id)}
-                                                className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition-colors"
-                                            >
-                                                Delete User
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* ── EDIT FORM ─────────────────────────────────── */}
-                                {activeTab === 'details' && editMode && (
-                                    <div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                                            {EDIT_FIELDS.map(({ key, label, type, required }) => (
-                                                <div key={key}>
-                                                    <label className="block text-xs font-semibold text-gray-600 mb-1">
-                                                        {label}{required && <span className="text-red-500 ml-0.5">*</span>}:
-                                                    </label>
-                                                    {type === 'checkbox' ? (
-                                                        <div 
-                                                            onClick={() => setEditForm({ ...editForm, [key]: !editForm[key] })}
-                                                            className={`relative w-11 h-6 rounded-full cursor-pointer transition-colors duration-200 ease-in-out ${editForm[key] ? 'bg-red-500' : 'bg-gray-200'}`}
-                                                        >
-                                                            <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transition-transform duration-200 ease-in-out ${editForm[key] ? 'translate-x-5' : 'translate-x-0'}`} />
-                                                        </div>
-                                                    ) : (
-                                                        <input
-                                                            type={type}
-                                                            required={required}
-                                                            step={type === 'number' ? '0.01' : undefined}
-                                                            value={editForm[key] ?? ''}
-                                                            onChange={e => setEditForm({ ...editForm, [key]: e.target.value })}
-                                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-shadow"
-                                                            placeholder={label}
-                                                        />
-                                                    )}
+                                            {transactions.length === 0 ? (
+                                                <p className="text-gray-400 text-center py-10 italic">No transactions found.</p>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-sm divide-y divide-gray-200">
+                                                        <thead className="bg-gray-50">
+                                                            <tr>
+                                                                {['Type', 'Amount', 'Status', 'Description', 'Date'].map(h => (
+                                                                    <th key={h} className="px-3 py-2 text-left text-xs font-bold text-gray-600 uppercase">{h}</th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-100">
+                                                            {transactions.map(t => (
+                                                                <tr key={t.id} className="hover:bg-gray-50">
+                                                                    <td className="px-3 py-2 capitalize">{t.transaction_type}</td>
+                                                                    <td className="px-3 py-2 font-bold text-indigo-600">₹{t.amount}</td>
+                                                                    <td className="px-3 py-2">
+                                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${t.status === 'success' ? 'bg-green-100 text-green-700' :
+                                                                            t.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                                                'bg-red-100 text-red-700'
+                                                                            }`}>{t.status}</span>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-gray-500 max-w-[200px] truncate" title={t.description}>{t.description || '—'}</td>
+                                                                    <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{new Date(t.created_at).toLocaleDateString('en-IN')}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-
-                                            ))}
+                                            )}
                                         </div>
+                                    )}
 
-                                        <div className="flex gap-3">
-                                            <button
-                                                onClick={handleEditSave}
-                                                disabled={saving}
-                                                className="flex-1 bg-indigo-600 text-white py-2.5 rounded font-bold text-sm hover:bg-indigo-700 disabled:opacity-60 transition-colors"
-                                            >
-                                                {saving ? 'Saving…' : '💾 Save Changes'}
-                                            </button>
-                                            <button
-                                                onClick={() => { setEditMode(false); initEditForm(selectedUser); }}
-                                                disabled={saving}
-                                                className="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded font-bold text-sm hover:bg-gray-300 disabled:opacity-60 transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
+                                    {/* ── WITHDRAWALS ─────────────────────────────────── */}
+                                    {activeTab === 'withdrawals' && (
+                                        <div>
+                                            {withdrawals.length === 0 ? (
+                                                <p className="text-gray-400 text-center py-10 italic">No withdrawal history found.</p>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-sm divide-y divide-gray-200">
+                                                        <thead className="bg-gray-50">
+                                                            <tr>
+                                                                {['Amount', 'Status', 'Method', 'Date'].map(h => (
+                                                                    <th key={h} className="px-3 py-2 text-left text-xs font-bold text-gray-600 uppercase">{h}</th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-100">
+                                                            {withdrawals.map(w => (
+                                                                <tr key={w.id} className="hover:bg-gray-50">
+                                                                    <td className="px-3 py-2 font-bold text-indigo-600">₹{w.amount}</td>
+                                                                    <td className="px-3 py-2">
+                                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${w.status === 'PAID' || w.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                                            w.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                                                                                'bg-red-100 text-red-700'
+                                                                            }`}>{w.status}</span>
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-gray-600">{w.method || '—'}</td>
+                                                                    <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{new Date(w.created_at).toLocaleDateString('en-IN')}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                {/* ── TRANSACTIONS TAB ──────────────────────────── */}
-                                {activeTab === 'transactions' && (
-                                    <div>
-                                        {transactions.length === 0 ? (
-                                            <p className="text-gray-500 text-center py-10">No transactions found.</p>
-                                        ) : (
-                                            <div className="overflow-x-auto">
-                                                <table className="min-w-full text-sm divide-y divide-gray-200">
-                                                    <thead className="bg-gray-50">
-                                                        <tr>
-                                                            {['Type', 'Amount', 'Status', 'Description', 'Date'].map(h => (
-                                                                <th key={h} className="px-3 py-2 text-left text-xs font-bold text-gray-600 uppercase">{h}</th>
-                                                            ))}
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {transactions.map(t => (
-                                                            <tr key={t.id} className="hover:bg-gray-50">
-                                                                <td className="px-3 py-2 capitalize">{t.transaction_type}</td>
-                                                                <td className="px-3 py-2 font-bold text-indigo-600">₹{t.amount}</td>
-                                                                <td className="px-3 py-2">
-                                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                                                                        t.status === 'success'  ? 'bg-green-100 text-green-700'  :
-                                                                        t.status === 'pending'  ? 'bg-yellow-100 text-yellow-700':
-                                                                                                  'bg-red-100 text-red-700'
-                                                                    }`}>{t.status}</span>
-                                                                </td>
-                                                                <td className="px-3 py-2 text-gray-500 max-w-[160px] truncate" title={t.description}>{t.description || '—'}</td>
-                                                                <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{new Date(t.created_at).toLocaleDateString('en-IN')}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* ── WITHDRAWALS TAB ───────────────────────────── */}
-                                {activeTab === 'withdrawals' && (
-                                    <div>
-                                        {withdrawals.length === 0 ? (
-                                            <p className="text-gray-500 text-center py-10">No withdrawal history found.</p>
-                                        ) : (
-                                            <div className="overflow-x-auto">
-                                                <table className="min-w-full text-sm divide-y divide-gray-200">
-                                                    <thead className="bg-gray-50">
-                                                        <tr>
-                                                            {['Amount', 'Status', 'Method', 'Date'].map(h => (
-                                                                <th key={h} className="px-3 py-2 text-left text-xs font-bold text-gray-600 uppercase">{h}</th>
-                                                            ))}
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {withdrawals.map(w => (
-                                                            <tr key={w.id} className="hover:bg-gray-50">
-                                                                <td className="px-3 py-2 font-bold text-indigo-600">₹{w.amount}</td>
-                                                                <td className="px-3 py-2">
-                                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                                                                        w.status === 'PAID' || w.status === 'APPROVED' ? 'bg-green-100 text-green-700'  :
-                                                                        w.status === 'PENDING'                         ? 'bg-yellow-100 text-yellow-700':
-                                                                                                                         'bg-red-100 text-red-700'
-                                                                    }`}>{w.status}</span>
-                                                                </td>
-                                                                <td className="px-3 py-2 text-gray-600">{w.method || '—'}</td>
-                                                                <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{new Date(w.created_at).toLocaleDateString('en-IN')}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* ── PAYMENTS TAB ───────────────────────────── */}
-                                {activeTab === 'payments' && (
-                                    <div>
-                                        {paymentAccounts.length === 0 ? (
-                                            <div className="text-center py-10">
-                                                <FaUniversity size={48} className="mx-auto text-gray-300 mb-3" />
-                                                <p className="text-gray-500">No bank or UPI accounts linked.</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-4">
-                                                {paymentAccounts.map(acc => (
-                                                    <div key={acc.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 relative group">
-                                                        <div className="flex items-start justify-between">
-                                                            <div className="flex gap-3">
-                                                                <div className="mt-1">
-                                                                    {acc.account_type === 'upi' ? (
-                                                                        <FaMobileAlt className="text-purple-600 text-xl" />
-                                                                    ) : (
-                                                                        <FaUniversity className="text-blue-600 text-xl" />
-                                                                    )}
-                                                                </div>
-                                                                <div>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span className="font-bold text-gray-800 uppercase text-sm">
-                                                                            {acc.account_type === 'upi' ? 'UPI ID' : acc.bank_name || 'Bank Account'}
-                                                                        </span>
-                                                                        {acc.is_primary === 1 && (
-                                                                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">Primary</span>
-                                                                        )}
-                                                                        {acc.verified === 1 ? (
-                                                                            <FaCheckCircle className="text-green-500 text-xs" title="Verified" />
+                                    {/* ── PAYMENT ACCOUNTS ────────────────────────────── */}
+                                    {activeTab === 'payments' && (
+                                        <div>
+                                            {paymentAccounts.length === 0 ? (
+                                                <div className="text-center py-10">
+                                                    <FaUniversity size={48} className="mx-auto text-gray-300 mb-3" />
+                                                    <p className="text-gray-400 italic">No bank or UPI accounts linked.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {paymentAccounts.map(acc => (
+                                                        <div key={acc.id} className="border border-gray-200 rounded-xl p-4 bg-gray-50 relative">
+                                                            <div className="flex items-start justify-between">
+                                                                <div className="flex gap-3">
+                                                                    <div className="mt-1">
+                                                                        {acc.account_type === 'upi' ? (
+                                                                            <FaMobileAlt className="text-purple-600 text-xl" />
                                                                         ) : (
-                                                                            <FaExclamationCircle className="text-yellow-500 text-xs" title="Unverified" />
+                                                                            <FaUniversity className="text-blue-600 text-xl" />
                                                                         )}
                                                                     </div>
-                                                                    
-                                                                    {acc.account_type === 'upi' ? (
-                                                                        <p className="text-indigo-600 font-medium text-sm mt-0.5">{acc.upi_id}</p>
-                                                                    ) : (
-                                                                        <div className="text-sm text-gray-600 mt-0.5 space-y-0.5">
-                                                                            <p><span className="font-semibold">A/C:</span> {acc.account_number}</p>
-                                                                            <p><span className="font-semibold">IFSC:</span> {acc.ifsc_code}</p>
-                                                                            <p><span className="font-semibold">Holder:</span> {acc.account_holder}</p>
+                                                                    <div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="font-bold text-gray-800 uppercase text-sm">
+                                                                                {acc.account_type === 'upi' ? 'UPI ID' : acc.bank_name || 'Bank Account'}
+                                                                            </span>
+                                                                            {acc.is_primary === 1 && (
+                                                                                <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">Primary</span>
+                                                                            )}
+                                                                            {acc.verified === 1 ? (
+                                                                                <FaCheckCircle className="text-green-500 text-xs" title="Verified" />
+                                                                            ) : (
+                                                                                <FaExclamationCircle className="text-yellow-500 text-xs" title="Unverified" />
+                                                                            )}
                                                                         </div>
-                                                                    )}
+                                                                        {acc.account_type === 'upi' ? (
+                                                                            <p className="text-indigo-600 font-medium text-sm mt-0.5">{acc.upi_id}</p>
+                                                                        ) : (
+                                                                            <div className="text-sm text-gray-600 mt-0.5 space-y-0.5">
+                                                                                <p><span className="font-semibold">A/C:</span> {acc.account_number}</p>
+                                                                                <p><span className="font-semibold">IFSC:</span> {acc.ifsc_code}</p>
+                                                                                <p><span className="font-semibold">Holder:</span> {acc.account_holder}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
+                                                                <button
+                                                                    onClick={() => handleDeletePaymentAccount(acc.id)}
+                                                                    className="text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors p-2 rounded-lg"
+                                                                >
+                                                                    <FaTrash size={14} />
+                                                                </button>
                                                             </div>
-                                                            
-                                                            <button 
-                                                                onClick={() => handleDeletePaymentAccount(acc.id)}
-                                                                className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                                                            >
-                                                                <FaTrash size={14} />
-                                                            </button>
+                                                            <div className="mt-2 text-[10px] text-gray-400">
+                                                                Added: {new Date(acc.created_at).toLocaleString()}
+                                                            </div>
                                                         </div>
-                                                        <div className="mt-2 text-[10px] text-gray-400">
-                                                            Added on: {new Date(acc.created_at).toLocaleString()}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
+                                </div>
+                            )}
+                        </div>
 
+                        {/* Sticky footer with Save + Delete */}
+                        {!detailLoading && selectedUser && (
+                            <div className="border-t border-gray-200 bg-gray-50 px-5 sm:px-6 py-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 flex-shrink-0">
+                                <button
+                                    onClick={() => handleDelete(selectedUser.id)}
+                                    className="hidden sm:flex px-4 py-2.5 bg-white text-red-600 border border-red-200 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors items-center gap-2"
+                                >
+                                    <FaTrash size={12} /> Delete User
+                                </button>
+                                <div className="flex items-center gap-2 w-full sm:w-auto">
+                                    {dirty && (
+                                        <span className="hidden sm:inline text-[11px] font-bold text-amber-600 uppercase tracking-widest">
+                                            Unsaved
+                                        </span>
+                                    )}
+                                    <button
+                                        onClick={closeDetail}
+                                        className="flex-1 sm:flex-none px-4 py-2.5 bg-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-300 transition-colors"
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={saving || !dirty}
+                                        className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-600/20"
+                                    >
+                                        {saving ? 'Saving…' : 'Save Changes'}
+                                    </button>
+                                </div>
+                                {/* Mobile-only delete row */}
+                                <button
+                                    onClick={() => handleDelete(selectedUser.id)}
+                                    className="sm:hidden w-full px-4 py-2.5 bg-white text-red-600 border border-red-200 text-sm font-bold rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <FaTrash size={12} /> Delete User
+                                </button>
                             </div>
                         )}
                     </div>
-                </div>
+                </>
             )}
+        </div>
+    );
+};
+
+/* ─── Small stat tile for the Activity tab ─────────────────────────────── */
+const StatTile = ({ label, value, tone, wide }) => {
+    const toneClass =
+        tone === 'good' ? 'text-green-700 bg-green-50 border-green-100' :
+        tone === 'danger' ? 'text-red-700 bg-red-50 border-red-100' :
+        'text-gray-900 bg-white border-gray-100';
+    return (
+        <div className={`border rounded-xl px-4 py-3 ${toneClass} ${wide ? 'sm:col-span-2' : ''}`}>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{label}</p>
+            <p className="font-bold text-base break-words">{value}</p>
         </div>
     );
 };
