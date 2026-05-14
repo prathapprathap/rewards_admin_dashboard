@@ -210,6 +210,23 @@ export const deletePaymentAccount = async (accountId) => {
     return response.data;
 };
 
+// ── Task Submissions (screenshot review) ──────────────────────────────────
+export const getSubmissions = async (status) => {
+    const url = status ? `${API_URL}/submissions?status=${status}` : `${API_URL}/submissions`;
+    const response = await axios.get(url);
+    return response.data;
+};
+
+export const reviewSubmission = async (id, payload) => {
+    const response = await axios.put(`${API_URL}/submissions/${id}`, payload);
+    return response.data;
+};
+
+export const deleteSubmission = async (id) => {
+    const response = await axios.delete(`${API_URL}/submissions/${id}`);
+    return response.data;
+};
+
 // ── Notifications (Push + In-app) ─────────────────────────────────────────
 export const getNotifications = async () => {
     const response = await axios.get(`${API_URL}/notifications`);

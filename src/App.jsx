@@ -28,6 +28,7 @@ import ManageOffers from './pages/ManageOffers';
 import PaidWithdrawals from './pages/PaidWithdrawals';
 import PendingWithdrawals from './pages/PendingWithdrawals';
 import PromoCodes from './pages/PromoCodes';
+import TaskSubmissions from './pages/TaskSubmissions';
 import TopReferrers from './pages/TopReferrers';
 import Users from './pages/Users';
 import Withdrawals from './pages/Withdrawals';
@@ -124,6 +125,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
           <SidebarItem to="/" icon={FaHome} label="Dashboard" onClick={closeOnMobile} active={location.pathname === '/'} collapsed={collapsed} />
           <SidebarItem to="/manage-offers" icon={FaTasks} label="Manage Offers" onClick={closeOnMobile} active={location.pathname === '/manage-offers'} collapsed={collapsed} />
           <SidebarItem to="/active-offers" icon={FaTasks} label="Active Offer" onClick={closeOnMobile} active={location.pathname === '/active-offers'} collapsed={collapsed} />
+          <SidebarItem to="/task-submissions" icon={FaTasks} label="Task Submissions" onClick={closeOnMobile} active={location.pathname === '/task-submissions'} collapsed={collapsed} />
 
           <SectionTitle collapsed={collapsed}>User Management</SectionTitle>
           <SidebarItem to="/active-users" icon={FaUsers} label="Active Users" onClick={closeOnMobile} active={location.pathname === '/active-users'} collapsed={collapsed} />
@@ -177,6 +179,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
               <Route path="/add-offer" element={<AddOffer />} />
               <Route path="/manage-offers" element={<ManageOffers />} />
               <Route path="/active-offers" element={<ActiveOffers />} />
+              <Route path="/task-submissions" element={<TaskSubmissions />} />
               <Route path="/promo-codes" element={<PromoCodes />} />
               <Route path="/withdrawals" element={<Withdrawals />} />
               <Route path="/pending-withdrawals" element={<PendingWithdrawals />} />

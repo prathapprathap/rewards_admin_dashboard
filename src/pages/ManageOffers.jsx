@@ -24,7 +24,8 @@ const ManageOffers = () => {
         description: '',
         image_url: '',
         refer_payout: '',
-        status: 'Active'
+        status: 'Active',
+        requires_screenshot: false,
     });
     const [eventSteps, setEventSteps] = useState([]);
     const { currentPage, setCurrentPage, pageItems: pagedOffers, total: totalOffers, pageSize } = usePagination(offers);
@@ -89,7 +90,8 @@ const ManageOffers = () => {
             description: offer.description || '',
             image_url: offer.image_url || '',
             refer_payout: offer.refer_payout || '1st Event',
-            status: offer.status || 'Active'
+            status: offer.status || 'Active',
+            requires_screenshot: !!offer.requires_screenshot,
         });
 
         // Refetch full steps
@@ -115,6 +117,7 @@ const ManageOffers = () => {
         try {
             const payload = {
                 ...formData,
+                requires_screenshot: formData.requires_screenshot ? 1 : 0,
                 events: eventSteps.map((step, i) => ({
                     event_id: step.event_id || `evt${i}`,
                     event_name: step.event_name,
@@ -363,6 +366,19 @@ const ManageOffers = () => {
                                         <option value="Active">ACTIVE</option>
                                         <option value="Inactive">INACTIVE</option>
                                     </select>
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2 lg:col-span-3">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Verification Mode</label>
+                                    <label className="flex items-center gap-3 bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 cursor-pointer hover:border-indigo-300 transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={!!formData.requires_screenshot}
+                                            onChange={(e) => setFormData({ ...formData, requires_screenshot: e.target.checked })}
+                                            className="w-5 h-5 accent-indigo-600"
+                                        />
+                                        <span className="text-sm font-bold text-gray-900">Require screenshot upload (manual admin review)</span>
+                                    </label>
                                 </div>
                             </div>
 

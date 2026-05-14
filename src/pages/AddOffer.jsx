@@ -27,7 +27,8 @@ const AddOffer = () => {
         image_url: '',
         refer_payout: '1st Event',
         side_label_color: '',
-        status: 'Active'
+        status: 'Active',
+        requires_screenshot: false,
     });
 
     // Dynamic event steps
@@ -121,6 +122,7 @@ const AddOffer = () => {
         try {
             const processedData = {
                 ...formData,
+                requires_screenshot: formData.requires_screenshot ? 1 : 0,
                 offer_url: formData.offer_url.trim().startsWith('http')
                     ? formData.offer_url.trim()
                     : `https://${formData.offer_url.trim()}`,
@@ -258,6 +260,20 @@ const AddOffer = () => {
                                 { value: 'Active', label: 'Active Mode' },
                                 { value: 'Inactive', label: 'Standby Mode' },
                             ]} />
+                            {/* Screenshot Requirement */}
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Verification Mode</label>
+                                <label className="flex items-center gap-3 bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 cursor-pointer hover:border-indigo-300 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        name="requires_screenshot"
+                                        checked={!!formData.requires_screenshot}
+                                        onChange={(e) => setFormData({ ...formData, requires_screenshot: e.target.checked })}
+                                        className="w-5 h-5 accent-indigo-600"
+                                    />
+                                    <span className="text-sm font-bold text-gray-900">Require screenshot upload (manual admin review)</span>
+                                </label>
+                            </div>
                         </div>
 
                         {/* Description */}
