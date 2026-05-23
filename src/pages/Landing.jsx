@@ -15,6 +15,14 @@ import {
 } from 'react-icons/fa';
 
 const APK_PATH = '/RewardsApp.apk';
+const SETTINGS_URL = 'https://rewards-backend-zkhh.onrender.com/api/users/app/settings';
+
+const normalizeDriveUrl = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  if (!/drive\.google\.com/i.test(url)) return url;
+  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : url;
+};
 
 const FEATURES = [
   { icon: FaBolt, title: 'Instant Rewards', text: 'Earn coins instantly the moment you finish a task or offer.' },
@@ -40,6 +48,22 @@ const FAQS = [
 const Landing = () => {
   const [openFaq, setOpenFaq] = useState(0);
   const [showCopied, setShowCopied] = useState(false);
+  const [apkUrl, setApkUrl] = useState(APK_PATH);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(SETTINGS_URL);
+        const data = await res.json();
+        const row = Array.isArray(data) ? data[0] : data;
+        const raw = row?.apk_download_url || row?.update_url;
+        const url = normalizeDriveUrl(raw);
+        if (!cancelled && url) setApkUrl(url);
+      } catch (_) {}
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const refCode = useMemo(() => {
     if (typeof window === 'undefined') return null;
@@ -76,13 +100,18 @@ const Landing = () => {
         setTimeout(() => setShowCopied(false), 4000);
       } catch (_) {}
     }
-    // Trigger APK download
-    const a = document.createElement('a');
-    a.href = APK_PATH;
-    a.download = 'RewardsApp.apk';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // Trigger APK download (Drive URLs need a redirect; local files can use anchor)
+    const isCrossOrigin = /^https?:\/\//i.test(apkUrl) && !apkUrl.startsWith(window.location.origin);
+    if (isCrossOrigin) {
+      window.location.href = apkUrl;
+    } else {
+      const a = document.createElement('a');
+      a.href = apkUrl;
+      a.download = 'RewardsApp.apk';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   };
 
   const handleShare = async () => {

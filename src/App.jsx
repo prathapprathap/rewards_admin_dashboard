@@ -15,6 +15,7 @@ import {
 } from 'react-icons/fa';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing';
+import Download from './pages/Download';
 import AccountDelete from './pages/AccountDelete';
 import ActiveOffers from './pages/ActiveOffers';
 import ActiveUsers from './pages/ActiveUsers';
@@ -258,6 +259,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/download" element={<Download />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/admin" replace /> : <Login />} />
         <Route path="/admin/*" element={
           isAuthenticated ? (
