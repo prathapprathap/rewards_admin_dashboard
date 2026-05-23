@@ -11,8 +11,10 @@ import {
   FaShieldAlt,
   FaStar,
   FaUserFriends,
+  FaUserShield,
   FaWallet,
 } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const APK_PATH = '/RewardsApp.apk';
 const SETTINGS_URL = 'https://rewards-backend-zkhh.onrender.com/api/users/app/settings';
@@ -150,9 +152,25 @@ const Landing = () => {
             <a href="#how" className="hover:text-indigo-600">How it works</a>
             <a href="#faq" className="hover:text-indigo-600">FAQ</a>
           </nav>
-          <button onClick={handleDownload} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-4 sm:px-5 py-2 rounded-full shadow-md flex items-center gap-2 text-sm">
-            <FaDownload /> <span className="hidden sm:inline">Download</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/login"
+              title="Admin Login"
+              className="hidden sm:inline-flex items-center gap-2 border-2 border-indigo-200 hover:border-indigo-400 text-indigo-700 font-bold px-4 py-2 rounded-full text-sm transition"
+            >
+              <FaUserShield /> Admin
+            </Link>
+            <Link
+              to="/login"
+              aria-label="Admin Login"
+              className="sm:hidden text-indigo-700 border-2 border-indigo-200 hover:border-indigo-400 p-2 rounded-full"
+            >
+              <FaUserShield />
+            </Link>
+            <button onClick={handleDownload} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-4 sm:px-5 py-2 rounded-full shadow-md flex items-center gap-2 text-sm">
+              <FaDownload /> <span className="hidden sm:inline">Download</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -262,23 +280,6 @@ const Landing = () => {
                 <div className="absolute -top-5 left-7 w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-black flex items-center justify-center text-xl shadow-lg">{i + 1}</div>
                 <h3 className="font-extrabold text-xl mt-4">{t}</h3>
                 <p className="text-slate-600 mt-2 text-sm leading-relaxed">{d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Screenshots */}
-      <section className="py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <p className="text-indigo-600 font-bold uppercase tracking-widest text-sm">App Preview</p>
-            <h2 className="text-3xl sm:text-4xl font-black mt-2">Take a peek inside</h2>
-          </div>
-          <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex-none w-56 aspect-[9/19] bg-slate-900 rounded-[2.5rem] p-2 shadow-xl snap-center">
-                <img src={`/screenshots/${i}.png`} alt={`Screen ${i}`} className="w-full h-full object-cover rounded-[2rem]" onError={(e) => { e.currentTarget.parentElement.style.background = 'linear-gradient(135deg, #6366f1, #a855f7)'; e.currentTarget.style.display = 'none'; }} />
               </div>
             ))}
           </div>
