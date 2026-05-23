@@ -14,6 +14,7 @@ import {
   FaUserShield
 } from 'react-icons/fa';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import Landing from './pages/Landing';
 import AccountDelete from './pages/AccountDelete';
 import ActiveOffers from './pages/ActiveOffers';
 import ActiveUsers from './pages/ActiveUsers';
@@ -89,7 +90,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
           </div>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
-          <Link to="/profile" className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 hover:bg-indigo-200 transition-colors">
+          <Link to="/admin/profile" className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 hover:bg-indigo-200 transition-colors">
             <FaUserShield size={16} />
           </Link>
         </div>
@@ -122,25 +123,25 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
         {/* Navigation */}
         <nav className={`flex-1 overflow-y-auto overflow-x-hidden ${collapsed ? 'pt-4 px-2' : 'pt-6 px-4'} custom-scrollbar space-y-1`}>
           <SectionTitle collapsed={collapsed}>Main Menu</SectionTitle>
-          <SidebarItem to="/" icon={FaHome} label="Dashboard" onClick={closeOnMobile} active={location.pathname === '/'} collapsed={collapsed} />
-          <SidebarItem to="/manage-offers" icon={FaTasks} label="Manage Offers" onClick={closeOnMobile} active={location.pathname === '/manage-offers'} collapsed={collapsed} />
-          <SidebarItem to="/active-offers" icon={FaTasks} label="Active Offer" onClick={closeOnMobile} active={location.pathname === '/active-offers'} collapsed={collapsed} />
-          <SidebarItem to="/task-submissions" icon={FaTasks} label="Task Submissions" onClick={closeOnMobile} active={location.pathname === '/task-submissions'} collapsed={collapsed} />
+          <SidebarItem to="/admin" icon={FaHome} label="Dashboard" onClick={closeOnMobile} active={location.pathname === '/admin'} collapsed={collapsed} />
+          <SidebarItem to="/admin/manage-offers" icon={FaTasks} label="Manage Offers" onClick={closeOnMobile} active={location.pathname === '/admin/manage-offers'} collapsed={collapsed} />
+          <SidebarItem to="/admin/active-offers" icon={FaTasks} label="Active Offer" onClick={closeOnMobile} active={location.pathname === '/admin/active-offers'} collapsed={collapsed} />
+          <SidebarItem to="/admin/task-submissions" icon={FaTasks} label="Task Submissions" onClick={closeOnMobile} active={location.pathname === '/admin/task-submissions'} collapsed={collapsed} />
 
           <SectionTitle collapsed={collapsed}>User Management</SectionTitle>
-          <SidebarItem to="/active-users" icon={FaUsers} label="Active Users" onClick={closeOnMobile} active={location.pathname === '/active-users'} collapsed={collapsed} />
-          <SidebarItem to="/top-referrers" icon={FaUsers} label="Top Referrers" onClick={closeOnMobile} active={location.pathname === '/top-referrers'} collapsed={collapsed} />
-          <SidebarItem to="/account-delete" icon={FaTrashAlt} label="Account Delete" onClick={closeOnMobile} active={location.pathname === '/account-delete'} collapsed={collapsed} />
+          <SidebarItem to="/admin/active-users" icon={FaUsers} label="Active Users" onClick={closeOnMobile} active={location.pathname === '/admin/active-users'} collapsed={collapsed} />
+          <SidebarItem to="/admin/top-referrers" icon={FaUsers} label="Top Referrers" onClick={closeOnMobile} active={location.pathname === '/admin/top-referrers'} collapsed={collapsed} />
+          <SidebarItem to="/admin/account-delete" icon={FaTrashAlt} label="Account Delete" onClick={closeOnMobile} active={location.pathname === '/admin/account-delete'} collapsed={collapsed} />
 
           <SectionTitle collapsed={collapsed}>Financials</SectionTitle>
-          <SidebarItem to="/pending-withdrawals" icon={FaHistory} label="Pending Payouts" onClick={closeOnMobile} active={location.pathname === '/pending-withdrawals'} collapsed={collapsed} />
-          <SidebarItem to="/paid-withdrawals" icon={FaHistory} label="Paid History" onClick={closeOnMobile} active={location.pathname === '/paid-withdrawals'} collapsed={collapsed} />
+          <SidebarItem to="/admin/pending-withdrawals" icon={FaHistory} label="Pending Payouts" onClick={closeOnMobile} active={location.pathname === '/admin/pending-withdrawals'} collapsed={collapsed} />
+          <SidebarItem to="/admin/paid-withdrawals" icon={FaHistory} label="Paid History" onClick={closeOnMobile} active={location.pathname === '/admin/paid-withdrawals'} collapsed={collapsed} />
 
           <SectionTitle collapsed={collapsed}>Configuration</SectionTitle>
-          <SidebarItem to="/promo-codes" icon={FaGift} label="Promo Codes" onClick={closeOnMobile} active={location.pathname === '/promo-codes'} collapsed={collapsed} />
-          <SidebarItem to="/image-slider" icon={FaHistory} label="Image Slider" onClick={closeOnMobile} active={location.pathname === '/image-slider'} collapsed={collapsed} />
-          <SidebarItem to="/notifications" icon={FaBell} label="Notifications" onClick={closeOnMobile} active={location.pathname === '/notifications'} collapsed={collapsed} />
-          <SidebarItem to="/settings" icon={FaCog} label="System Settings" onClick={closeOnMobile} active={location.pathname === '/settings'} collapsed={collapsed} />
+          <SidebarItem to="/admin/promo-codes" icon={FaGift} label="Promo Codes" onClick={closeOnMobile} active={location.pathname === '/admin/promo-codes'} collapsed={collapsed} />
+          <SidebarItem to="/admin/image-slider" icon={FaHistory} label="Image Slider" onClick={closeOnMobile} active={location.pathname === '/admin/image-slider'} collapsed={collapsed} />
+          <SidebarItem to="/admin/notifications" icon={FaBell} label="Notifications" onClick={closeOnMobile} active={location.pathname === '/admin/notifications'} collapsed={collapsed} />
+          <SidebarItem to="/admin/settings" icon={FaCog} label="System Settings" onClick={closeOnMobile} active={location.pathname === '/admin/settings'} collapsed={collapsed} />
         </nav>
 
         {/* Logout */}
@@ -171,24 +172,24 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
         <div className="flex-1 overflow-y-auto pt-20 pb-24 md:pb-6 custom-scrollbar relative z-10">
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/active-users" element={<ActiveUsers />} />
-              <Route path="/top-referrers" element={<TopReferrers />} />
-              <Route path="/account-delete" element={<AccountDelete />} />
-              <Route path="/add-offer" element={<AddOffer />} />
-              <Route path="/manage-offers" element={<ManageOffers />} />
-              <Route path="/active-offers" element={<ActiveOffers />} />
-              <Route path="/task-submissions" element={<TaskSubmissions />} />
-              <Route path="/promo-codes" element={<PromoCodes />} />
-              <Route path="/withdrawals" element={<Withdrawals />} />
-              <Route path="/pending-withdrawals" element={<PendingWithdrawals />} />
-              <Route path="/paid-withdrawals" element={<PaidWithdrawals />} />
-              <Route path="/image-slider" element={<ImageSlider />} />
-              <Route path="/settings" element={<AppSettings />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/profile" element={<AdminProfile />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route index element={<Dashboard />} />
+              <Route path="users" element={<Users />} />
+              <Route path="active-users" element={<ActiveUsers />} />
+              <Route path="top-referrers" element={<TopReferrers />} />
+              <Route path="account-delete" element={<AccountDelete />} />
+              <Route path="add-offer" element={<AddOffer />} />
+              <Route path="manage-offers" element={<ManageOffers />} />
+              <Route path="active-offers" element={<ActiveOffers />} />
+              <Route path="task-submissions" element={<TaskSubmissions />} />
+              <Route path="promo-codes" element={<PromoCodes />} />
+              <Route path="withdrawals" element={<Withdrawals />} />
+              <Route path="pending-withdrawals" element={<PendingWithdrawals />} />
+              <Route path="paid-withdrawals" element={<PaidWithdrawals />} />
+              <Route path="image-slider" element={<ImageSlider />} />
+              <Route path="settings" element={<AppSettings />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="profile" element={<AdminProfile />} />
+              <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
           </div>
         </div>
@@ -196,15 +197,15 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
         {/* Mobile Bottom Navigation */}
         {!isDesktop && (
           <div className="mobile-bottom-nav fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center px-4 py-2 z-40 pb-safe-area-inset-bottom">
-            <BottomNavItem to="/" icon={FaHome} label="Home" active={location.pathname === '/'} />
-            <BottomNavItem to="/manage-offers" icon={FaTasks} label="Offers" active={location.pathname === '/manage-offers'} />
+            <BottomNavItem to="/admin" icon={FaHome} label="Home" active={location.pathname === '/admin'} />
+            <BottomNavItem to="/admin/manage-offers" icon={FaTasks} label="Offers" active={location.pathname === '/admin/manage-offers'} />
             <div className="relative -top-5">
-              <Link to="/add-offer" className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/40 border-4 border-white active:scale-90 transition-transform">
+              <Link to="/admin/add-offer" className="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/40 border-4 border-white active:scale-90 transition-transform">
                 <FaPlusCircle size={24} />
               </Link>
             </div>
-            <BottomNavItem to="/withdrawals" icon={FaHistory} label="Payout" active={location.pathname === '/withdrawals'} />
-            <BottomNavItem to="/users" icon={FaUsers} label="Users" active={location.pathname === '/users'} />
+            <BottomNavItem to="/admin/withdrawals" icon={FaHistory} label="Payout" active={location.pathname === '/admin/withdrawals'} />
+            <BottomNavItem to="/admin/users" icon={FaUsers} label="Users" active={location.pathname === '/admin/users'} />
           </div>
         )}
       </main>
@@ -256,8 +257,9 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
-        <Route path="/*" element={
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/admin" replace /> : <Login />} />
+        <Route path="/admin/*" element={
           isAuthenticated ? (
             <AppContent
               isSidebarOpen={isSidebarOpen}
@@ -271,6 +273,7 @@ const App = () => {
             <Navigate to="/login" replace />
           )
         } />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

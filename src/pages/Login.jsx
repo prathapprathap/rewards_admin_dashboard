@@ -43,7 +43,7 @@ const Login = () => {
                     background: '#ffffff',
                     color: '#1e293b'
                 }).then(() => {
-                    window.location.href = '/';
+                    window.location.href = '/admin';
                 });
             }
         } catch (err) {
