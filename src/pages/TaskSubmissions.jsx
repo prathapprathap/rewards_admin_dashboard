@@ -135,19 +135,46 @@ const TaskSubmissions = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {submissions.map((sub) => (
                         <div key={sub.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                            <button
-                                onClick={() => setPreview(sub.screenshot_url)}
-                                className="relative h-56 w-full bg-gray-100 overflow-hidden group"
-                            >
-                                {sub.screenshot_url ? (
-                                    <img src={sub.screenshot_url} alt="Submission screenshot" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300"><FaImage size={36} /></div>
-                                )}
-                                <div className="absolute top-3 right-3">
-                                    <span className={statusBadge(sub.status)}>{sub.status}</span>
-                                </div>
-                            </button>
+                            {(() => {
+                                const urls = Array.isArray(sub.screenshot_urls) && sub.screenshot_urls.length > 0
+                                    ? sub.screenshot_urls
+                                    : (sub.screenshot_url ? [sub.screenshot_url] : []);
+                                return (
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setPreview(urls[0])}
+                                            className="relative h-56 w-full bg-gray-100 overflow-hidden group block"
+                                        >
+                                            {urls[0] ? (
+                                                <img src={urls[0]} alt="Submission screenshot" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-300"><FaImage size={36} /></div>
+                                            )}
+                                            <div className="absolute top-3 right-3">
+                                                <span className={statusBadge(sub.status)}>{sub.status}</span>
+                                            </div>
+                                            {urls.length > 1 && (
+                                                <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
+                                                    {urls.length} images
+                                                </div>
+                                            )}
+                                        </button>
+                                        {urls.length > 1 && (
+                                            <div className="flex gap-2 px-3 pt-3 pb-1 overflow-x-auto">
+                                                {urls.slice(1).map((u, i) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => setPreview(u)}
+                                                        className="w-14 h-14 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 hover:border-indigo-400 transition-colors"
+                                                    >
+                                                        <img src={u} alt={`Screenshot ${i + 2}`} className="w-full h-full object-cover" />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })()}
 
                             <div className="p-5 flex-1 flex flex-col gap-3">
                                 <div>

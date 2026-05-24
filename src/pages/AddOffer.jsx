@@ -29,7 +29,11 @@ const AddOffer = () => {
         side_label_color: '',
         status: 'Active',
         requires_screenshot: false,
+        required_screenshot_count: 1,
     });
+
+    // Demo screenshot URLs entered by admin (shown to users as previews)
+    const [demoScreenshots, setDemoScreenshots] = useState([]);
 
     // Dynamic event steps
     const [eventSteps, setEventSteps] = useState([]);
@@ -123,6 +127,8 @@ const AddOffer = () => {
             const processedData = {
                 ...formData,
                 requires_screenshot: formData.requires_screenshot ? 1 : 0,
+                required_screenshot_count: Math.max(1, parseInt(formData.required_screenshot_count, 10) || 1),
+                demo_screenshots: demoScreenshots.map(s => s.trim()).filter(Boolean),
                 offer_url: formData.offer_url.trim().startsWith('http')
                     ? formData.offer_url.trim()
                     : `https://${formData.offer_url.trim()}`,
@@ -273,6 +279,65 @@ const AddOffer = () => {
                                     />
                                     <span className="text-sm font-bold text-gray-900">Require screenshot upload (manual admin review)</span>
                                 </label>
+
+                                {formData.requires_screenshot && (
+                                    <div className="mt-4 space-y-4 bg-indigo-50/40 border-2 border-indigo-100 rounded-2xl p-5">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Required Screenshot Count</label>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                max={5}
+                                                name="required_screenshot_count"
+                                                value={formData.required_screenshot_count}
+                                                onChange={handleChange}
+                                                className="w-full bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:border-indigo-500 transition-all font-black text-indigo-600 text-sm"
+                                            />
+                                            <p className="text-xs text-gray-500 ml-1">How many screenshots the user must upload (1–5).</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between ml-1">
+                                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Demo Screenshot URLs (preview)</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDemoScreenshots([...demoScreenshots, ''])}
+                                                    className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 flex items-center gap-1"
+                                                >
+                                                    <FaPlus size={8} /> Add Demo
+                                                </button>
+                                            </div>
+                                            {demoScreenshots.length === 0 ? (
+                                                <p className="text-xs text-gray-400 italic ml-1">No demo images. Add CDN URLs to help users see what to upload.</p>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {demoScreenshots.map((url, i) => (
+                                                        <div key={i} className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={url}
+                                                                onChange={(e) => {
+                                                                    const next = [...demoScreenshots];
+                                                                    next[i] = e.target.value;
+                                                                    setDemoScreenshots(next);
+                                                                }}
+                                                                placeholder="https://cdn.example.com/demo1.png"
+                                                                className="flex-1 bg-white border-2 border-gray-100 rounded-xl py-3 px-4 outline-none focus:border-indigo-500 transition-all font-medium text-gray-700 text-sm"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setDemoScreenshots(demoScreenshots.filter((_, j) => j !== i))}
+                                                                className="w-10 h-10 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-xl flex items-center justify-center"
+                                                            >
+                                                                <FaTimes size={10} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

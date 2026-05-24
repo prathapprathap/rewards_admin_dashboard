@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import { getAppSettings, updateAppSettings } from '../api';
+import { getAppSettings, updateAppSettings, sendTelegramTest } from '../api';
 
 const AppSettings = () => {
     const [settings, setSettings] = useState({
@@ -35,6 +35,8 @@ const AppSettings = () => {
         app_package_name: '',
         privacy_policy_url: '',
         help_support_url: '',
+        telegram_bot_token: '',
+        telegram_chat_id: '',
     });
     const [loading, setLoading] = useState(true);
 
@@ -118,6 +120,8 @@ const AppSettings = () => {
         { key: 'help_support_url', label: 'Help & Support URL', type: 'text', icon: '🆘' },
         { key: 'refer_text', label: 'Refer Page Text', type: 'textarea', icon: '📝' },
         { key: 'telegram_link', label: 'Telegram Join Link', type: 'text', icon: '✈️' },
+        { key: 'telegram_bot_token', label: 'Telegram Bot Token (BotFather)', type: 'text', icon: '🤖' },
+        { key: 'telegram_chat_id', label: 'Telegram Chat ID (admin)', type: 'text', icon: '🆔' },
     ];
 
     if (loading) {
@@ -233,6 +237,24 @@ const AppSettings = () => {
                         className="flex-1 bg-indigo-600 text-white font-black py-5 px-8 rounded-[2rem] hover:bg-indigo-700 transition-all duration-300 shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3 active:scale-[0.98] tracking-widest text-xs"
                     >
                         SYNCHRONIZE PARAMETERS
+                    </button>
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            try {
+                                const r = await sendTelegramTest();
+                                Swal.fire({
+                                    icon: r.success ? 'success' : 'error',
+                                    title: r.success ? 'Sent!' : 'Failed',
+                                    text: r.message,
+                                });
+                            } catch (e) {
+                                Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+                            }
+                        }}
+                        className="px-10 py-5 bg-sky-500 text-white font-black text-xs uppercase tracking-widest rounded-[2rem] hover:bg-sky-600 transition-all duration-300 active:scale-95"
+                    >
+                        ✈️ TEST TELEGRAM
                     </button>
                     <button
                         type="button"

@@ -65,6 +65,11 @@ export const updateAppSettings = async (settings) => {
     return response.data;
 };
 
+export const sendTelegramTest = async () => {
+    const response = await axios.post(`${API_URL}/telegram/test`);
+    return response.data;
+};
+
 export const getWithdrawals = async () => {
     const response = await axios.get(`${API_URL}/withdrawals`);
     return response.data;
