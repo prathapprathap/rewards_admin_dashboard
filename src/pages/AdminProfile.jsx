@@ -1,7 +1,15 @@
-import { useEffect, useState } from 'react';
-import { FaUserShield } from 'react-icons/fa';
+import { useEffect, useMemo, useState } from 'react';
+import { FaUserShield, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { getAdminProfile, updatePassword } from '../api';
+
+// Live validation row: green check when satisfied, red cross while not.
+const Hint = ({ ok, text }) => (
+    <span className={`flex items-center gap-1.5 text-[11px] font-bold ${ok ? 'text-emerald-600' : 'text-rose-500'}`}>
+        {ok ? <FaCheckCircle size={11} /> : <FaTimesCircle size={11} />}
+        {text}
+    </span>
+);
 
 const AdminProfile = () => {
     const [profile, setProfile] = useState({
@@ -16,6 +24,27 @@ const AdminProfile = () => {
         new: '',
         confirm: ''
     });
+
+    const [show, setShow] = useState({ current: false, new: false, confirm: false });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // ── Real-time validation (recomputed on every keystroke) ──────────────
+    const checks = useMemo(() => {
+        const { current, new: next, confirm } = passwords;
+        return {
+            currentFilled: current.length > 0,
+            lengthOk: next.length >= 6,
+            differsFromCurrent: next.length > 0 && next !== current,
+            matches: confirm.length > 0 && next === confirm,
+        };
+    }, [passwords]);
+
+    const canSubmit =
+        checks.currentFilled &&
+        checks.lengthOk &&
+        checks.differsFromCurrent &&
+        checks.matches &&
+        !isSubmitting;
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -57,6 +86,12 @@ const AdminProfile = () => {
             return;
         }
 
+        if (passwords.new === passwords.current) {
+            Swal.fire('Error', 'New password must be different from the current one', 'error');
+            return;
+        }
+
+        setIsSubmitting(true);
         try {
             const res = await updatePassword({
                 currentPassword: passwords.current,
@@ -71,6 +106,7 @@ const AdminProfile = () => {
                 showConfirmButton: false
             });
             setPasswords({ current: '', new: '', confirm: '' });
+            setShow({ current: false, new: false, confirm: false });
         } catch (error) {
             console.error('Password update failed:', error);
             const backendMsg = error.response?.data?.message;
@@ -79,6 +115,8 @@ const AdminProfile = () => {
                 title: 'Error!',
                 text: backendMsg || error.message || 'Failed to update password.',
             });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -137,44 +175,96 @@ const AdminProfile = () => {
                         <form onSubmit={handlePasswordUpdate} className="p-4 sm:p-6 lg:p-8 md:p-12 space-y-8">
                             <div className="space-y-2 group">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Current Credentials</label>
-                                <input
-                                    type="password"
-                                    placeholder="••••••••••••"
-                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900"
-                                    value={passwords.current}
-                                    onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={show.current ? 'text' : 'password'}
+                                        placeholder="••••••••••••"
+                                        autoComplete="current-password"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-6 pr-14 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-gray-900"
+                                        value={passwords.current}
+                                        onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                                    />
+                                    <button
+                                        type="button"
+                                        tabIndex={-1}
+                                        onClick={() => setShow((s) => ({ ...s, current: !s.current }))}
+                                        className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-indigo-600 transition-colors"
+                                    >
+                                        {show.current ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-2 group">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">New Sequence</label>
-                                    <input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-indigo-600"
-                                        value={passwords.new}
-                                        onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={show.new ? 'text' : 'password'}
+                                            placeholder="••••••••••••"
+                                            autoComplete="new-password"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-6 pr-14 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-indigo-600"
+                                            value={passwords.new}
+                                            onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                                        />
+                                        <button
+                                            type="button"
+                                            tabIndex={-1}
+                                            onClick={() => setShow((s) => ({ ...s, new: !s.new }))}
+                                            className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-indigo-600 transition-colors"
+                                        >
+                                            {show.new ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                        </button>
+                                    </div>
+                                    {passwords.new.length > 0 && (
+                                        <div className="flex flex-col gap-1 pl-1 pt-1">
+                                            <Hint ok={checks.lengthOk} text="At least 6 characters" />
+                                            <Hint ok={checks.differsFromCurrent} text="Different from current password" />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2 group">
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-indigo-600 transition-colors">Verify Sequence</label>
-                                    <input
-                                        type="password"
-                                        placeholder="••••••••••••"
-                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-indigo-600"
-                                        value={passwords.confirm}
-                                        onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={show.confirm ? 'text' : 'password'}
+                                            placeholder="••••••••••••"
+                                            autoComplete="new-password"
+                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-6 pr-14 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-black text-indigo-600"
+                                            value={passwords.confirm}
+                                            onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                                        />
+                                        <button
+                                            type="button"
+                                            tabIndex={-1}
+                                            onClick={() => setShow((s) => ({ ...s, confirm: !s.confirm }))}
+                                            className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-indigo-600 transition-colors"
+                                        >
+                                            {show.confirm ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                        </button>
+                                    </div>
+                                    {passwords.confirm.length > 0 && (
+                                        <div className="pl-1 pt-1">
+                                            <Hint ok={checks.matches} text={checks.matches ? 'Passwords match' : 'Passwords do not match'} />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="pt-4">
                                 <button
                                     type="submit"
-                                    className="w-full bg-indigo-600 text-white font-black py-5 rounded-[2rem] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98] tracking-widest text-[10px] uppercase"
+                                    disabled={!canSubmit}
+                                    className="w-full bg-indigo-600 text-white font-black py-5 rounded-[2rem] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98] tracking-widest text-[10px] uppercase flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                                 >
-                                    AUTHORIZE CREDENTIAL UPDATE
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                            VERIFYING & UPDATING…
+                                        </>
+                                    ) : (
+                                        'AUTHORIZE CREDENTIAL UPDATE'
+                                    )}
                                 </button>
                             </div>
                         </form>
