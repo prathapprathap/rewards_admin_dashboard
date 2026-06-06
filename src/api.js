@@ -149,6 +149,11 @@ export const getAdminProfile = async () => {
     return response.data;
 };
 
+export const updateAdminProfile = async (profileData) => {
+    const response = await axios.put(`${API_URL}/profile`, profileData);
+    return response.data;
+};
+
 // Banner management
 export const getBanners = async () => {
     const response = await axios.get(`${API_URL}/banners`);

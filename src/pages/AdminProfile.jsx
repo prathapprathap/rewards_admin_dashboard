@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FaUserShield, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaUserShield, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle, FaPen, FaSave, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { getAdminProfile, updatePassword } from '../api';
+import { getAdminProfile, updatePassword, updateAdminProfile } from '../api';
 
 // Live validation row: green check when satisfied, red cross while not.
 const Hint = ({ ok, text }) => (
@@ -27,6 +27,76 @@ const AdminProfile = () => {
 
     const [show, setShow] = useState({ current: false, new: false, confirm: false });
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // ── Profile editing ───────────────────────────────────────────────────
+    const [isEditing, setIsEditing] = useState(false);
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+    const [editForm, setEditForm] = useState({ name: '', username: '', email: '' });
+
+    const startEditing = () => {
+        setEditForm({
+            name: profile.name || '',
+            username: profile.username || '',
+            email: profile.email || '',
+        });
+        setIsEditing(true);
+    };
+
+    const cancelEditing = () => {
+        setIsEditing(false);
+    };
+
+    const handleProfileSave = async (e) => {
+        e.preventDefault();
+
+        if (!editForm.username.trim()) {
+            Swal.fire('Error', 'Username is required', 'error');
+            return;
+        }
+        if (editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim())) {
+            Swal.fire('Error', 'Please enter a valid email address', 'error');
+            return;
+        }
+
+        setIsSavingProfile(true);
+        try {
+            const res = await updateAdminProfile({
+                name: editForm.name.trim(),
+                username: editForm.username.trim(),
+                email: editForm.email.trim(),
+                currentUsername: localStorage.getItem('adminUsername') || profile.username,
+            });
+
+            const updated = res?.admin || {};
+            setProfile({
+                username: updated.username || editForm.username.trim(),
+                name: updated.name || editForm.name.trim() || updated.username || editForm.username.trim(),
+                email: updated.email || editForm.email.trim() || profile.email,
+                role: 'Administrator',
+            });
+            // Keep the stored username in sync so password changes still target the right row.
+            localStorage.setItem('adminUsername', updated.username || editForm.username.trim());
+
+            setIsEditing(false);
+            Swal.fire({
+                icon: 'success',
+                title: 'Saved!',
+                text: res?.message || 'Profile updated successfully!',
+                timer: 2500,
+                showConfirmButton: false,
+            });
+        } catch (error) {
+            console.error('Profile update failed:', error);
+            const backendMsg = error.response?.data?.message;
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: backendMsg || error.message || 'Failed to update profile.',
+            });
+        } finally {
+            setIsSavingProfile(false);
+        }
+    };
 
     // ── Real-time validation (recomputed on every keystroke) ──────────────
     const checks = useMemo(() => {
@@ -136,6 +206,17 @@ const AdminProfile = () => {
                     <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-10 text-center relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
 
+                        {!isEditing && (
+                            <button
+                                type="button"
+                                onClick={startEditing}
+                                title="Edit profile"
+                                className="absolute top-5 right-5 w-10 h-10 rounded-2xl bg-gray-50 hover:bg-indigo-600 hover:text-white text-indigo-600 border border-gray-100 flex items-center justify-center transition-all active:scale-95 z-10"
+                            >
+                                <FaPen size={13} />
+                            </button>
+                        )}
+
                         <div className="relative w-40 h-40 mx-auto mb-8">
                             <div className="w-full h-full rounded-3xl bg-indigo-900 flex items-center justify-center text-white text-6xl font-black shadow-2xl group-hover:scale-105 transition-transform duration-500">
                                 {(profile.name || profile.username || 'A')[0].toUpperCase()}
@@ -145,19 +226,91 @@ const AdminProfile = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-1 mb-8">
-                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">{profile.name}</h3>
-                            <p className="text-indigo-600 font-bold text-[10px] uppercase tracking-[0.2em]">{profile.role}</p>
-                        </div>
-
-                        <div className="space-y-4 pt-8 border-t border-gray-50">
-                            <div className="text-left">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Identity Vector</p>
-                                <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                                    <p className="text-sm font-bold text-gray-700 truncate">{profile.email}</p>
+                        {!isEditing ? (
+                            <>
+                                <div className="space-y-1 mb-8">
+                                    <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">{profile.name}</h3>
+                                    <p className="text-indigo-600 font-bold text-[10px] uppercase tracking-[0.2em]">{profile.role}</p>
                                 </div>
-                            </div>
-                        </div>
+
+                                <div className="space-y-4 pt-8 border-t border-gray-50">
+                                    <div className="text-left">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Operator Handle</p>
+                                        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                            <p className="text-sm font-bold text-gray-700 truncate">@{profile.username}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Identity Vector</p>
+                                        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                            <p className="text-sm font-bold text-gray-700 truncate">{profile.email}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <form onSubmit={handleProfileSave} className="space-y-4 pt-8 border-t border-gray-50 text-left">
+                                <div className="space-y-2 group/field">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within/field:text-indigo-600 transition-colors">Display Name</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Admin"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-3 px-5 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm"
+                                        value={editForm.name}
+                                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2 group/field">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within/field:text-indigo-600 transition-colors">Operator Handle</label>
+                                    <input
+                                        type="text"
+                                        placeholder="admin"
+                                        autoComplete="username"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-3 px-5 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm"
+                                        value={editForm.username}
+                                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                                    />
+                                </div>
+                                <div className="space-y-2 group/field">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 group-focus-within/field:text-indigo-600 transition-colors">Identity Vector</label>
+                                    <input
+                                        type="email"
+                                        placeholder="admin@rewardmobi.xyz"
+                                        autoComplete="email"
+                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-3 px-5 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-gray-900 text-sm"
+                                        value={editForm.email}
+                                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={cancelEditing}
+                                        disabled={isSavingProfile}
+                                        className="flex-1 bg-gray-100 text-gray-600 font-black py-3.5 rounded-2xl hover:bg-gray-200 transition-all active:scale-[0.98] tracking-widest text-[10px] uppercase flex items-center justify-center gap-2 disabled:opacity-40"
+                                    >
+                                        <FaTimes size={12} /> Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingProfile}
+                                        className="flex-1 bg-indigo-600 text-white font-black py-3.5 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98] tracking-widest text-[10px] uppercase flex items-center justify-center gap-2 disabled:opacity-40 disabled:active:scale-100"
+                                    >
+                                        {isSavingProfile ? (
+                                            <>
+                                                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                                Saving…
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaSave size={12} /> Save
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 </div>
 

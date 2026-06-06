@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaCheckCircle, FaClock, FaExchangeAlt, FaLink, FaList, FaTasks, FaUserCheck, FaUsers, FaWallet } from 'react-icons/fa';
+import { FaCalendarCheck, FaCheckCircle, FaClock, FaExchangeAlt, FaGift, FaLink, FaList, FaMoneyCheckAlt, FaTasks, FaUserCheck, FaUsers, FaWallet } from 'react-icons/fa';
 import { getStats, getTransactions } from '../api';
 import Pagination from '../components/Pagination';
 import { usePagination } from '../components/usePagination';
@@ -13,7 +13,13 @@ const Dashboard = () => {
         activeOffer: 0,
         pendingPayouts: 0,
         todayWithdrawals: 0,
-        todayPayouts: 0
+        todayPayouts: 0,
+        checkinsTotal: 0,
+        checkinsToday: 0,
+        offersCompletedTotal: 0,
+        offersCompletedToday: 0,
+        withdrawalRequestsTotal: 0,
+        withdrawalRequestsToday: 0
     });
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,6 +27,11 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchData();
+        // Auto-refresh: re-poll the stats + transactions every 20s so the
+        // dashboard stays near-live without websockets. The spinner only shows
+        // on the initial load (fetchData leaves `loading` false afterwards).
+        const interval = setInterval(fetchData, 20000);
+        return () => clearInterval(interval);
     }, []);
 
     const fetchData = async () => {
@@ -125,6 +136,27 @@ const Dashboard = () => {
                     value={`₹${stats.todayPayouts}`}
                     icon={FaCheckCircle}
                     iconBgClass="bg-green-600 shadow-green-200"
+                />
+                <StatCard
+                    label="Check-ins"
+                    value={stats.checkinsTotal.toLocaleString()}
+                    icon={FaCalendarCheck}
+                    iconBgClass="bg-teal-600 shadow-teal-200"
+                    trend={`+${stats.checkinsToday} today`}
+                />
+                <StatCard
+                    label="Offers Completed"
+                    value={stats.offersCompletedTotal.toLocaleString()}
+                    icon={FaGift}
+                    iconBgClass="bg-pink-600 shadow-pink-200"
+                    trend={`+${stats.offersCompletedToday} today`}
+                />
+                <StatCard
+                    label="Withdrawal Requests"
+                    value={stats.withdrawalRequestsTotal.toLocaleString()}
+                    icon={FaMoneyCheckAlt}
+                    iconBgClass="bg-cyan-600 shadow-cyan-200"
+                    trend={`+${stats.withdrawalRequestsToday} today`}
                 />
             </div>
 
