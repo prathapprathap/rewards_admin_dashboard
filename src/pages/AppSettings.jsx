@@ -249,7 +249,11 @@ const AppSettings = () => {
                                     text: r.message,
                                 });
                             } catch (e) {
-                                Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed',
+                                    text: e.response?.data?.message || e.message,
+                                });
                             }
                         }}
                         className="px-10 py-5 bg-sky-500 text-white font-black text-xs uppercase tracking-widest rounded-[2rem] hover:bg-sky-600 transition-all duration-300 active:scale-95"
