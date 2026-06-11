@@ -2,6 +2,31 @@ import axios from 'axios';
 
 const API_URL = 'https://rewards-backend-zkhh.onrender.com/api/admin';
 
+// Attach the admin JWT to every request (the backend requires it on /api/admin/*).
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// If the token is missing/expired, clear the session and return to login.
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error?.response?.status === 401) {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminAuth');
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const getStats = async () => {
     const response = await axios.get(`${API_URL}/stats`);
     return response.data;

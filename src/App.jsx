@@ -231,7 +231,9 @@ const App = () => {
 
   useEffect(() => {
     const auth = localStorage.getItem('adminAuth');
-    setIsAuthenticated(auth === 'true');
+    const token = localStorage.getItem('adminToken');
+    // Require BOTH the flag and a real JWT — the token is what the backend checks.
+    setIsAuthenticated(auth === 'true' && !!token);
   }, []);
 
   useEffect(() => {
@@ -250,6 +252,7 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
+    localStorage.removeItem('adminToken');
     setIsAuthenticated(false);
     window.location.href = '/login';
   };

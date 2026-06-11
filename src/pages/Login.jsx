@@ -29,8 +29,9 @@ const Login = () => {
         setIsSubmitting(true);
         try {
             const data = await adminLogin({ username, password });
-            if (data.message === 'Login successful') {
+            if (data.message === 'Login successful' && data.token) {
                 localStorage.setItem('adminAuth', 'true');
+                localStorage.setItem('adminToken', data.token);
                 if (data.admin?.username) {
                     localStorage.setItem('adminUsername', data.admin.username);
                 }
