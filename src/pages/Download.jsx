@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaCheckCircle, FaDownload, FaExclamationTriangle, FaGift, FaSpinner } from 'react-icons/fa';
 
-const API_BASE = import.meta.env.PROD
-    ? 'https://api.rupirewards.xyz'
-    : 'https://rewards-backend-zkhh.onrender.com';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://rewards-backend-zkhh.onrender.com';
 const SETTINGS_URL = `${API_BASE}/api/users/app/settings`;
 const FALLBACK_APK = '/RewardsApp.apk';
 

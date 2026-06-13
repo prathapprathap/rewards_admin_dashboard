@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.PROD
-    ? 'https://api.rupirewards.xyz/api/admin'
-    : 'https://rewards-backend-zkhh.onrender.com/api/admin';
+// Set VITE_API_BASE per Vercel environment: api.rupirewards.xyz in Production,
+// unset (or onrender) in Preview/staging.
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://rewards-backend-zkhh.onrender.com';
+const API_URL = `${API_BASE}/api/admin`;
 
 // Attach the admin JWT to every request (the backend requires it on /api/admin/*).
 axios.interceptors.request.use((config) => {
