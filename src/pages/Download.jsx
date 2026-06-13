@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaCheckCircle, FaDownload, FaExclamationTriangle, FaGift, FaSpinner } from 'react-icons/fa';
 
-const SETTINGS_URL = 'https://rewards-backend-zkhh.onrender.com/api/users/app/settings';
+const API_BASE = import.meta.env.PROD
+    ? 'https://api.rupirewards.xyz'
+    : 'https://rewards-backend-zkhh.onrender.com';
+const SETTINGS_URL = `${API_BASE}/api/users/app/settings`;
 const FALLBACK_APK = '/RewardsApp.apk';
 
 // Convert a Google Drive sharing URL into a direct-download URL.
