@@ -74,36 +74,23 @@ const csvCell = (value) => {
     return `"${safe.replace(/"/g, '""')}"`;
 };
 
-const formatDate = (value) => {
-    if (!value) return '';
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('en-IN');
-};
+// Fixed narration written to every payout row.
+const PAYOUT_COMMENT = 'Reward withdrawal';
 
 /**
- * Download an array of withdrawal rows as a CSV file.
+ * Download an array of withdrawal rows as a CSV file in the bulk UPI payout
+ * format: name, upi_id, amount, comment, order_id.
  * @param rows  withdrawal objects (as returned by the API)
  * @param filename  output file name
  */
 export const downloadWithdrawalsCsv = (rows, filename = 'withdrawals.csv') => {
-    const header = [
-        'ID', 'User Name', 'Email', 'Mobile', 'Amount', 'Method',
-        'Account Holder', 'Account Number', 'IFSC', 'Bank / UPI / Details',
-        'Requested Date', 'Paid Date', 'Status',
-    ];
+    const header = ['name', 'upi_id', 'amount', 'comment', 'order_id'];
 
     const lines = rows.map((w) => {
         const p = parseWithdrawalDetails(w.method, w.details);
-        const accountHolder = p.type === 'bank' ? p.accountName : '';
-        const accountNumber = p.type === 'bank' ? p.accountNumber : '';
-        const ifsc = p.type === 'bank' ? p.ifsc : '';
-        const misc = p.type === 'bank'
-            ? (p.bankName || p.raw)
-            : (p.value || '');
+        const upiId = p.type === 'bank' ? '' : (p.value || '');
         return [
-            w.id, w.name, w.email, w.mobile, w.amount, w.method,
-            accountHolder, accountNumber, ifsc, misc,
-            formatDate(w.created_at), formatDate(w.paid_at), w.status,
+            w.name, upiId, w.amount, PAYOUT_COMMENT, w.id,
         ].map(csvCell).join(',');
     });
 
