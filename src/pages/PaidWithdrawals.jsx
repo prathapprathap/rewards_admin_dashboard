@@ -25,7 +25,9 @@ const PaidWithdrawals = () => {
     const fetchPaidWithdrawals = async () => {
         try {
             const data = await getWithdrawals();
-            const completed = data.filter(w => w.status.toLowerCase() === 'approved');
+            // Only withdrawals RupiyaX has actually confirmed as paid — an APPROVED
+            // withdrawal has merely been submitted to the gateway and may still fail.
+            const completed = data.filter(w => w.status.toLowerCase() === 'paid');
             setWithdrawals(completed);
         } catch (error) {
             console.error('Error fetching withdrawals:', error);

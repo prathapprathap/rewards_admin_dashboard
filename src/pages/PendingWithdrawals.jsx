@@ -22,7 +22,9 @@ const PendingWithdrawals = () => {
     const fetchPendingWithdrawals = async () => {
         try {
             const data = await getWithdrawals();
-            const pending = data.filter(w => w.status.toLowerCase() === 'pending');
+            // APPROVED = payout submitted to RupiyaX but not yet confirmed — still
+            // shown here (as "Processing") until the gateway confirms PAID or FAILED.
+            const pending = data.filter(w => ['pending', 'approved'].includes(w.status.toLowerCase()));
             setWithdrawals(pending);
         } catch (error) {
             console.error('Error fetching withdrawals:', error);
@@ -59,16 +61,17 @@ const PendingWithdrawals = () => {
         });
     };
 
-    const allFilteredSelected = filtered.length > 0 && filtered.every(w => selected.has(w.id));
+    const selectableFiltered = filtered.filter(w => w.status.toLowerCase() !== 'approved');
+    const allFilteredSelected = selectableFiltered.length > 0 && selectableFiltered.every(w => selected.has(w.id));
     const toggleSelectAll = () => {
         setSelected(prev => {
             if (allFilteredSelected) {
                 const next = new Set(prev);
-                filtered.forEach(w => next.delete(w.id));
+                selectableFiltered.forEach(w => next.delete(w.id));
                 return next;
             }
             const next = new Set(prev);
-            filtered.forEach(w => next.add(w.id));
+            selectableFiltered.forEach(w => next.add(w.id));
             return next;
         });
     };
@@ -292,7 +295,8 @@ const PendingWithdrawals = () => {
                                             type="checkbox"
                                             checked={selected.has(withdrawal.id)}
                                             onChange={() => toggleSelect(withdrawal.id)}
-                                            className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                                            disabled={withdrawal.status.toLowerCase() === 'approved'}
+                                            className="w-4 h-4 accent-indigo-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                                         />
                                     </td>
                                     <td className="px-6 py-4">
@@ -326,19 +330,27 @@ const PendingWithdrawals = () => {
                                         {new Date(withdrawal.created_at).toLocaleDateString('en-IN')}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleApprove(withdrawal.id)}
-                                                className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 transition-all flex items-center gap-1 text-sm"
-                                            >
-                                                <FaCheck /> Approve
-                                            </button>
-                                            <button
-                                                onClick={() => handleReject(withdrawal.id)}
-                                                className="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all flex items-center gap-1 text-sm"
-                                            >
-                                                <FaTimes /> Reject
-                                            </button>
+                                        <div className="flex gap-2 items-center">
+                                            {withdrawal.status.toLowerCase() === 'approved' ? (
+                                                <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700 flex items-center gap-1 w-fit">
+                                                    <FaSync className="animate-spin" size={11} /> Processing
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleApprove(withdrawal.id)}
+                                                        className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 transition-all flex items-center gap-1 text-sm"
+                                                    >
+                                                        <FaCheck /> Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReject(withdrawal.id)}
+                                                        className="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all flex items-center gap-1 text-sm"
+                                                    >
+                                                        <FaTimes /> Reject
+                                                    </button>
+                                                </>
+                                            )}
                                             <button
                                                 onClick={() => downloadOne(withdrawal)}
                                                 title="Download this request"
