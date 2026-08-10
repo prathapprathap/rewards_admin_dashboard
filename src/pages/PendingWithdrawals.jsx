@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FaCheck, FaClock, FaDownload, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaClock, FaDownload, FaSync, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { getWithdrawals, updateWithdrawalStatus } from '../api';
+import { getWithdrawals, updateWithdrawalStatus, bulkUpdateWithdrawalStatus, getWithdrawalGatewayStatus } from '../api';
 import Pagination from '../components/Pagination';
 import { usePagination } from '../components/usePagination';
 import WithdrawalDetailsCell from '../components/WithdrawalDetailsCell';
@@ -13,6 +13,7 @@ const PendingWithdrawals = () => {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [selected, setSelected] = useState(() => new Set());
+    const [refreshingId, setRefreshingId] = useState(null);
 
     useEffect(() => {
         fetchPendingWithdrawals();
@@ -110,6 +111,56 @@ const PendingWithdrawals = () => {
         }
     };
 
+    const handleBulkApprove = async () => {
+        const ids = filtered.filter(w => selected.has(w.id)).map(w => w.id);
+        if (ids.length === 0) {
+            Swal.fire('No selection', 'Please select at least one request to approve.', 'info');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: `Approve ${ids.length} payment${ids.length > 1 ? 's' : ''}?`,
+            text: 'Each will be paid out via RupiyaX individually.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: `Yes, approve ${ids.length}`
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            const data = await bulkUpdateWithdrawalStatus(ids, 'APPROVED');
+            const failed = (data.results || []).filter(r => !r.ok);
+            if (failed.length === 0) {
+                Swal.fire('Success!', data.message, 'success');
+            } else {
+                Swal.fire('Partially completed', `${data.message}. ${failed.length} failed — check logs for details.`, 'warning');
+            }
+            setSelected(new Set());
+            fetchPendingWithdrawals();
+        } catch {
+            Swal.fire('Error!', 'Bulk approval failed.', 'error');
+        }
+    };
+
+    const handleRefreshGatewayStatus = async (id) => {
+        setRefreshingId(id);
+        try {
+            const { gateway } = await getWithdrawalGatewayStatus(id);
+            if (gateway?.success) {
+                Swal.fire({ icon: 'success', title: 'Status updated', text: `RupiyaX status: ${gateway.data?.status || 'unknown'}`, timer: 2000, showConfirmButton: false });
+                fetchPendingWithdrawals();
+            } else {
+                Swal.fire('Not available', gateway?.message || 'Could not fetch live status from RupiyaX.', 'info');
+            }
+        } catch (err) {
+            Swal.fire('Error!', err?.response?.data?.message || 'Failed to check gateway status.', 'error');
+        } finally {
+            setRefreshingId(null);
+        }
+    };
+
     const handleReject = async (id) => {
         const result = await Swal.fire({
             title: 'Reject Request?',
@@ -190,6 +241,13 @@ const PendingWithdrawals = () => {
                 <div className="flex-1" />
 
                 <button
+                    onClick={handleBulkApprove}
+                    disabled={selectedCount === 0}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all text-sm font-semibold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                    <FaCheck /> Bulk Approve ({selectedCount})
+                </button>
+                <button
                     onClick={downloadSelected}
                     disabled={selectedCount === 0}
                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all text-sm font-semibold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -244,7 +302,22 @@ const PendingWithdrawals = () => {
                                             <div className="text-xs text-gray-400">📱 {withdrawal.mobile}</div>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 font-bold text-lg text-yellow-600">₹{withdrawal.amount}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="font-bold text-lg text-yellow-600">₹{withdrawal.amount}</div>
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                            {withdrawal.gateway_status && (
+                                                <span className="text-xs text-gray-400 capitalize">Gateway: {withdrawal.gateway_status}</span>
+                                            )}
+                                            <button
+                                                onClick={() => handleRefreshGatewayStatus(withdrawal.id)}
+                                                disabled={refreshingId === withdrawal.id}
+                                                title="Check live status from RupiyaX"
+                                                className="text-gray-400 hover:text-indigo-600 disabled:opacity-40"
+                                            >
+                                                <FaSync className={refreshingId === withdrawal.id ? 'animate-spin' : ''} size={11} />
+                                            </button>
+                                        </div>
+                                    </td>
                                     <td className="px-6 py-4 text-sm text-gray-600">{withdrawal.method}</td>
                                     <td className="px-6 py-4">
                                         <WithdrawalDetailsCell method={withdrawal.method} details={withdrawal.details} />

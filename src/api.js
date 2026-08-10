@@ -108,6 +108,21 @@ export const updateWithdrawalStatus = async (id, status) => {
     return response.data;
 };
 
+export const bulkUpdateWithdrawalStatus = async (ids, status) => {
+    const response = await axios.put(`${API_URL}/withdrawals/bulk-status`, { ids, status });
+    return response.data;
+};
+
+export const getWithdrawalGatewayStatus = async (id) => {
+    const response = await axios.get(`${API_URL}/withdrawals/${id}/gateway-status`);
+    return response.data;
+};
+
+export const getRupiyaXWalletBalance = async () => {
+    const response = await axios.get(`${API_URL}/rupiyax/wallet-balance`);
+    return response.data;
+};
+
 export const getPromoCodes = async () => {
     const response = await axios.get(`${API_URL}/promocodes`);
     return response.data;

@@ -40,6 +40,7 @@ const AppSettings = () => {
         help_support_url: '',
         telegram_bot_token: '',
         telegram_chat_id: '',
+        rupiyax_api_key: '',
     });
     const [loading, setLoading] = useState(true);
 
@@ -128,6 +129,7 @@ const AppSettings = () => {
         { key: 'telegram_link', label: 'Telegram Join Link', type: 'text', icon: '✈️' },
         { key: 'telegram_bot_token', label: 'Telegram Bot Token (BotFather)', type: 'text', icon: '🤖' },
         { key: 'telegram_chat_id', label: 'Telegram Chat ID (admin)', type: 'text', icon: '🆔' },
+        { key: 'rupiyax_api_key', label: 'RupiyaX API Key', type: 'text', icon: '🔑' },
     ];
 
     if (loading) {

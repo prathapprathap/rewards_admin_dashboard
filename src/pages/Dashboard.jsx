@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { FaCalendarCheck, FaCheckCircle, FaClock, FaExchangeAlt, FaGift, FaLink, FaList, FaMoneyCheckAlt, FaTasks, FaUserCheck, FaUsers, FaWallet } from 'react-icons/fa';
-import { getStats, getTransactions } from '../api';
+import { FaCalendarCheck, FaCheckCircle, FaClock, FaCoins, FaExchangeAlt, FaGift, FaLink, FaList, FaMoneyCheckAlt, FaTasks, FaUserCheck, FaUsers, FaWallet } from 'react-icons/fa';
+import { getStats, getTransactions, getRupiyaXWalletBalance } from '../api';
 import Pagination from '../components/Pagination';
 import { usePagination } from '../components/usePagination';
 
@@ -23,6 +23,7 @@ const Dashboard = () => {
     });
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [rupiyaXWallet, setRupiyaXWallet] = useState(null);
     const { currentPage, setCurrentPage, pageItems: pagedTransactions, total: totalTransactions, pageSize } = usePagination(transactions);
 
     useEffect(() => {
@@ -31,6 +32,21 @@ const Dashboard = () => {
         // dashboard stays near-live without websockets. The spinner only shows
         // on the initial load (fetchData leaves `loading` false afterwards).
         const interval = setInterval(fetchData, 20000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        // Separate poll so a RupiyaX outage never blocks/blanks the core stats above.
+        const fetchWallet = async () => {
+            try {
+                const { gateway } = await getRupiyaXWalletBalance();
+                setRupiyaXWallet(gateway);
+            } catch (error) {
+                console.error('Error fetching RupiyaX wallet balance:', error);
+            }
+        };
+        fetchWallet();
+        const interval = setInterval(fetchWallet, 20000);
         return () => clearInterval(interval);
     }, []);
 
@@ -157,6 +173,12 @@ const Dashboard = () => {
                     icon={FaMoneyCheckAlt}
                     iconBgClass="bg-cyan-600 shadow-cyan-200"
                     trend={`+${stats.withdrawalRequestsToday} today`}
+                />
+                <StatCard
+                    label="RupiyaX Wallet Balance"
+                    value={rupiyaXWallet?.success ? `₹${rupiyaXWallet.data?.balance ?? rupiyaXWallet.data?.wallet_balance ?? 0}` : (rupiyaXWallet ? 'Unavailable' : '—')}
+                    icon={FaCoins}
+                    iconBgClass="bg-indigo-600 shadow-indigo-200"
                 />
             </div>
 
