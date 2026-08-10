@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FaCheck, FaClock, FaDownload, FaSync, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { getWithdrawals, updateWithdrawalStatus, bulkUpdateWithdrawalStatus, getWithdrawalGatewayStatus } from '../api';
+import { getWithdrawals, updateWithdrawalStatus, bulkUpdateWithdrawalStatus, getWithdrawalGatewayStatus, markWithdrawalPaidManually } from '../api';
 import Pagination from '../components/Pagination';
 import { usePagination } from '../components/usePagination';
 import WithdrawalDetailsCell from '../components/WithdrawalDetailsCell';
@@ -111,6 +111,27 @@ const PendingWithdrawals = () => {
             } catch {
                 Swal.fire('Error!', 'Failed to approve withdrawal.', 'error');
             }
+        }
+    };
+
+    const handleMarkPaidManually = async (id) => {
+        const result = await Swal.fire({
+            title: 'Mark as paid manually?',
+            text: 'Only use this if the transfer was already completed outside RupiyaX (e.g. approved before gateway integration). This does not call RupiyaX.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, mark as paid'
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            await markWithdrawalPaidManually(id);
+            Swal.fire('Done', 'Withdrawal moved to Paid.', 'success');
+            fetchPendingWithdrawals();
+        } catch (err) {
+            Swal.fire('Error!', err?.response?.data?.message || 'Failed to mark as paid.', 'error');
         }
     };
 
@@ -332,9 +353,18 @@ const PendingWithdrawals = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex gap-2 items-center">
                                             {withdrawal.status.toLowerCase() === 'approved' ? (
-                                                <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700 flex items-center gap-1 w-fit">
-                                                    <FaSync className="animate-spin" size={11} /> Processing
-                                                </span>
+                                                <>
+                                                    <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700 flex items-center gap-1 w-fit">
+                                                        <FaSync className="animate-spin" size={11} /> Processing
+                                                    </span>
+                                                    <button
+                                                        onClick={() => handleMarkPaidManually(withdrawal.id)}
+                                                        title="Only if this transfer was already completed outside RupiyaX"
+                                                        className="text-xs text-gray-400 hover:text-emerald-600 underline"
+                                                    >
+                                                        Mark paid manually
+                                                    </button>
+                                                </>
                                             ) : (
                                                 <>
                                                     <button

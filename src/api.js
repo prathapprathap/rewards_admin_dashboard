@@ -123,6 +123,11 @@ export const getRupiyaXWalletBalance = async () => {
     return response.data;
 };
 
+export const markWithdrawalPaidManually = async (id) => {
+    const response = await axios.put(`${API_URL}/withdrawals/${id}/mark-paid-manual`);
+    return response.data;
+};
+
 export const getPromoCodes = async () => {
     const response = await axios.get(`${API_URL}/promocodes`);
     return response.data;
