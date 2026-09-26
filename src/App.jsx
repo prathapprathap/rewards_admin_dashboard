@@ -3,6 +3,7 @@ import {
   FaBars,
   FaBell,
   FaCog,
+  FaFileAlt,
   FaGift,
   FaHistory,
   FaHome,
@@ -24,6 +25,7 @@ import AppSettings from './pages/AppSettings';
 import Dashboard from './pages/Dashboard';
 import ImageSlider from './pages/ImageSlider';
 import Login from './pages/Login';
+import Logs from './pages/Logs';
 import Notifications from './pages/Notifications';
 import ManageOffers from './pages/ManageOffers';
 import PaidWithdrawals from './pages/PaidWithdrawals';
@@ -142,6 +144,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
           <SidebarItem to="/admin/image-slider" icon={FaHistory} label="Image Slider" onClick={closeOnMobile} active={location.pathname === '/admin/image-slider'} collapsed={collapsed} />
           <SidebarItem to="/admin/notifications" icon={FaBell} label="Notifications" onClick={closeOnMobile} active={location.pathname === '/admin/notifications'} collapsed={collapsed} />
           <SidebarItem to="/admin/settings" icon={FaCog} label="System Settings" onClick={closeOnMobile} active={location.pathname === '/admin/settings'} collapsed={collapsed} />
+          <SidebarItem to="/admin/logs" icon={FaFileAlt} label="Server Logs" onClick={closeOnMobile} active={location.pathname === '/admin/logs'} collapsed={collapsed} />
         </nav>
 
         {/* Logout */}
@@ -189,6 +192,7 @@ const AppContent = ({ isSidebarOpen, setIsSidebarOpen, isDesktopCollapsed, handl
               <Route path="settings" element={<AppSettings />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="profile" element={<AdminProfile />} />
+              <Route path="logs" element={<Logs />} />
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
           </div>

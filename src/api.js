@@ -285,6 +285,32 @@ export const deleteSubmission = async (id) => {
     return response.data;
 };
 
+// ── Server Logs ───────────────────────────────────────────────────────────
+export const getLogFiles = async () => {
+    const response = await axios.get(`${API_URL}/logs`);
+    return response.data;
+};
+
+export const getLogLines = async (name, { level, search, limit } = {}) => {
+    const response = await axios.get(`${API_URL}/logs/${name}`, { params: { level, search, limit } });
+    return response.data;
+};
+
+export const downloadLogFile = async (name) => {
+    const response = await axios.get(`${API_URL}/logs/${name}/download`, { responseType: 'blob' });
+    return response.data;
+};
+
+export const deleteLogFile = async (name) => {
+    const response = await axios.delete(`${API_URL}/logs/${name}`);
+    return response.data;
+};
+
+export const deleteAllLogFiles = async () => {
+    const response = await axios.delete(`${API_URL}/logs`);
+    return response.data;
+};
+
 // ── Notifications (Push + In-app) ─────────────────────────────────────────
 export const getNotifications = async () => {
     const response = await axios.get(`${API_URL}/notifications`);
