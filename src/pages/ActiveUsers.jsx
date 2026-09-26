@@ -65,6 +65,7 @@ const EDITABLE_KEYS = FIELD_SECTIONS.flatMap(s => s.fields.map(f => f.key));
 
 const ActiveUsers = () => {
     const [users, setUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -96,6 +97,7 @@ const ActiveUsers = () => {
         setLoading(true);
         try {
             const data = await getUsers();
+            setAllUsers(data);
             const threshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
             setUsers(
                 data.filter(u => {
@@ -264,7 +266,10 @@ const ActiveUsers = () => {
     };
 
     /* ── filter ───────────────────────────────────────────────────────── */
-    const filteredUsers = users.filter(u => {
+    /* When searching, look across ALL users (not just the "active" subset)
+       so inactive/zero-balance accounts are still findable by search. */
+    const searchPool = searchQuery.trim() ? allUsers : users;
+    const filteredUsers = searchPool.filter(u => {
         const q = searchQuery.toLowerCase();
         return (
             (u.email || '').toLowerCase().includes(q) ||
@@ -272,7 +277,10 @@ const ActiveUsers = () => {
             (u.upi_id || '').toLowerCase().includes(q) ||
             (u.referral_code || '').toLowerCase().includes(q) ||
             (u.name || '').toLowerCase().includes(q) ||
-            (u.telegram_id || '').toLowerCase().includes(q)
+            (u.telegram_id || '').toLowerCase().includes(q) ||
+            (u.mobile || '').toLowerCase().includes(q) ||
+            (u.google_id || '').toLowerCase().includes(q) ||
+            String(u.id ?? '').includes(q)
         );
     });
 
@@ -300,7 +308,7 @@ const ActiveUsers = () => {
                 <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                 <input
                     type="text"
-                    placeholder="Search by Email, Device ID, UPI, Refer Code, Telegram ID…"
+                    placeholder="Search by Email, Mobile, Device ID, UPI, Refer Code, Telegram ID, ID…"
                     className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
