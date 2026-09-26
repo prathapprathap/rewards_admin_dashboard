@@ -16,6 +16,14 @@ const LEVEL_STYLES = {
 // RES lines with a 4xx/5xx status are highlighted so failures stand out.
 const isFailedResponse = (line) => line.level === 'RES' && / [45]\d\d /.test(line.message);
 
+// Log files store UTC (ISO with Z); show them in the viewer's local time so
+// they match "last updated" and the rest of the admin panel.
+const formatTime = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
+};
+
 const formatSize = (bytes) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -130,7 +138,7 @@ const Logs = () => {
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">SERVER LOGS</h1>
-                    <p className="text-gray-500 text-sm">Every API request/response and server message. Times are UTC.</p>
+                    <p className="text-gray-500 text-sm">Every API request/response and server message. Times are in your local time.</p>
                 </div>
                 <button
                     onClick={() => handleDelete(true)}
@@ -225,7 +233,7 @@ const Logs = () => {
                                     key={i}
                                     className={`px-4 py-2 flex gap-3 items-start ${isFailedResponse(line) ? 'bg-red-50' : 'hover:bg-gray-50/50'}`}
                                 >
-                                    <span className="text-gray-400 whitespace-nowrap">{line.time ? line.time.replace('T', ' ').slice(0, 19) : ''}</span>
+                                    <span className="text-gray-400 whitespace-nowrap">{formatTime(line.time)}</span>
                                     <span className={`px-1.5 rounded font-bold whitespace-nowrap ${LEVEL_STYLES[line.level] || 'bg-gray-100 text-gray-600'}`}>
                                         {line.level}
                                     </span>
